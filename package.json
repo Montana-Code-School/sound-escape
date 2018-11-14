@@ -1,0 +1,33 @@
+{
+  "name": "sound-escape",
+  "version": "1.0.0",
+  "description": "\"sound and music-based puzzle game\"",
+  "private": true,
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack",
+    "start": "concurrently \"node server.js\" \"webpack --watch\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Montana-Code-School/sound-escape.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Montana-Code-School/sound-escape/issues"
+  },
+  "homepage": "https://github.com/Montana-Code-School/sound-escape#readme",
+  "dependencies": {
+    "cannon": "^0.6.2",
+    "express": "^4.16.4",
+    "path": "^0.12.7",
+    "three": "^0.98.0"
+  },
+  "devDependencies": {
+    "concurrently": "^4.0.1",
+    "file-loader": "^2.0.0",
+    "webpack": "^4.25.1",
+    "webpack-cli": "^3.1.2"
+  }
+}
