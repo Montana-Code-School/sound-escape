@@ -1,7 +1,8 @@
-import * as THREE from 'three';
+import * as THREE from 'three'
+import * as CANNON from 'cannon'
 import FirstPersonControls from './FirstPersonControls'
 
-var renderer = new THREE.WebGLRenderer({canvas: document.getElementById('myCanvas'), antialias: true});
+let renderer = new THREE.WebGLRenderer({canvas: document.getElementById('myCanvas'), antialias: true});
 renderer.setClearColor(0x6288dd);
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -9,27 +10,27 @@ renderer.shadowMap.enabled = true
 renderer.shadowMap.type = THREE.PCFSoftShadowMap
 
 
-var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 15000)
+let camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 15000)
 camera.position.z = 200
+camera.position.set(0,40,200)
 
+let scene = new THREE.Scene()
+scene.fog = new THREE.FogExp2(0xD6F1FF, 0.0005)
 
-console.log(camera)
+let clock = new THREE.Clock()
 
-var scene = new THREE.Scene()
-
-var clock = new THREE.Clock()
-
-var controls = new FirstPersonControls(camera)
+let controls = new FirstPersonControls(camera)
 controls.movementSpeed = 1000
 controls.lookSpeed = 0.1
+controls.lookVertical = false; // Don't allow the player to look up or down. This is a temporary fix to keep people from flying
+controls.noFly = true; // Don't allow hitting R or F to go up or down
 
-
-var light = new THREE.AmbientLight(0xffffff, 0.8)
+let light = new THREE.AmbientLight(0xffffff, 0.8)
 light.castShadow = false
 scene.add(light)
 
 
-var light1 = new THREE.PointLight(0xffffff, 1)
+let light1 = new THREE.PointLight(0xffffff, 1)
 light1.position.set( 0, 350, -1200)
 light1.castShadow = true
 scene.add(light1)
@@ -39,158 +40,147 @@ light1.shadow.mapSize.height = 2048
 light1.shadow.camera.near = 0.8
 light1.shadow.camera.far = 800
 
-
-var material = new THREE.MeshPhongMaterial({
-  color: 0xffe539,
-  // map: new THREE.TextureLoader().load('ed.jpeg'),
-  // map: new THREE.TextureLoader().load('paper.jpg'),
-  // normalMap: new THREE.TextureLoader().load('ed.jpeg')
-
-})
-
-
+let directionalLight1 = new THREE.DirectionalLight( 0xF7EFBE, 0.7 );
+directionalLight1.position.set( 0.5, 1, 0.5 );
+scene.add( directionalLight1 );
 
 // Louis Box
-var listener = new THREE.AudioListener()
+let listener = new THREE.AudioListener()
 camera.add( listener )
 
-var music = new THREE.PositionalAudio( listener )
-
-var audioLoader = new THREE.AudioLoader()
-audioLoader.load('louis.mp3', function( buffer) {
+let music = new THREE.PositionalAudio( listener )
+const louisMusic = 'https://s3-us-west-2.amazonaws.com/sound-escape/music/louis.mp3'
+let audioLoader = new THREE.AudioLoader()
+audioLoader.load(louisMusic, function( buffer) {
   music.setBuffer( buffer)
   music.setRefDistance( 20 )
   music.play()
 })
-
-var geometry = new THREE.CubeGeometry(100, 100, 100)
-var mat = new THREE.MeshLambertMaterial({
-  map: new THREE.TextureLoader().load('https://s3-us-west-2.amazonaws.com/sound-escape/louis.jpg'),
+const louisImg = 'https://s3-us-west-2.amazonaws.com/sound-escape/imgs/louis.jpg' 
+let geometry = new THREE.CubeGeometry(100, 100, 100)
+let matL = new THREE.MeshLambertMaterial({
+  map: new THREE.TextureLoader().load(louisImg),
 })
-var mesh = new THREE.Mesh(geometry, mat)
+let mesh = new THREE.Mesh(geometry, matL)
 mesh.position.set(0, -47, -1200)
 mesh.castShadow = true
-// mesh.recieveShadow = false
+mesh.recieveShadow = false
 mesh.add( music )
-
 scene.add(mesh);
 
 
 // Ed Box
-var listener = new THREE.AudioListener()
-camera.add( listener )
-
-var roy = new THREE.PositionalAudio( listener )
-
-var audioLoader = new THREE.AudioLoader()
-audioLoader.load('/assets/music/ed.mp3', function( buffer) {
+let listenerEd = new THREE.AudioListener()
+  camera.add( listenerEd )
+let roy = new THREE.PositionalAudio( listenerEd )
+const edMusic = 'https://s3-us-west-2.amazonaws.com/sound-escape/music/ed.mp3'
+let audioLoaderEd = new THREE.AudioLoader()
+  audioLoaderEd.load(edMusic, function( buffer) {
   roy.setBuffer( buffer)
   roy.setRefDistance( 20 )
   roy.play()
 })
-const edImage = "https://s3-us-west-2.amazonaws.com/sound-escape/ed.jpeg"
-var geo2 = new THREE.CubeGeometry(200, 200, 200)
-var mat = new THREE.MeshLambertMaterial({
+const edImage = "https://s3-us-west-2.amazonaws.com/sound-escape/imgs/ed.jpeg"
+let geo2 = new THREE.CubeGeometry(200, 200, 200)
+let mat = new THREE.MeshLambertMaterial({
   map: new THREE.TextureLoader().load(edImage),
 })
-var mesh3 = new THREE.Mesh(geo2, mat)
-mesh3.position.set(-300, 0, -1200)
-mesh3.castShadow = true
-// mesh.recieveShadow = false
-mesh3.add( roy )
-
-scene.add(mesh3);
+let mesh3 = new THREE.Mesh(geo2, mat)
+  mesh3.position.set(-300, 0, -1200)
+  mesh3.castShadow = true
+  mesh3.add( roy )
+  scene.add(mesh3);
 
 
 // Do it Box
-var listener = new THREE.AudioListener()
-camera.add( listener )
-
-var doit = new THREE.PositionalAudio( listener )
-
-var audioLoader = new THREE.AudioLoader()
-audioLoader.load('https://s3-us-west-2.amazonaws.com/sound-escape/doit.mp3', function( buffer) {
+let listenerShia = new THREE.AudioListener()
+  camera.add( listenerShia )
+let doit = new THREE.PositionalAudio( listener )
+const doitAudio = 'https://s3-us-west-2.amazonaws.com/sound-escape/sounds/doit.mp3'
+let audioLoaderShia = new THREE.AudioLoader()
+  audioLoaderShia.load(doitAudio, function( buffer) {
   doit.setBuffer( buffer)
   doit.setRefDistance( 20 )
   doit.play()
 })
-
-var box = new THREE.BoxGeometry(100, 100, 100)
-var mat1 = new THREE.MeshLambertMaterial({
-  map: new THREE.TextureLoader().load('/assets/imgs/shia.png'),
+const shia = 'https://s3-us-west-2.amazonaws.com/sound-escape/imgs/shia.png'
+let box = new THREE.BoxGeometry(100, 100, 100)
+let mat1 = new THREE.MeshLambertMaterial({
+  map: new THREE.TextureLoader().load(shia),
 })
-var boxy = new THREE.Mesh(box, mat1)
-boxy.position.set(250, -60, -1400)
-boxy.castShadow = true
-boxy.recieveShadow = false
-boxy.add ( doit )
-
-scene.add(boxy)
-
+let boxy = new THREE.Mesh(box, mat1)
+  boxy.position.set(250, -60, -1400)
+  boxy.castShadow = true
+  boxy.recieveShadow = false
+  boxy.add ( doit )
+  scene.add(boxy)
 
 
-var floor = new THREE.PlaneGeometry(10000, 10000, 100, 100)
-// let helper = new THREE.Helper( mesh2, 1, 0XFFFF00 )
-//   scene.add(helper)
-  console.log(floor)
-var floormat = new THREE.MeshStandardMaterial ({
+
+let floor = new THREE.PlaneGeometry(10000, 5000, 100, 100)
+
+let floormat = new THREE.MeshStandardMaterial ({
   map: new THREE.TextureLoader().load(edImage),
   emissive: .6
 })
-var mesh2 = new THREE.Mesh(floor, floormat)
-mesh2.rotation.x = -90 * Math.PI / 180
-mesh2.position.y = -80
-mesh2.receiveShadow = true
-scene.add(mesh2)
-scene.add(floor)
+let mesh2 = new THREE.Mesh(floor, floormat)
+  mesh2.rotation.x = -90 * Math.PI / 180
+  mesh2.position.y = -80
+  mesh2.receiveShadow = true
+  scene.add(mesh2)
+  scene.add(floor)
 
-// Wall
-let wallGeoNS = new THREE.BoxGeometry(1, 1000, 10000, 1)
-let nMat = new THREE.MeshPhongMaterial ({
-  emissive: 1,
-  color: 'red'
-})
-let wallN = new THREE.Mesh(wallGeoNS, nMat)
-wallN.position.x = 5000
-wallN.position.z = 0
+function createWall(floor, direction, colorOrTexture) {
+  let wallGeography;
+  let eastWestRelation = floor.parameters.height/2
+  let northSouthRelation = floor.parameters.width/2
+  if (direction === 'south' || direction === 'north') {
+    wallGeography = new THREE.BoxGeometry(1, 1000, floor.parameters.height)
+  }
+  else if (direction == 'east' || direction === 'west') {
+    wallGeography = new THREE.BoxGeometry(floor.parameters.width, 1000, 1)
+  }
 
-let sMat = new THREE.MeshPhongMaterial ({
-  emissive: 1,
-  color: 'yellow'
-})
-let wallS = new THREE.Mesh(wallGeoNS, sMat)
-wallS.position.x = -5000
-wallS.position.z = 0
+  let mat = new THREE.MeshPhongMaterial({
+    emissive: 1,
+    color: colorOrTexture
+  })
 
+  let wall = new THREE.Mesh(wallGeography, mat)
+  switch (direction) {
+    case 'south':
+      wall.position.x = -northSouthRelation;
+      wall.position.z = 0;
+      break;
+    case 'north':
+      wall.position.x = northSouthRelation;
+      wall.position.z = 0;
+      break;
+    case 'east':
+      wall.position.x = 0;
+      wall.position.z = eastWestRelation;
+      break;
+    case 'west':
+      wall.position.x = 0;
+      wall.position.z = -eastWestRelation;
+      break;
+  }
+  return wall
+}
 
-let wallGeoEW = new THREE.BoxGeometry(10000, 1000, 1, 1)
-let wMat = new THREE.MeshPhongMaterial ({
-  emissive: 1,
-  color: 'blue'
-})
-let wallW = new THREE.Mesh(wallGeoEW, wMat)
-wallW.position.x = 0
-wallW.position.z = -5000
+let northWall = createWall(floor, 'north', 'yellow')
+let southWall = createWall(floor, 'south', 'red')
+let eastWall = createWall(floor, 'east', 'green')
+let westWall = createWall(floor, 'west', 'blue')
 
-let eMat = new THREE.MeshPhongMaterial ({
-  emissive: 1,
-  color: 'green'
-})
-let wallE = new THREE.Mesh(wallGeoEW, eMat)
-wallE.position.x = 0
-wallE.position.z = 5000
+scene.add(northWall, southWall, eastWall, westWall)
 
-scene.add(wallS, wallN, wallE, wallW)
-
-var ceiling = new THREE.PlaneGeometry(10000, 10000, 100, 100)
-// let helper = new THREE.Helper( mesh2, 1, 0XFFFF00 )
-//   scene.add(helper)
-  console.log(floor)
-var ceilmat = new THREE.MeshStandardMaterial ({
+let ceiling = new THREE.PlaneGeometry(10000, 10000, 100, 100)
+let ceilmat = new THREE.MeshStandardMaterial ({
   emissive: .6,
   color: 'grey'
 })
-var ceil = new THREE.Mesh(ceiling, ceilmat)
+let ceil = new THREE.Mesh(ceiling, ceilmat)
 ceil.rotation.x = 90 * Math.PI / 180
 ceil.position.y = 500
 ceil.receiveShadow = true
@@ -198,7 +188,7 @@ scene.add(ceil)
 
 
 
-// var helper = new THREE.CameraHelper( light1.shadow.camera)
+// let helper = new THREE.CameraHelper( light1.shadow.camera)
 // scene.add( helper )
 
 
