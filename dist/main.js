@@ -62373,210 +62373,364 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-let renderer = new three__WEBPACK_IMPORTED_MODULE_0__["WebGLRenderer"]({canvas: document.getElementById('myCanvas'), antialias: true});
-renderer.setClearColor(0x6288dd);
-renderer.setPixelRatio(window.devicePixelRatio);
-renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.shadowMap.enabled = true
-renderer.shadowMap.type = three__WEBPACK_IMPORTED_MODULE_0__["PCFSoftShadowMap"]
-
-
-let camera = new three__WEBPACK_IMPORTED_MODULE_0__["PerspectiveCamera"](75, window.innerWidth / window.innerHeight, 0.1, 15000)
-camera.position.z = 200
-camera.position.set(0,40,200)
-
-let scene = new three__WEBPACK_IMPORTED_MODULE_0__["Scene"]()
-scene.fog = new three__WEBPACK_IMPORTED_MODULE_0__["FogExp2"](0xD6F1FF, 0.0005)
-
-let clock = new three__WEBPACK_IMPORTED_MODULE_0__["Clock"]()
-
-let controls = new _FirstPersonControls__WEBPACK_IMPORTED_MODULE_2__["default"](camera)
-controls.movementSpeed = 1000
-controls.lookSpeed = 0.1
-controls.lookVertical = false; // Don't allow the player to look up or down. This is a temporary fix to keep people from flying
-controls.noFly = true; // Don't allow hitting R or F to go up or down
-
-let light = new three__WEBPACK_IMPORTED_MODULE_0__["AmbientLight"](0xffffff, 0.8)
-light.castShadow = false
-scene.add(light)
-
-
-let light1 = new three__WEBPACK_IMPORTED_MODULE_0__["PointLight"](0xffffff, 1)
-light1.position.set( 0, 350, -1200)
-light1.castShadow = true
-scene.add(light1)
-
-light1.shadow.mapSize.width = 2048
-light1.shadow.mapSize.height = 2048
-light1.shadow.camera.near = 0.8
-light1.shadow.camera.far = 800
-
-let directionalLight1 = new three__WEBPACK_IMPORTED_MODULE_0__["DirectionalLight"]( 0xF7EFBE, 0.7 );
-directionalLight1.position.set( 0.5, 1, 0.5 );
-scene.add( directionalLight1 );
-
-// Louis Box
-let listener = new three__WEBPACK_IMPORTED_MODULE_0__["AudioListener"]()
-camera.add( listener )
-
-let music = new three__WEBPACK_IMPORTED_MODULE_0__["PositionalAudio"]( listener )
-const louisMusic = 'https://s3-us-west-2.amazonaws.com/sound-escape/music/louis.mp3'
-let audioLoader = new three__WEBPACK_IMPORTED_MODULE_0__["AudioLoader"]()
-audioLoader.load(louisMusic, function( buffer) {
-  music.setBuffer( buffer)
-  music.setRefDistance( 20 )
-  music.play()
-})
-const louisImg = 'https://s3-us-west-2.amazonaws.com/sound-escape/imgs/louis.jpg' 
-let geometry = new three__WEBPACK_IMPORTED_MODULE_0__["CubeGeometry"](100, 100, 100)
-let matL = new three__WEBPACK_IMPORTED_MODULE_0__["MeshLambertMaterial"]({
-  map: new three__WEBPACK_IMPORTED_MODULE_0__["TextureLoader"]().load(louisImg),
-})
-let mesh = new three__WEBPACK_IMPORTED_MODULE_0__["Mesh"](geometry, matL)
-mesh.position.set(0, -47, -1200)
-mesh.castShadow = true
-mesh.recieveShadow = false
-mesh.add( music )
-scene.add(mesh);
-
-
-// Ed Box
-let listenerEd = new three__WEBPACK_IMPORTED_MODULE_0__["AudioListener"]()
-  camera.add( listenerEd )
-let roy = new three__WEBPACK_IMPORTED_MODULE_0__["PositionalAudio"]( listenerEd )
-const edMusic = 'https://s3-us-west-2.amazonaws.com/sound-escape/music/ed.mp3'
-let audioLoaderEd = new three__WEBPACK_IMPORTED_MODULE_0__["AudioLoader"]()
-  audioLoaderEd.load(edMusic, function( buffer) {
-  roy.setBuffer( buffer)
-  roy.setRefDistance( 20 )
-  roy.play()
-})
-const edImage = "https://s3-us-west-2.amazonaws.com/sound-escape/imgs/ed.jpeg"
-let geo2 = new three__WEBPACK_IMPORTED_MODULE_0__["CubeGeometry"](200, 200, 200)
-let mat = new three__WEBPACK_IMPORTED_MODULE_0__["MeshLambertMaterial"]({
-  map: new three__WEBPACK_IMPORTED_MODULE_0__["TextureLoader"]().load(edImage),
-})
-let mesh3 = new three__WEBPACK_IMPORTED_MODULE_0__["Mesh"](geo2, mat)
-  mesh3.position.set(-300, 0, -1200)
-  mesh3.castShadow = true
-  mesh3.add( roy )
-  scene.add(mesh3);
-
-
-// Do it Box
-let listenerShia = new three__WEBPACK_IMPORTED_MODULE_0__["AudioListener"]()
-  camera.add( listenerShia )
-let doit = new three__WEBPACK_IMPORTED_MODULE_0__["PositionalAudio"]( listener )
-const doitAudio = 'https://s3-us-west-2.amazonaws.com/sound-escape/sounds/doit.mp3'
-let audioLoaderShia = new three__WEBPACK_IMPORTED_MODULE_0__["AudioLoader"]()
-  audioLoaderShia.load(doitAudio, function( buffer) {
-  doit.setBuffer( buffer)
-  doit.setRefDistance( 20 )
-  doit.play()
-})
-const shia = 'https://s3-us-west-2.amazonaws.com/sound-escape/imgs/shia.png'
-let box = new three__WEBPACK_IMPORTED_MODULE_0__["BoxGeometry"](100, 100, 100)
-let mat1 = new three__WEBPACK_IMPORTED_MODULE_0__["MeshLambertMaterial"]({
-  map: new three__WEBPACK_IMPORTED_MODULE_0__["TextureLoader"]().load(shia),
-})
-let boxy = new three__WEBPACK_IMPORTED_MODULE_0__["Mesh"](box, mat1)
-  boxy.position.set(250, -60, -1400)
-  boxy.castShadow = true
-  boxy.recieveShadow = false
-  boxy.add ( doit )
-  scene.add(boxy)
-
-
-
-let floor = new three__WEBPACK_IMPORTED_MODULE_0__["PlaneGeometry"](10000, 5000, 100, 100)
-
-let floormat = new three__WEBPACK_IMPORTED_MODULE_0__["MeshStandardMaterial"] ({
-  map: new three__WEBPACK_IMPORTED_MODULE_0__["TextureLoader"]().load(edImage),
-  emissive: .6
-})
-let mesh2 = new three__WEBPACK_IMPORTED_MODULE_0__["Mesh"](floor, floormat)
-  mesh2.rotation.x = -90 * Math.PI / 180
-  mesh2.position.y = -80
-  mesh2.receiveShadow = true
-  scene.add(mesh2)
-  scene.add(floor)
-
-function createWall(floor, direction, colorOrTexture) {
-  let wallGeography;
-  let eastWestRelation = floor.parameters.height/2
-  let northSouthRelation = floor.parameters.width/2
-  if (direction === 'south' || direction === 'north') {
-    wallGeography = new three__WEBPACK_IMPORTED_MODULE_0__["BoxGeometry"](1, 1000, floor.parameters.height)
-  }
-  else if (direction == 'east' || direction === 'west') {
-    wallGeography = new three__WEBPACK_IMPORTED_MODULE_0__["BoxGeometry"](floor.parameters.width, 1000, 1)
+console.log('we here')
+class Game{
+  constructor(){
+      this.useVisuals = true;
+      this.init();
   }
 
-  let mat = new three__WEBPACK_IMPORTED_MODULE_0__["MeshPhongMaterial"]({
-    emissive: 1,
-    color: colorOrTexture
-  })
+  init(){
+        const game = this;
+                  
+    this.scene = new three__WEBPACK_IMPORTED_MODULE_0__["Scene"]();
+    this.scene.background = new three__WEBPACK_IMPORTED_MODULE_0__["Color"](0,0,0);
+    this.camera = new three__WEBPACK_IMPORTED_MODULE_0__["PerspectiveCamera"]( 40, window.innerWidth/window.innerHeight, 0.1, 1000 );
+    this.camera.position.set(0, 2, 8);
+    this.camera.lookAt(new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](0, 1, 0));
+    
+        this.renderer = new three__WEBPACK_IMPORTED_MODULE_0__["WebGLRenderer"]();
+        this.renderer.setSize( window.innerWidth, window.innerHeight );
+        document.body.appendChild( this.renderer.domElement );
+        
+    const buttons = document.getElementById("gui").childNodes;
+    buttons[1].onclick = function(){ game.addBody(); };
+    buttons[3].onclick = function(){ game.addBody(false); };
 
-  let wall = new three__WEBPACK_IMPORTED_MODULE_0__["Mesh"](wallGeography, mat)
-  switch (direction) {
-    case 'south':
-      wall.position.x = -northSouthRelation;
-      wall.position.z = 0;
-      break;
-    case 'north':
-      wall.position.x = northSouthRelation;
-      wall.position.z = 0;
-      break;
-    case 'east':
-      wall.position.x = 0;
-      wall.position.z = eastWestRelation;
-      break;
-    case 'west':
-      wall.position.x = 0;
-      wall.position.z = -eastWestRelation;
-      break;
+        if (this.useVisuals){
+            this.helper = new CannonHelper(this.scene);
+            this.helper.addLights(this.renderer);
+        }
+
+    this.initPhysics();
   }
-  return wall
+
+  addBody( sphere=true ){
+    const material = new cannon__WEBPACK_IMPORTED_MODULE_1__["Material"]();
+    const body = new cannon__WEBPACK_IMPORTED_MODULE_1__["Body"]({ mass: 5, material: material });
+    if (sphere){
+      body.addShape(this.shapes.sphere);
+    }else{
+      body.addShape(this.shapes.box);
+    }
+        
+    const x = Math.random()*0.3 + 1;
+    body.position.set((sphere) ? -x : x, 5, 0);
+    body.linearDamping = this.damping;
+    this.world.add(body);
+        
+        if (this.useVisuals) this.helper.addVisual(body, (sphere) ? 'sphere' : 'box', true, false);
+        
+    // Create contact material behaviour
+    const material_ground = new cannon__WEBPACK_IMPORTED_MODULE_1__["ContactMaterial"](this.groundMaterial, material, { friction: 0.0, restitution: (sphere) ? 0.9 : 0.3 });
+    
+    this.world.addContactMaterial(material_ground);
+  }
+
+  initPhysics(){
+    const world = new cannon__WEBPACK_IMPORTED_MODULE_1__["World"]();
+    this.world = world;
+    this.fixedTimeStep = 1.0/60.0;
+    this.damping = 0.01;
+    
+    world.broadphase = new cannon__WEBPACK_IMPORTED_MODULE_1__["NaiveBroadphase"]();
+    world.gravity.set(0, -10, 0);
+    // this.debugRenderer = new THREE.CannonDebugRenderer(this.scene, this.world);
+    
+    const groundShape = new cannon__WEBPACK_IMPORTED_MODULE_1__["Plane"]();
+        const groundMaterial = new cannon__WEBPACK_IMPORTED_MODULE_1__["Material"]();
+    const groundBody = new cannon__WEBPACK_IMPORTED_MODULE_1__["Body"]({ mass: 0, material: groundMaterial });
+    groundBody.quaternion.setFromAxisAngle( new cannon__WEBPACK_IMPORTED_MODULE_1__["Vec3"](1,0,0), -Math.PI/2);
+    groundBody.addShape(groundShape);
+    world.add(groundBody);
+        
+    if (this.useVisuals) this.helper.addVisual(groundBody, 'ground', false, true);
+        
+    this.shapes = {};
+    this.shapes.sphere = new cannon__WEBPACK_IMPORTED_MODULE_1__["Sphere"](0.5);
+    this.shapes.box = new cannon__WEBPACK_IMPORTED_MODULE_1__["Box"](new cannon__WEBPACK_IMPORTED_MODULE_1__["Vec3"](0.5,0.5,0.5));
+    
+    this.groundMaterial = groundMaterial;
+    
+    this.animate();
+  }
+
+  animate() {
+        const game = this;
+        requestAnimationFrame( function(){ game.animate(); } );
+
+        this.world.step(this.fixedTimeStep);
+        
+    if (this.useVisuals){
+            this.helper.updateBodies(this.world);
+        }else{
+            this.debugRenderer.update();
+        }
+
+        this.renderer.render( this.scene, this.camera );
+    }
+}
+console.log(Game)
+class CannonHelper{
+  constructor(scene){
+      this.scene = scene;
+  }
+  
+  addLights(renderer){
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = three__WEBPACK_IMPORTED_MODULE_0__["PCFSoftShadowMap"]; // default THREE.PCFShadowMap
+
+      // LIGHTS
+      const ambient = new three__WEBPACK_IMPORTED_MODULE_0__["AmbientLight"]( 0x888888 );
+      this.scene.add( ambient );
+
+      const light = new three__WEBPACK_IMPORTED_MODULE_0__["DirectionalLight"]( 0xdddddd );
+      light.position.set( 3, 10, 4 );
+      light.target.position.set( 0, 0, 0 );
+
+      light.castShadow = true;
+
+      const lightSize = 10;
+      light.shadow.camera.near = 1;
+      light.shadow.camera.far = 50;
+      light.shadow.camera.left = light.shadow.camera.bottom = -lightSize;
+      light.shadow.camera.right = light.shadow.camera.top = lightSize;
+
+      light.shadow.mapSize.width = 1024;
+      light.shadow.mapSize.height = 1024;
+
+      this.sun = light;
+      this.scene.add(light);    
+  }
+  
+  createCannonTrimesh(geometry){
+  if (!geometry.isBufferGeometry) return null;
+  
+  const posAttr = geometry.attributes.position;
+  const vertices = geometry.attributes.position.array;
+  let indices = [];
+  for(let i=0; i<posAttr.count; i++){
+    indices.push(i);
+  }
+  
+  return new cannon__WEBPACK_IMPORTED_MODULE_1__["Trimesh"](vertices, indices);
 }
 
-let northWall = createWall(floor, 'north', 'yellow')
-let southWall = createWall(floor, 'south', 'red')
-let eastWall = createWall(floor, 'east', 'green')
-let westWall = createWall(floor, 'west', 'blue')
+createCannonConvex(geometry){
+  if (!geometry.isBufferGeometry) return null;
+  
+  const posAttr = geometry.attributes.position;
+  const floats = geometry.attributes.position.array;
+  const vertices = [];
+  const faces = [];
+  let face = [];
+  let index = 0;
+  for(let i=0; i<posAttr.count; i+=3){
+    vertices.push( new cannon__WEBPACK_IMPORTED_MODULE_1__["Vec3"](floats[i], floats[i+1], floats[i+2]) );
+    face.push(index++);
+    if (face.length==3){
+      faces.push(face);
+      face = [];
+    }
+  }
+  
+  return new cannon__WEBPACK_IMPORTED_MODULE_1__["ConvexPolyhedron"](vertices, faces);
+}
+  
+  addVisual(body, name, castShadow=true, receiveShadow=true){
+  body.name = name;
+  if (this.currentMaterial===undefined) this.currentMaterial = new three__WEBPACK_IMPORTED_MODULE_0__["MeshLambertMaterial"]({color:0x888888});
+  if (this.settings===undefined){
+    this.settings = {
+      stepFrequency: 60,
+      quatNormalizeSkip: 2,
+      quatNormalizeFast: true,
+      gx: 0,
+      gy: 0,
+      gz: 0,
+      iterations: 3,
+      tolerance: 0.0001,
+      k: 1e6,
+      d: 3,
+      scene: 0,
+      paused: false,
+      rendermode: "solid",
+      constraints: false,
+      contacts: false,  // Contact points
+      cm2contact: false, // center of mass to contact points
+      normals: false, // contact normals
+      axes: false, // "local" frame axes
+      particleSize: 0.1,
+      shadows: false,
+      aabbs: false,
+      profiling: false,
+      maxSubSteps:3
+    }
+    this.particleGeo = new three__WEBPACK_IMPORTED_MODULE_0__["SphereGeometry"]( 1, 16, 8 );
+    this.particleMaterial = new three__WEBPACK_IMPORTED_MODULE_0__["MeshLambertMaterial"]( { color: 0xff0000 } );
+  }
+  // What geometry should be used?
+  let mesh;
+  if(body instanceof cannon__WEBPACK_IMPORTED_MODULE_1__["Body"]) mesh = this.shape2Mesh(body, castShadow, receiveShadow);
 
-scene.add(northWall, southWall, eastWall, westWall)
+  if(mesh) {
+    // Add body
+    body.threemesh = mesh;
+          mesh.castShadow = castShadow;
+          mesh.receiveShadow = receiveShadow;
+    this.scene.add(mesh);
+  }
+}
 
-let ceiling = new three__WEBPACK_IMPORTED_MODULE_0__["PlaneGeometry"](10000, 10000, 100, 100)
-let ceilmat = new three__WEBPACK_IMPORTED_MODULE_0__["MeshStandardMaterial"] ({
-  emissive: .6,
-  color: 'grey'
-})
-let ceil = new three__WEBPACK_IMPORTED_MODULE_0__["Mesh"](ceiling, ceilmat)
-ceil.rotation.x = 90 * Math.PI / 180
-ceil.position.y = 500
-ceil.receiveShadow = true
-scene.add(ceil)
+shape2Mesh(body, castShadow, receiveShadow){
+  const obj = new three__WEBPACK_IMPORTED_MODULE_0__["Object3D"]();
+  const material = this.currentMaterial;
+  const game = this;
+  let index = 0;
+  
+  body.shapes.forEach (function(shape){
+    let mesh;
+    let geometry;
+    let v0, v1, v2;
 
+    switch(shape.type){
 
+    case cannon__WEBPACK_IMPORTED_MODULE_1__["Shape"].types.SPHERE:
+      const sphere_geometry = new three__WEBPACK_IMPORTED_MODULE_0__["SphereGeometry"]( shape.radius, 8, 8);
+      mesh = new three__WEBPACK_IMPORTED_MODULE_0__["Mesh"]( sphere_geometry, material );
+      break;
 
-// let helper = new THREE.CameraHelper( light1.shadow.camera)
-// scene.add( helper )
+    case cannon__WEBPACK_IMPORTED_MODULE_1__["Shape"].types.PARTICLE:
+      mesh = new three__WEBPACK_IMPORTED_MODULE_0__["Mesh"]( game.particleGeo, game.particleMaterial );
+      const s = this.settings;
+      mesh.scale.set(s.particleSize,s.particleSize,s.particleSize);
+      break;
 
+    case cannon__WEBPACK_IMPORTED_MODULE_1__["Shape"].types.PLANE:
+      geometry = new three__WEBPACK_IMPORTED_MODULE_0__["PlaneGeometry"](10, 10, 4, 4);
+      mesh = new three__WEBPACK_IMPORTED_MODULE_0__["Object3D"]();
+      const submesh = new three__WEBPACK_IMPORTED_MODULE_0__["Object3D"]();
+      const ground = new three__WEBPACK_IMPORTED_MODULE_0__["Mesh"]( geometry, material );
+      ground.scale.set(100, 100, 100);
+      submesh.add(ground);
 
+      mesh.add(submesh);
+      break;
 
-//RENDER LOOP
-requestAnimationFrame(render)
+    case cannon__WEBPACK_IMPORTED_MODULE_1__["Shape"].types.BOX:
+      const box_geometry = new three__WEBPACK_IMPORTED_MODULE_0__["BoxGeometry"](  shape.halfExtents.x*2,
+                            shape.halfExtents.y*2,
+                            shape.halfExtents.z*2 );
+      mesh = new three__WEBPACK_IMPORTED_MODULE_0__["Mesh"]( box_geometry, material );
+      break;
 
-function render() {
-    controls.update( clock.getDelta() )
-    // mesh.rotation.x += 0.03
-    // mesh.rotation.y += 0.01
-    // mesh3.rotation.x += 0.01
-    // mesh3.rotation.y += 0.01
-    // boxy.rotation.x += 0.02
-    // boxy.rotation.y += 0.01
-    renderer.render(scene, camera);
-    requestAnimationFrame(render);
+    case cannon__WEBPACK_IMPORTED_MODULE_1__["Shape"].types.CONVEXPOLYHEDRON:
+      const geo = new three__WEBPACK_IMPORTED_MODULE_0__["Geometry"]();
+
+      // Add vertices
+      shape.vertices.forEach(function(v){
+        geo.vertices.push(new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](v.x, v.y, v.z));
+      });
+
+      shape.faces.forEach(function(face){
+        // add triangles
+        const a = face[0];
+        for (let j = 1; j < face.length - 1; j++) {
+          const b = face[j];
+          const c = face[j + 1];
+          geo.faces.push(new three__WEBPACK_IMPORTED_MODULE_0__["Face3"](a, b, c));
+        }
+      });
+      geo.computeBoundingSphere();
+      geo.computeFaceNormals();
+      mesh = new three__WEBPACK_IMPORTED_MODULE_0__["Mesh"]( geo, material );
+      break;
+
+    case cannon__WEBPACK_IMPORTED_MODULE_1__["Shape"].types.HEIGHTFIELD:
+      geometry = new three__WEBPACK_IMPORTED_MODULE_0__["Geometry"]();
+
+      v0 = new cannon__WEBPACK_IMPORTED_MODULE_1__["Vec3"]();
+      v1 = new cannon__WEBPACK_IMPORTED_MODULE_1__["Vec3"]();
+      v2 = new cannon__WEBPACK_IMPORTED_MODULE_1__["Vec3"]();
+      for (let xi = 0; xi < shape.data.length - 1; xi++) {
+        for (let yi = 0; yi < shape.data[xi].length - 1; yi++) {
+          for (let k = 0; k < 2; k++) {
+            shape.getConvexTrianglePillar(xi, yi, k===0);
+            v0.copy(shape.pillarConvex.vertices[0]);
+            v1.copy(shape.pillarConvex.vertices[1]);
+            v2.copy(shape.pillarConvex.vertices[2]);
+            v0.vadd(shape.pillarOffset, v0);
+            v1.vadd(shape.pillarOffset, v1);
+            v2.vadd(shape.pillarOffset, v2);
+            geometry.vertices.push(
+              new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](v0.x, v0.y, v0.z),
+              new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](v1.x, v1.y, v1.z),
+              new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](v2.x, v2.y, v2.z)
+            );
+            var i = geometry.vertices.length - 3;
+            geometry.faces.push(new three__WEBPACK_IMPORTED_MODULE_0__["Face3"](i, i+1, i+2));
+          }
+        }
+      }
+      geometry.computeBoundingSphere();
+      geometry.computeFaceNormals();
+      mesh = new three__WEBPACK_IMPORTED_MODULE_0__["Mesh"](geometry, material);
+      break;
+
+    case cannon__WEBPACK_IMPORTED_MODULE_1__["Shape"].types.TRIMESH:
+      geometry = new three__WEBPACK_IMPORTED_MODULE_0__["Geometry"]();
+
+      v0 = new cannon__WEBPACK_IMPORTED_MODULE_1__["Vec3"]();
+      v1 = new cannon__WEBPACK_IMPORTED_MODULE_1__["Vec3"]();
+      v2 = new cannon__WEBPACK_IMPORTED_MODULE_1__["Vec3"]();
+      for (let i = 0; i < shape.indices.length / 3; i++) {
+        shape.getTriangleVertices(i, v0, v1, v2);
+        geometry.vertices.push(
+          new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](v0.x, v0.y, v0.z),
+          new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](v1.x, v1.y, v1.z),
+          new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](v2.x, v2.y, v2.z)
+        );
+        var j = geometry.vertices.length - 3;
+        geometry.faces.push(new three__WEBPACK_IMPORTED_MODULE_0__["Face3"](j, j+1, j+2));
+      }
+      geometry.computeBoundingSphere();
+      geometry.computeFaceNormals();
+      mesh = new three__WEBPACK_IMPORTED_MODULE_0__["Mesh"](geometry, MutationRecordaterial);
+      break;
+
+    default:
+      throw "Visual type not recognized: "+shape.type;
+    }
+
+    mesh.receiveShadow = receiveShadow;
+    mesh.castShadow = castShadow;
+          
+          mesh.traverse( function(child){
+              if (child.isMesh){
+                  child.castShadow = castShadow;
+        child.receiveShadow = receiveShadow;
+              }
+          });
+
+    var o = body.shapeOffsets[index];
+    var q = body.shapeOrientations[index++];
+    mesh.position.set(o.x, o.y, o.z);
+    mesh.quaternion.set(q.x, q.y, q.z, q.w);
+
+    obj.add(mesh);
+  });
+
+  return obj;
+}
+  
+  updateBodies(world){
+      world.bodies.forEach( function(body){
+          if ( body.threemesh != undefined){
+              body.threemesh.position.copy(body.position);
+              body.threemesh.quaternion.copy(body.quaternion);
+          }
+      });
+  }
 }
 
 
