@@ -1,7 +1,10 @@
+import FirstPersonControls from "./FirstPersonControls";
+import CannonDebugRenderer from "./CannonDebugRenderer"
+
 console.log("game class")
 export default class Game{
     constructor(){
-        this.useVisuals = true;
+        this.useVisuals = false;
         this.init();
     }
   
@@ -10,10 +13,16 @@ export default class Game{
                     
       this.scene = new THREE.Scene();
       this.scene.background = new THREE.Color(0,0,0);
-      this.camera = new THREE.PerspectiveCamera( 40, window.innerWidth/window.innerHeight, 0.1, 1000 );
-      this.camera.position.set(0, 2, 8);
-      this.camera.lookAt(new THREE.Vector3(0, 1, 0));
+      this.camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 10000 );
+      this.camera.position.set(0,3,5)
+      this.clock = new THREE.Clock();
+    //   this.controls = new FirstPersonControls(this.camera);
+    //   this.controls.movementSpeed = 10;
+    //   this.controls.lookSpeed = 0.1;
       
+
+
+
           this.renderer = new THREE.WebGLRenderer();
           this.renderer.setSize( window.innerWidth, window.innerHeight );
           document.body.appendChild( this.renderer.domElement );
@@ -71,10 +80,11 @@ export default class Game{
       this.world = world;
       this.fixedTimeStep = 1.0/60.0;
       this.damping = 0.01;
+      this.body
       
       world.broadphase = new CANNON.NaiveBroadphase();
       world.gravity.set(0, -10, 0);
-      // this.debugRenderer = new THREE.CannonDebugRenderer(this.scene, this.world);
+      this.debugRenderer = new THREE.CannonDebugRenderer(this.scene, this.world);
       
       const groundShape = new CANNON.Plane();
           const groundMaterial = new CANNON.Material();
@@ -82,6 +92,40 @@ export default class Game{
       groundBody.quaternion.setFromAxisAngle( new CANNON.Vec3(1,0,0), -Math.PI/2);
       groundBody.addShape(groundShape);
       world.add(groundBody);
+
+    //   const camSphere = new CANNON.Sphere(1);
+    //   const camBody = new CANNON.Body({mass: 0});
+    //   camBody.addShape(camSphere);
+    //   camBody.position.set(new CANNON.Vec3(5,5,5))
+    //   this.camBody = camBody
+    //   this.world.add(this.camBody);
+
+
+      const material = new CANNON.Material();
+      const body = new CANNON.Body({ mass: 1, material: material });
+      const camSphere = new CANNON.Sphere(0.5);
+      body.addShape(camSphere);
+          
+    //   const x = Math.random()*0.3 + 1;
+      console.log(this.camera.position)
+      body.position.set(this.camera.position.x,this.camera.position.y,this.camera.position.z);
+      body.linearDamping = this.damping;
+      this.body = body
+
+
+      this.controls = new FirstPersonControls(camSphere);
+      this.controls.movementSpeed = 10;
+      this.controls.lookSpeed = 0.2;
+
+
+      this.world.add(body);
+          
+      if (this.useVisuals) this.helper.addVisual(body, (true) ? 'sphere' : 'box', true, false);
+          
+      // Create contact material behaviour
+    //   const material_ground = new CANNON.ContactMaterial(this.groundMaterial, material, { friction: 0.0, restitution: (true) ? 0.9 : 0.3 });
+      
+    //   this.world.addContactMaterial(material_ground);
           
       if (this.useVisuals) this.helper.addVisual(groundBody, 'ground', false, true);
           
@@ -105,7 +149,10 @@ export default class Game{
           }else{
               this.debugRenderer.update();
           }
-  
+
+        //   this.controls.update(this.clock.getDelta())
+        //   this.controls.update()
+          this.camera.position.copy(this.body.position);
           this.renderer.render( this.scene, this.camera );
       }
   }
