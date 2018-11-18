@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-
+import Game from './Game'
 /**
  * @author mrdoob / http://mrdoob.com/
  * @author alteredq / http://alteredqualia.com/
@@ -10,6 +10,8 @@ const FirstPersonControls = function ( object, domElement ) {
 
 	this.object = object;
 	this.target = new THREE.Vector3( 0, 0, 0 );
+
+
 
 	this.domElement = ( domElement !== undefined ) ? domElement : document;
 
@@ -59,6 +61,7 @@ const FirstPersonControls = function ( object, domElement ) {
 	}
 
 	//
+	
 
 	this.handleResize = function () {
 
@@ -92,6 +95,7 @@ const FirstPersonControls = function ( object, domElement ) {
 			switch ( event.button ) {
 
 				case 0: this.moveForward = true; break;
+
 				case 2: this.moveBackward = true; break;
 
 			}
@@ -182,9 +186,24 @@ const FirstPersonControls = function ( object, domElement ) {
 			case 82: /*R*/ this.moveUp = false; break;
 			case 70: /*F*/ this.moveDown = false; break;
 
+			// case 71: /*g*/ this.addBody(true); break; 
+			// case 72; /*h*/ this.addBody(false); break;
 		}
 
 	};
+
+	// var pitchObject = new THREE.Object3D();
+	// pitchObject.add( object );
+
+	// var yawObject = new THREE.Object3D();
+	// yawObject.position.y = 10;
+	// yawObject.add( pitchObject );
+
+	// this.getObject = function () {
+
+	// 	return yawObject;
+
+	// };
 
 	this.update = function ( delta ) {
 
