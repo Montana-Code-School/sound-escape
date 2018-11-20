@@ -1,5 +1,6 @@
 import FirstPersonControls from "./FirstPersonControls";
-import PointerLockControls from './PointerLockControls'
+import PointerLockControls from './PointerLockControls';
+FBXLoader = require('three-fbx-loader');
 
 
 
@@ -18,82 +19,151 @@ export default class Game{
       this.clock = new THREE.Clock();
 
       this.camera = new THREE.PerspectiveCamera( 65, window.innerWidth/window.innerHeight, 0.1, 10000 );
-      // this.camera.position.set(0,3,10)
+      this.camera.position.set(0,40,100)
 
       this.controls = new FirstPersonControls(this.camera, this.domElement);
       // this.controls.position.z = 3;
-      this.controls.movementSpeed = 20;
+      this.controls.movementSpeed = 100;
       this.controls.lookSpeed = 0.1;
       this.scene.add(this.controls)
       
       
       // light 1
-      this.light1 = new THREE.AmbientLight(0xffffff, 0.1)
-      this.light1.castShadow = false
-      this.scene.add(this.light1)
+      // this.light1 = new THREE.AmbientLight(0xffffff, 0.1)
+      // this.light1.castShadow = false
+      // this.scene.add(this.light1)
 
 
-      // light 2
-      this.light2 = new THREE.PointLight(0xffffff, .5)
-      this.light2.position.set( -1, 1.75, 1)
-      this.light2.position.multiplyScalar( 60 )
-      this.light2.castShadow = true
-      this.scene.add(this.light2)
-      // this.helper = new THREE.DirectionalLightHelper ( this.light2, 10)
-      // this.scene.add(this.helper)
+      // // light 2
+      // this.light2 = new THREE.PointLight(0xffffff, .5)
+      // this.light2.position.set( -1, 1.75, 1)
+      // this.light2.position.multiplyScalar( 60 )
+      // this.light2.castShadow = true
+      // this.scene.add(this.light2)
+      // // this.helper = new THREE.DirectionalLightHelper ( this.light2, 10)
+      // // this.scene.add(this.helper)
       
-      this.light2.shadow.mapSize.width = 2048
-      this.light2.shadow.mapSize.height = 2048
-      this.light2.shadow.camera.left = - 100;
-			this.light2.shadow.camera.right = 100;
-			this.light2.shadow.camera.top = 100;
-			this.light2.shadow.camera.bottom = - 100;
+      // this.light2.shadow.mapSize.width = 2048
+      // this.light2.shadow.mapSize.height = 2048
+      // this.light2.shadow.camera.left = - 100;
+			// this.light2.shadow.camera.right = 100;
+			// this.light2.shadow.camera.top = 100;
+			// this.light2.shadow.camera.bottom = - 100;
     
-      this.light2.shadow.camera.far = 3500
-      this.light2.shadow.bias = 0.00001
+      // this.light2.shadow.camera.far = 3500
+      // this.light2.shadow.bias = 0.00001
       
+
+//------------------------------------------------------------------
+// Models
+//------------------------------------------------------------------
+
+      // this.manager = new THREE.LoadingManager();
+      // this.manager.onStart = function( url, itemsLoaded, itemsTotal) {
+      //   console.log( 'Started loading file')
+      // }
+      // this.manager.onProgress = function(){
+      //   console.log('loading complete')
+      // }
+      // use ObjectLoader not objLoader
+      function assLoad() {
+        const that = this
+        console.log(game)
+        const loader = new FBXLoader()
+          // this.loader = new THREE.JSONLoader( this.manager ) 
+        loader.load( 'models/basicmap.fbx', function ( object ){
+          object.traverse( function( children ) {
+            if(children.isMesh) {
+              children.receiveShadow = true
+              children.castShadow = true
+              console.log(object.children.receiveShadow)
+            } else if(children.isPointLight) {
+              children.castShadow = true
+            } else if(children.isSpotLight) {
+              children.castShadow = true
+            }
+          })
+
+        game.scene.add( object )
+        console.log(object.children)
+        })
+      }
+      assLoad()
+
+
+      // console.log('i should be an object', object)
+      // this.loader.load('models/basicmap.fbx'), function ( mesh){
+      //   this.scene.add(mesh)
+      // }
+      // // this.loader.load( 'models/basicmap.gltf', function ( gltf ) {
+
+      // // 	this.scene.add( gltf.scene );
+
+      // // })
+
+
+
 //------------------------------------------------------------------
 // Objects
 //------------------------------------------------------------------
-      this.material = new THREE.MeshPhongMaterial
-      this.side = new THREE.BoxBufferGeometry(2000,10,1)
+      // this.material = new THREE.MeshPhongMaterial
+      // this.side = new THREE.BoxBufferGeometry(100,40, 1)
+      // this.sideDoor = new THREE.BoxBufferGeometry(90, 40, 1)
 
-      // Ball -----------------
-      this.ball = new THREE.SphereBufferGeometry( 3, 20, 30 )
-      this.sphere = new THREE.Mesh(this.ball, this.material)
-      this.sphere.position.set(-10,5,-3)
-      this.scene.add(this.sphere)
+      // // Ball -----------------
+      // this.ball = new THREE.SphereBufferGeometry( 3, 20, 30 )
+      // this.sphere = new THREE.Mesh(this.ball, this.material)
+      // this.sphere.position.set(-10,5,-3)
+      // this.scene.add(this.sphere)
 
-      this.sphere.castShadow = true
-      this.sphere.receiveShadow = true
+      // this.sphere.castShadow = true
+      // this.sphere.receiveShadow = true
 
-      // Wall 1----------
-      
-      this.wall = new THREE.Mesh(this.side, this.material)
-      this.wall.position.set(10, 4, -20)
-      this.scene.add(this.wall)
 
-      this.wall.castShadow = true
-      this.wall.receiveShadow = true
-      console.log(this.wall)
 
-      // Wall 2----------
-      this.wall2 = new THREE.Mesh(this.side, this.material)
-      this.wall2.rotation.y = -90 * Math.PI / 180
-      this.wall2.position.set(10, 4, -20)
-      this.scene.add(this.wall2)
 
-      this.wall2.castShadow = true
-      this.wall2.receiveShadow = true
+      // // Wall 1----------
+      // this.wall = new THREE.Mesh(this.sideDoor, this.material)
+      // this.wall.position.set(-40, 4, -20)
+      // this.scene.add(this.wall)
+
+      // this.wall.castShadow = true
+      // this.wall.receiveShadow = true
+
+      // // Wall 2----------
+      // this.wall2 = new THREE.Mesh(this.sideDoor, this.material)
+      // this.wall2.rotation.y = -90 * Math.PI / 180
+      // this.wall2.position.set(10, 4, 30)
+      // this.scene.add(this.wall2)
+
+      // this.wall2.castShadow = true
+      // this.wall2.receiveShadow = true
+
+      // // Wall 3----------
+      // this.wall3 = new THREE.Mesh(this.sideDoor, this.material)
+      // this.wall3.position.set(-40, 4, 80)
+      // this.scene.add(this.wall3)
+
+      // this.wall3.castShadow = true
+      // this.wall3.receiveShadow = true
+
+      // // Wall 4----------
+      // this.wall4 = new THREE.Mesh(this.sideDoor, this.material)
+      // this.wall4.rotation.y = -90 * Math.PI / 180
+      // this.wall4.position.set(-90, 4, 30)
+      // this.scene.add(this.wall4)
+
+      // this.wall4.castShadow = true
+      // this.wall4.receiveShadow = true
 
       // Floor ---------------
-      this.floor = new THREE.PlaneGeometry(10000, 10000, 100, 100)
-      this.floormat = new THREE.MeshPhongMaterial ()
-      this.ground = new THREE.Mesh(this.floor, this.floormat)
-      this.ground.rotation.x = -90 * Math.PI / 180
-      this.ground.position.y = -1
-      this.ground.receiveShadow = true
-      this.scene.add(this.ground)
+      // this.floor = new THREE.PlaneGeometry(10000, 10000, 100, 100)
+      // this.floormat = new THREE.MeshPhongMaterial ()
+      // this.ground = new THREE.Mesh(this.floor, this.floormat)
+      // this.ground.rotation.x = -90 * Math.PI / 180
+      // this.ground.position.y = -1
+      // this.ground.receiveShadow = true
+      // this.scene.add(this.ground)
 
 
 
