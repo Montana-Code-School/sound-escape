@@ -92,6 +92,9 @@ const PointerLockControls = function ( camera, domElement ) {
 			case 68: // d
 				this.moveRight = false;
 				break;
+			case 32:
+				this.interact = false;
+				break;
 		}
 	};
 
