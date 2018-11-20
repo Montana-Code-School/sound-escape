@@ -1,5 +1,6 @@
 import FirstPersonControls from "./FirstPersonControls";
-import PointerLockControls from './PointerLockControls'
+import PointerLockControls from './PointerLockControls';
+FBXLoader = require('three-fbx-loader');
 
 export default class Game{
     constructor(){
@@ -16,14 +17,10 @@ export default class Game{
       this.clock = new THREE.Clock();
 
       this.camera = new THREE.PerspectiveCamera( 65, window.innerWidth/window.innerHeight, 0.1, 10000 );
-      // this.camera.position.set(0,3,10)
+      this.camera.position.set(0,40,100)
 
 
       this.controls = new PointerLockControls(this.camera);
-
-      // this.controls.position.z = 3;
-      // this.controls.movementSpeed = 20;
-      // this.controls.lookSpeed = 0.1;
       instructions.addEventListener( 'click', this.controls.lock, false );
       this.controls.addEventListener( 'lock', function () {
         instructions.style.display = 'none';
@@ -35,82 +32,97 @@ export default class Game{
       } );
 
       this.scene.add(this.controls.getObject())
+      
+      this.controls.movementSpeed = 100;
+      this.controls.lookSpeed = 0.1;
+      this.scene.add(this.controls)
 
+//------------------------------------------------------------------
+// Models
+//------------------------------------------------------------------
 
+      // this.manager = new THREE.LoadingManager();
+      // this.manager.onStart = function( url, itemsLoaded, itemsTotal) {
+      //   console.log( 'Started loading file')
+      // }
+      // this.manager.onProgress = function(){
+      //   console.log('loading complete')
+      // }
+      // use ObjectLoader not objLoader
+      function assLoad() {
+        const that = this
+        console.log(game)
+        const loader = new FBXLoader()
+          // this.loader = new THREE.JSONLoader( this.manager ) 
+        loader.load( 'models/basicmap.fbx', function ( object ){
+          object.traverse( function( children ) {
+            if(children.isMesh) {
+              children.receiveShadow = true
+              children.castShadow = true
+              console.log(object.children.receiveShadow)
+            } else if(children.isPointLight) {
+              children.castShadow = true
+            } else if(children.isSpotLight) {
+              children.castShadow = true
+            }
+          })
 
+        game.scene.add( object )
+        console.log(object.children)
+        })
+      }
+      assLoad()
 
-      // light 1
-      this.light1 = new THREE.AmbientLight(0xffffff, 0.1)
-      this.light1.castShadow = false
-      this.scene.add(this.light1)
-
-
-      // light 2
-      this.light2 = new THREE.PointLight(0xffffff, .5)
-      this.light2.position.set( -1, 1.75, 1)
-      this.light2.position.multiplyScalar( 60 )
-      this.light2.castShadow = true
-      this.scene.add(this.light2)
-      // this.helper = new THREE.DirectionalLightHelper ( this.light2, 10)
-      // this.scene.add(this.helper)
-
-      this.light2.shadow.mapSize.width = 2048
-      this.light2.shadow.mapSize.height = 2048
-      this.light2.shadow.camera.left = - 100;
-			this.light2.shadow.camera.right = 100;
-			this.light2.shadow.camera.top = 100;
-			this.light2.shadow.camera.bottom = - 100;
-
-      this.light2.shadow.camera.far = 3500
-      this.light2.shadow.bias = 0.00001
 
 //------------------------------------------------------------------
 // Objects
 //------------------------------------------------------------------
-      this.material = new THREE.MeshPhongMaterial
-      this.side = new THREE.BoxBufferGeometry(2000,10,1)
+      // this.material = new THREE.MeshPhongMaterial
+      // this.side = new THREE.BoxBufferGeometry(100,40, 1)
+      // this.sideDoor = new THREE.BoxBufferGeometry(90, 40, 1)
+
 
       // Ball -----------------
-      this.ball = new THREE.SphereBufferGeometry( 3, 20, 30 )
-      this.sphere = new THREE.Mesh(this.ball, this.material)
-      this.sphere.position.set(-10,5,-3)
-      this.scene.add(this.sphere)
-      this.sphere.castShadow = true
-      this.sphere.receiveShadow = true
-      this.currentSphereX = this.sphere.position.x
-      this.currentSphereY = this.sphere.position.y
-      this.addBody = function() {
-        let newSphr = new THREE.Mesh(this.ball, this.material)
-        let x = Math.floor(Math.random() * -250)
-        let z = Math.floor(Math.random() * 250)
-        newSphr.position.set(x, 5, z)
-        this.currentSphereX = newSphr.position.x
-        this.currentSphereY = newSphr.position.y
-        this.scene.add(newSphr)
-        this.controls.interact = false
-      }
+//       this.ball = new THREE.SphereBufferGeometry( 3, 20, 30 )
+//       this.sphere = new THREE.Mesh(this.ball, this.material)
+//       this.sphere.position.set(-10,5,-3)
+//       this.scene.add(this.sphere)
+//       this.sphere.castShadow = true
+//       this.sphere.receiveShadow = true
+//       this.currentSphereX = this.sphere.position.x
+//       this.currentSphereY = this.sphere.position.y
+//       this.addBody = function() {
+//         let newSphr = new THREE.Mesh(this.ball, this.material)
+//         let x = Math.floor(Math.random() * -250)
+//         let z = Math.floor(Math.random() * 250)
+//         newSphr.position.set(x, 5, z)
+//         this.currentSphereX = newSphr.position.x
+//         this.currentSphereY = newSphr.position.y
+//         this.scene.add(newSphr)
+//         this.controls.interact = false
+//       }
 
       // Wall 1----------
-      this.createWall = function(yRotation) {
-        let side = new THREE.BoxBufferGeometry(2000,10,1)
-        let wall = new THREE.Mesh(side, this.material)
-        wall.rotation.y = yRotation * Math.PI / 180
-        wall.position.set(10,2,-20)
-        this.scene.add(wall)
-        wall.castShadow = true
-        wall.receiveShadow = true
-      }
-      this.createWall(0)
-      this.createWall(-90)
+//       this.createWall = function(yRotation) {
+//         let side = new THREE.BoxBufferGeometry(2000,10,1)
+//         let wall = new THREE.Mesh(side, this.material)
+//         wall.rotation.y = yRotation * Math.PI / 180
+//         wall.position.set(10,2,-20)
+//         this.scene.add(wall)
+//         wall.castShadow = true
+//         wall.receiveShadow = true
+//       }
+//       this.createWall(0)
+//       this.createWall(-90)
 
-      // Floor ---------------
-      let floor = new THREE.PlaneGeometry(10000, 10000, 100, 100)
-      let floormat = new THREE.MeshPhongMaterial ()
-      this.ground = new THREE.Mesh(floor, floormat)
-      this.ground.rotation.x = -90 * Math.PI / 180
-      this.ground.position.y = -1
-      this.ground.receiveShadow = true
-      this.scene.add(this.ground)
+//       // Floor ---------------
+//       let floor = new THREE.PlaneGeometry(10000, 10000, 100, 100)
+//       let floormat = new THREE.MeshPhongMaterial ()
+//       this.ground = new THREE.Mesh(floor, floormat)
+//       this.ground.rotation.x = -90 * Math.PI / 180
+//       this.ground.position.y = -1
+//       this.ground.receiveShadow = true
+//       this.scene.add(this.ground)
 
       this.renderer = new THREE.WebGLRenderer({antialias:true});
       this.renderer.setSize( window.innerWidth, window.innerHeight );
@@ -144,13 +156,13 @@ export default class Game{
 
     animate() {
           const game = this;
-          let pos = this.controls.getObject().position
-          let x = this.currentSphereX
-          let y = this.currentSphereY
-          if (this.controls.interact && Math.abs(pos.x - x) <= 5 && Math.abs(pos.y - y) <= 5) {
-            this.addBody()
+//           let pos = this.controls.getObject().position
+//           let x = this.currentSphereX
+//           let y = this.currentSphereY
+//           if (this.controls.interact && Math.abs(pos.x - x) <= 5 && Math.abs(pos.y - y) <= 5) {
+//             this.addBody()
 
-          }
+//           }
           requestAnimationFrame( function(){ game.animate(); } );
           this.controls.update(this.clock.getDelta())
           this.renderer.render( this.scene, this.camera );
