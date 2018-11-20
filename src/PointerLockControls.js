@@ -100,8 +100,8 @@ const PointerLockControls = function ( camera, domElement ) {
 
 	this.update = function(delta) {
 		this.raycaster.ray.origin.copy(yawObject.position)
-		this.velocity.x -= this.velocity.x * 10.0 * delta;
-		this.velocity.z -= this.velocity.z * 10.0 * delta;
+		this.velocity.x -= this.velocity.x * 1.0 * delta;
+		this.velocity.z -= this.velocity.z * 1.0 * delta;
 		this.velocity.y -= 9.82 * 100 * delta; // 100.0 = mass
 		this.direction.z = Number( this.moveForward ) - Number( this.moveBackward );
 		this.direction.x = Number( this.moveLeft ) - Number( this.moveRight );

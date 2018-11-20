@@ -1,4 +1,4 @@
-import FirstPersonControls from "./FirstPersonControls";
+
 import PointerLockControls from './PointerLockControls';
 FBXLoader = require('three-fbx-loader');
 
@@ -33,9 +33,9 @@ export default class Game{
 
       this.scene.add(this.controls.getObject())
       
-      this.controls.movementSpeed = 100;
-      this.controls.lookSpeed = 0.1;
-      this.scene.add(this.controls)
+      // this.controls.movementSpeed = 100;
+      // this.controls.lookSpeed = 0.7;
+
 
 //------------------------------------------------------------------
 // Models
@@ -50,7 +50,6 @@ export default class Game{
       // }
       // use ObjectLoader not objLoader
       function assLoad() {
-        const that = this
         console.log(game)
         const loader = new FBXLoader()
           // this.loader = new THREE.JSONLoader( this.manager ) 
@@ -67,6 +66,18 @@ export default class Game{
             }
           })
 
+        loader.load('models/platforms.fbx', function(platforms){
+          platforms.traverse(function (children){
+            if (children.isMesh){
+              children.receiveShadow = true
+              children.castShadow = true
+            } else {
+              children.castShadow = true
+            }
+          })
+          platforms.position.set(0,0,700)
+          game.scene.add(platforms)
+        })
         game.scene.add( object )
         console.log(object.children)
         })
