@@ -24,9 +24,12 @@ const PointerLockControls = function ( camera, domElement ) {
 	this.moveBackward = false
 	this.moveLeft = false
 	this.moveRight = false
+	this.interact = false
 
 	this.velocity = new THREE.Vector3()
 	this.direction = new THREE.Vector3()
+
+	this.yawObject = yawObject
 
 	this.raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ), 0, 10 );
 
@@ -65,6 +68,10 @@ const PointerLockControls = function ( camera, domElement ) {
 			case 68: // d
 				this.moveRight = true;
 				break;
+			case 32:
+				this.interact = true
+				break;
+
 		}
 	};
 	this.onKeyUp = ( event ) => {
@@ -102,8 +109,6 @@ const PointerLockControls = function ( camera, domElement ) {
 		yawObject.translateX(this.velocity.x * delta)
 		yawObject.translateY(this.velocity.y * delta)
 		yawObject.translateZ(this.velocity.z * delta)
-
-
 	}
 
 	function onPointerlockChange() {

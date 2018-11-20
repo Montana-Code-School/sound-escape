@@ -75,40 +75,42 @@ export default class Game{
       this.sphere = new THREE.Mesh(this.ball, this.material)
       this.sphere.position.set(-10,5,-3)
       this.scene.add(this.sphere)
-
       this.sphere.castShadow = true
       this.sphere.receiveShadow = true
+      this.currentSphereX = this.sphere.position.x
+      this.currentSphereY = this.sphere.position.y
+      this.addBody = function() {
+        let newSphr = new THREE.Mesh(this.ball, this.material)
+        let x = Math.floor(Math.random() * -250)
+        let z = Math.floor(Math.random() * 250)
+        newSphr.position.set(x, 5, z)
+        this.currentSphereX = newSphr.position.x
+        this.currentSphereY = newSphr.position.y
+        this.scene.add(newSphr)
+        this.controls.interact = false
+      }
 
       // Wall 1----------
-
-      this.wall = new THREE.Mesh(this.side, this.material)
-      this.wall.position.set(10, 4, -20)
-      this.scene.add(this.wall)
-
-      this.wall.castShadow = true
-      this.wall.receiveShadow = true
-      console.log(this.wall)
-
-      // Wall 2----------
-      this.wall2 = new THREE.Mesh(this.side, this.material)
-      this.wall2.rotation.y = -90 * Math.PI / 180
-      this.wall2.position.set(10, 4, -20)
-      this.scene.add(this.wall2)
-
-      this.wall2.castShadow = true
-      this.wall2.receiveShadow = true
+      this.createWall = function(yRotation) {
+        let side = new THREE.BoxBufferGeometry(2000,10,1)
+        let wall = new THREE.Mesh(side, this.material)
+        wall.rotation.y = yRotation * Math.PI / 180
+        wall.position.set(10,2,-20)
+        this.scene.add(wall)
+        wall.castShadow = true
+        wall.receiveShadow = true
+      }
+      this.createWall(0)
+      this.createWall(-90)
 
       // Floor ---------------
-      this.floor = new THREE.PlaneGeometry(10000, 10000, 100, 100)
-      this.floormat = new THREE.MeshPhongMaterial ()
-      this.ground = new THREE.Mesh(this.floor, this.floormat)
+      let floor = new THREE.PlaneGeometry(10000, 10000, 100, 100)
+      let floormat = new THREE.MeshPhongMaterial ()
+      this.ground = new THREE.Mesh(floor, floormat)
       this.ground.rotation.x = -90 * Math.PI / 180
       this.ground.position.y = -1
       this.ground.receiveShadow = true
       this.scene.add(this.ground)
-
-
-
 
       this.renderer = new THREE.WebGLRenderer({antialias:true});
       this.renderer.setSize( window.innerWidth, window.innerHeight );
@@ -142,6 +144,13 @@ export default class Game{
 
     animate() {
           const game = this;
+          let pos = this.controls.getObject().position
+          let x = this.currentSphereX
+          let y = this.currentSphereY
+          if (this.controls.interact && Math.abs(pos.x - x) <= 5 && Math.abs(pos.y - y) <= 5) {
+            this.addBody()
+
+          }
           requestAnimationFrame( function(){ game.animate(); } );
           this.controls.update(this.clock.getDelta())
           this.renderer.render( this.scene, this.camera );
