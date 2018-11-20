@@ -2,18 +2,16 @@ import FirstPersonControls from "./FirstPersonControls";
 import PointerLockControls from './PointerLockControls';
 FBXLoader = require('three-fbx-loader');
 
-
-
-console.log("game class")
 export default class Game{
     constructor(){
         this.init();
     }
-  
 
     init(){
-          const game = this;
-                    
+      const game = this;
+      let blocker = document.getElementById('blocker')
+      let instructions = document.getElementById( 'instructions' );
+
       this.scene = new THREE.Scene();
       this.scene.background = new THREE.Color(0,0,0);
       this.clock = new THREE.Clock();
@@ -21,38 +19,23 @@ export default class Game{
       this.camera = new THREE.PerspectiveCamera( 65, window.innerWidth/window.innerHeight, 0.1, 10000 );
       this.camera.position.set(0,40,100)
 
-      this.controls = new FirstPersonControls(this.camera, this.domElement);
-      // this.controls.position.z = 3;
+
+      this.controls = new PointerLockControls(this.camera);
+      instructions.addEventListener( 'click', this.controls.lock, false );
+      this.controls.addEventListener( 'lock', function () {
+        instructions.style.display = 'none';
+        blocker.style.display = 'none';
+      } );
+      this.controls.addEventListener( 'unlock', function () {
+        blocker.style.display = 'block';
+        instructions.style.display = '';
+      } );
+
+      this.scene.add(this.controls.getObject())
+      
       this.controls.movementSpeed = 100;
       this.controls.lookSpeed = 0.1;
       this.scene.add(this.controls)
-      
-      
-      // light 1
-      // this.light1 = new THREE.AmbientLight(0xffffff, 0.1)
-      // this.light1.castShadow = false
-      // this.scene.add(this.light1)
-
-
-      // // light 2
-      // this.light2 = new THREE.PointLight(0xffffff, .5)
-      // this.light2.position.set( -1, 1.75, 1)
-      // this.light2.position.multiplyScalar( 60 )
-      // this.light2.castShadow = true
-      // this.scene.add(this.light2)
-      // // this.helper = new THREE.DirectionalLightHelper ( this.light2, 10)
-      // // this.scene.add(this.helper)
-      
-      // this.light2.shadow.mapSize.width = 2048
-      // this.light2.shadow.mapSize.height = 2048
-      // this.light2.shadow.camera.left = - 100;
-			// this.light2.shadow.camera.right = 100;
-			// this.light2.shadow.camera.top = 100;
-			// this.light2.shadow.camera.bottom = - 100;
-    
-      // this.light2.shadow.camera.far = 3500
-      // this.light2.shadow.bias = 0.00001
-      
 
 //------------------------------------------------------------------
 // Models
@@ -91,18 +74,6 @@ export default class Game{
       assLoad()
 
 
-      // console.log('i should be an object', object)
-      // this.loader.load('models/basicmap.fbx'), function ( mesh){
-      //   this.scene.add(mesh)
-      // }
-      // // this.loader.load( 'models/basicmap.gltf', function ( gltf ) {
-
-      // // 	this.scene.add( gltf.scene );
-
-      // // })
-
-
-
 //------------------------------------------------------------------
 // Objects
 //------------------------------------------------------------------
@@ -110,63 +81,48 @@ export default class Game{
       // this.side = new THREE.BoxBufferGeometry(100,40, 1)
       // this.sideDoor = new THREE.BoxBufferGeometry(90, 40, 1)
 
-      // // Ball -----------------
-      // this.ball = new THREE.SphereBufferGeometry( 3, 20, 30 )
-      // this.sphere = new THREE.Mesh(this.ball, this.material)
-      // this.sphere.position.set(-10,5,-3)
-      // this.scene.add(this.sphere)
 
-      // this.sphere.castShadow = true
-      // this.sphere.receiveShadow = true
+      // Ball -----------------
+//       this.ball = new THREE.SphereBufferGeometry( 3, 20, 30 )
+//       this.sphere = new THREE.Mesh(this.ball, this.material)
+//       this.sphere.position.set(-10,5,-3)
+//       this.scene.add(this.sphere)
+//       this.sphere.castShadow = true
+//       this.sphere.receiveShadow = true
+//       this.currentSphereX = this.sphere.position.x
+//       this.currentSphereY = this.sphere.position.y
+//       this.addBody = function() {
+//         let newSphr = new THREE.Mesh(this.ball, this.material)
+//         let x = Math.floor(Math.random() * -250)
+//         let z = Math.floor(Math.random() * 250)
+//         newSphr.position.set(x, 5, z)
+//         this.currentSphereX = newSphr.position.x
+//         this.currentSphereY = newSphr.position.y
+//         this.scene.add(newSphr)
+//         this.controls.interact = false
+//       }
 
+      // Wall 1----------
+//       this.createWall = function(yRotation) {
+//         let side = new THREE.BoxBufferGeometry(2000,10,1)
+//         let wall = new THREE.Mesh(side, this.material)
+//         wall.rotation.y = yRotation * Math.PI / 180
+//         wall.position.set(10,2,-20)
+//         this.scene.add(wall)
+//         wall.castShadow = true
+//         wall.receiveShadow = true
+//       }
+//       this.createWall(0)
+//       this.createWall(-90)
 
-
-
-      // // Wall 1----------
-      // this.wall = new THREE.Mesh(this.sideDoor, this.material)
-      // this.wall.position.set(-40, 4, -20)
-      // this.scene.add(this.wall)
-
-      // this.wall.castShadow = true
-      // this.wall.receiveShadow = true
-
-      // // Wall 2----------
-      // this.wall2 = new THREE.Mesh(this.sideDoor, this.material)
-      // this.wall2.rotation.y = -90 * Math.PI / 180
-      // this.wall2.position.set(10, 4, 30)
-      // this.scene.add(this.wall2)
-
-      // this.wall2.castShadow = true
-      // this.wall2.receiveShadow = true
-
-      // // Wall 3----------
-      // this.wall3 = new THREE.Mesh(this.sideDoor, this.material)
-      // this.wall3.position.set(-40, 4, 80)
-      // this.scene.add(this.wall3)
-
-      // this.wall3.castShadow = true
-      // this.wall3.receiveShadow = true
-
-      // // Wall 4----------
-      // this.wall4 = new THREE.Mesh(this.sideDoor, this.material)
-      // this.wall4.rotation.y = -90 * Math.PI / 180
-      // this.wall4.position.set(-90, 4, 30)
-      // this.scene.add(this.wall4)
-
-      // this.wall4.castShadow = true
-      // this.wall4.receiveShadow = true
-
-      // Floor ---------------
-      // this.floor = new THREE.PlaneGeometry(10000, 10000, 100, 100)
-      // this.floormat = new THREE.MeshPhongMaterial ()
-      // this.ground = new THREE.Mesh(this.floor, this.floormat)
-      // this.ground.rotation.x = -90 * Math.PI / 180
-      // this.ground.position.y = -1
-      // this.ground.receiveShadow = true
-      // this.scene.add(this.ground)
-
-
-
+//       // Floor ---------------
+//       let floor = new THREE.PlaneGeometry(10000, 10000, 100, 100)
+//       let floormat = new THREE.MeshPhongMaterial ()
+//       this.ground = new THREE.Mesh(floor, floormat)
+//       this.ground.rotation.x = -90 * Math.PI / 180
+//       this.ground.position.y = -1
+//       this.ground.receiveShadow = true
+//       this.scene.add(this.ground)
 
       this.renderer = new THREE.WebGLRenderer({antialias:true});
       this.renderer.setSize( window.innerWidth, window.innerHeight );
@@ -175,7 +131,7 @@ export default class Game{
       document.body.appendChild( this.renderer.domElement );
 
       this.animate()
-          
+
     }
 
     // intiPhysics(){
@@ -184,10 +140,10 @@ export default class Game{
     //   this.fixedTimeStep = 1.0/60.0;
     //   this.damping = 0.01;
     //   this.body
-      
+
     //   this.world.broadphase = new CANNON.NaiveBroadphase();
     //   this.world.gravity.set(0, -10, 0);
-      
+
     //   this.groundShape = new CANNON.Plane();
     //   this.groundMaterial = new CANNON.Material();
     //   this.groundBody = new CANNON.Body({ mass: 0, material: groundMaterial });
@@ -197,15 +153,17 @@ export default class Game{
 
     //   // this.animate()
     // }
-  
+
     animate() {
           const game = this;
+//           let pos = this.controls.getObject().position
+//           let x = this.currentSphereX
+//           let y = this.currentSphereY
+//           if (this.controls.interact && Math.abs(pos.x - x) <= 5 && Math.abs(pos.y - y) <= 5) {
+//             this.addBody()
+
+//           }
           requestAnimationFrame( function(){ game.animate(); } );
-
-          // this.groundBody.position.copy(this.mesh2.position)
-
-          // this.world.step(this.fixedTimeStep);
-          
           this.controls.update(this.clock.getDelta())
           this.renderer.render( this.scene, this.camera );
       }
@@ -240,10 +198,10 @@ export default class Game{
 //         this.useVisuals = false;
 //         this.init();
 //     }
-  
+
 //     init(){
 //           const game = this;
-                    
+
 //       this.scene = new THREE.Scene();
 //       this.scene.background = new THREE.Color(0,0,0);
 //       this.camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 10000 );
@@ -263,7 +221,7 @@ export default class Game{
 //       this.renderer = new THREE.WebGLRenderer();
 //       this.renderer.setSize( window.innerWidth, window.innerHeight );
 //       document.body.appendChild( this.renderer.domElement );
-          
+
 //       const buttons = document.getElementById("gui").childNodes;
 //       const alotOfStuff = async () => {
 
@@ -280,8 +238,8 @@ export default class Game{
 //       }
 //       buttons[1].onclick = function(){ game.addBody(true) };
 //       buttons[3].onclick = function(){ game.addBody(false); };
-   
-      
+
+
 
 
 
@@ -289,10 +247,10 @@ export default class Game{
 //               this.helper = new CannonHelper(this.scene);
 //               this.helper.addLights(this.renderer);
 //           }
-  
+
 //       this.initPhysics();
 //     }
-  
+
 //     addBody( sphere=true ){
 //       const material = new CANNON.Material();
 //       const body = new CANNON.Body({ mass: 5, material: material });
@@ -301,31 +259,31 @@ export default class Game{
 //       }else{
 //         body.addShape(this.shapes.box);
 //       }
-          
+
 //       const x = Math.random()*0.3 + 1;
 //       body.position.set((sphere) ? -x : x, 19, 0);
 //       body.linearDamping = this.damping;
 //       this.world.add(body);
-          
+
 //           if (this.useVisuals) this.helper.addVisual(body, (sphere) ? 'sphere' : 'box', true, false);
-          
+
 //       // Create contact material behaviour
 //       const material_ground = new CANNON.ContactMaterial(this.groundMaterial, material, { friction: 0.0, restitution: (sphere) ? 0.9 : 0.3 });
-      
+
 //       this.world.addContactMaterial(material_ground);
 //     }
-  
+
 //     initPhysics(){
 //       const world = new CANNON.World();
 //       this.world = world;
 //       this.fixedTimeStep = 1.0/60.0;
 //       this.damping = 0.01;
 //       this.body
-      
+
 //       world.broadphase = new CANNON.NaiveBroadphase();
 //       world.gravity.set(0, -10, 0);
 //       this.debugRenderer = new THREE.CannonDebugRenderer(this.scene, this.world);
-      
+
 //       const groundShape = new CANNON.Plane();
 //       const groundMaterial = new CANNON.Material();
 //       const groundBody = new CANNON.Body({ mass: 0, material: groundMaterial });
@@ -369,7 +327,7 @@ export default class Game{
 //       const body = new CANNON.Body({ mass: 1, material: material });
 //       const camSphere = new CANNON.Sphere(1);
 //       body.addShape(camSphere);
-          
+
 //     //   const x = Math.random()*0.3 + 1;
 //       // console.log(this.camera.position)
 //       body.position.set(this.camera.position.x,this.camera.position.y,this.camera.position.z);
@@ -380,42 +338,42 @@ export default class Game{
 //       this.controls = new FirstPersonControls(this.camera, this.domElement);
 //       this.controls.movementSpeed = 5;
 //       this.controls.lookSpeed = 0.2;
-    
+
 //       console.log(this.body)
 //       console.log('camera in gamejs', this.camera)
 
 //       this.world.add(body);
-          
+
 //       if (this.useVisuals) this.helper.addVisual(body, (true) ? 'sphere' : 'box', true, false);
-          
+
 //       // Create contact material behaviour
 //     //   const material_ground = new CANNON.ContactMaterial(this.groundMaterial, material, { friction: 0.0, restitution: (true) ? 0.9 : 0.3 });
-      
+
 //     //   this.world.addContactMaterial(material_ground);
-          
+
 //       if (this.useVisuals) this.helper.addVisual(groundBody, 'ground', false, true);
-          
+
 //       this.shapes = {};
 //       this.shapes.sphere = new CANNON.Sphere(1);
 //       this.shapes.box = new CANNON.Box(new CANNON.Vec3(0.5,0.5,0.5));
-      
+
 //       this.groundMaterial = groundMaterial;
-      
+
 //       this.animate();
 //     }
-  
+
 //     animate() {
 //           const game = this;
 //           requestAnimationFrame( function(){ game.animate(); } );
 
 //           // this.camMove.position.copy(this.body.position)
-//           // this.body.position.copy(this.camera.position)  
+//           // this.body.position.copy(this.camera.position)
 //           this.camera.position.copy(this.body.position)
 
 
 
 //           this.world.step(this.fixedTimeStep);
-          
+
 //       if (this.useVisuals){
 //               this.helper.updateBodies(this.world);
 //           }else{
@@ -423,7 +381,7 @@ export default class Game{
 //           }
 
 //           this.controls.update(this.clock.getDelta())
-          
+
 //           this.renderer.render( this.scene, this.camera );
 //       }
 //   }
@@ -437,50 +395,50 @@ export default class Game{
 //   //   constructor(scene){
 //   //       this.scene = scene;
 //   //   }
-    
+
 //   //   addLights(renderer){
 //   //       renderer.shadowMap.enabled = true;
 //   //       renderer.shadowMap.type = THREE.PCFSoftShadowMap; // default THREE.PCFShadowMap
-  
+
 //   //       // LIGHTS
 //   //       const ambient = new THREE.AmbientLight( 0x888888 );
 //   //       this.scene.add( ambient );
-  
+
 //   //       const light = new THREE.DirectionalLight( 0xdddddd );
 //   //       light.position.set( 3, 10, 4 );
 //   //       light.target.position.set( 0, 0, 0 );
-  
+
 //   //       light.castShadow = true;
-  
+
 //   //       const lightSize = 10;
 //   //       light.shadow.camera.near = 1;
 //   //       light.shadow.camera.far = 50;
 //   //       light.shadow.camera.left = light.shadow.camera.bottom = -lightSize;
 //   //       light.shadow.camera.right = light.shadow.camera.top = lightSize;
-  
+
 //   //       light.shadow.mapSize.width = 1024;
 //   //       light.shadow.mapSize.height = 1024;
-  
+
 //   //       this.sun = light;
-//   //       this.scene.add(light);    
+//   //       this.scene.add(light);
 //   //   }
-    
+
 //   //   createCannonTrimesh(geometry){
 //   //   if (!geometry.isBufferGeometry) return null;
-    
+
 //   //   const posAttr = geometry.attributes.position;
 //   //   const vertices = geometry.attributes.position.array;
 //   //   let indices = [];
 //   //   for(let i=0; i<posAttr.count; i++){
 //   //     indices.push(i);
 //   //   }
-    
+
 //   //   return new CANNON.Trimesh(vertices, indices);
 //   // }
-  
+
 //   // createCannonConvex(geometry){
 //   //   if (!geometry.isBufferGeometry) return null;
-    
+
 //   //   const posAttr = geometry.attributes.position;
 //   //   const floats = geometry.attributes.position.array;
 //   //   const vertices = [];
@@ -495,10 +453,10 @@ export default class Game{
 //   //       face = [];
 //   //     }
 //   //   }
-    
+
 //   //   return new CANNON.ConvexPolyhedron(vertices, faces);
 //   // }
-    
+
 //   //   addVisual(body, name, castShadow=true, receiveShadow=true){
 //   //   body.name = name;
 //   //   if (this.currentMaterial===undefined) this.currentMaterial = new THREE.MeshLambertMaterial({color:0x888888});
@@ -534,7 +492,7 @@ export default class Game{
 //   //   // What geometry should be used?
 //   //   let mesh;
 //   //   if(body instanceof CANNON.Body) mesh = this.shape2Mesh(body, castShadow, receiveShadow);
-  
+
 //   //   if(mesh) {
 //   //     // Add body
 //   //     body.threemesh = mesh;
@@ -543,31 +501,31 @@ export default class Game{
 //   //     this.scene.add(mesh);
 //   //   }
 //   // }
-  
+
 //   // shape2Mesh(body, castShadow, receiveShadow){
 //   //   const obj = new THREE.Object3D();
 //   //   const material = this.currentMaterial;
 //   //   const game = this;
 //   //   let index = 0;
-    
+
 //   //   body.shapes.forEach (function(shape){
 //   //     let mesh;
 //   //     let geometry;
 //   //     let v0, v1, v2;
-  
+
 //   //     switch(shape.type){
-  
+
 //   //     case CANNON.Shape.types.SPHERE:
 //   //       const sphere_geometry = new THREE.SphereGeometry( shape.radius, 8, 8);
 //   //       mesh = new THREE.Mesh( sphere_geometry, material );
 //   //       break;
-  
+
 //   //     case CANNON.Shape.types.PARTICLE:
 //   //       mesh = new THREE.Mesh( game.particleGeo, game.particleMaterial );
 //   //       const s = this.settings;
 //   //       mesh.scale.set(s.particleSize,s.particleSize,s.particleSize);
 //   //       break;
-  
+
 //   //     case CANNON.Shape.types.PLANE:
 //   //       geometry = new THREE.PlaneGeometry(10, 10, 4, 4);
 //   //       mesh = new THREE.Object3D();
@@ -575,25 +533,25 @@ export default class Game{
 //   //       const ground = new THREE.Mesh( geometry, material );
 //   //       ground.scale.set(100, 100, 100);
 //   //       submesh.add(ground);
-  
+
 //   //       mesh.add(submesh);
 //   //       break;
-  
+
 //   //     case CANNON.Shape.types.BOX:
 //   //       const box_geometry = new THREE.BoxGeometry(  shape.halfExtents.x*2,
 //   //                             shape.halfExtents.y*2,
 //   //                             shape.halfExtents.z*2 );
 //   //       mesh = new THREE.Mesh( box_geometry, material );
 //   //       break;
-  
+
 //   //     case CANNON.Shape.types.CONVEXPOLYHEDRON:
 //   //       const geo = new THREE.Geometry();
-  
+
 //   //       // Add vertices
 //   //       shape.vertices.forEach(function(v){
 //   //         geo.vertices.push(new THREE.Vector3(v.x, v.y, v.z));
 //   //       });
-  
+
 //   //       shape.faces.forEach(function(face){
 //   //         // add triangles
 //   //         const a = face[0];
@@ -607,10 +565,10 @@ export default class Game{
 //   //       geo.computeFaceNormals();
 //   //       mesh = new THREE.Mesh( geo, material );
 //   //       break;
-  
+
 //   //     case CANNON.Shape.types.HEIGHTFIELD:
 //   //       geometry = new THREE.Geometry();
-  
+
 //   //       v0 = new CANNON.Vec3();
 //   //       v1 = new CANNON.Vec3();
 //   //       v2 = new CANNON.Vec3();
@@ -638,10 +596,10 @@ export default class Game{
 //   //       geometry.computeFaceNormals();
 //   //       mesh = new THREE.Mesh(geometry, material);
 //   //       break;
-  
+
 //   //     case CANNON.Shape.types.TRIMESH:
 //   //       geometry = new THREE.Geometry();
-  
+
 //   //       v0 = new CANNON.Vec3();
 //   //       v1 = new CANNON.Vec3();
 //   //       v2 = new CANNON.Vec3();
@@ -659,32 +617,32 @@ export default class Game{
 //   //       geometry.computeFaceNormals();
 //   //       mesh = new THREE.Mesh(geometry, MutationRecordaterial);
 //   //       break;
-  
+
 //   //     default:
 //   //       throw "Visual type not recognized: "+shape.type;
 //   //     }
-  
+
 //   //     mesh.receiveShadow = receiveShadow;
 //   //     mesh.castShadow = castShadow;
-            
+
 //   //           mesh.traverse( function(child){
 //   //               if (child.isMesh){
 //   //                   child.castShadow = castShadow;
 //   //         child.receiveShadow = receiveShadow;
 //   //               }
 //   //           });
-  
+
 //   //     var o = body.shapeOffsets[index];
 //   //     var q = body.shapeOrientations[index++];
 //   //     mesh.position.set(o.x, o.y, o.z);
 //   //     mesh.quaternion.set(q.x, q.y, q.z, q.w);
-  
+
 //   //     obj.add(mesh);
 //   //   });
-  
+
 //   //   return obj;
 //   // }
-    
+
 //   //   updateBodies(world){
 //   //       world.bodies.forEach( function(body){
 //   //           if ( body.threemesh != undefined){
@@ -694,4 +652,3 @@ export default class Game{
 //   //       });
 //   //   }
 //   // }
-  
