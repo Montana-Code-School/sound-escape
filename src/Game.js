@@ -66,11 +66,11 @@ export default class Game{
       game.world.gravity.set(0, -10, 0);
 
       const sphere = new CANNON.Sphere(1);
-      const dropme = new CANNON.Body({mass: 0.5}) 
+      const dropme = new CANNON.Body({mass: 1}) 
       dropme.addShape(sphere);
       dropme.position.set(-100, 40, 0)
       this.dropme = dropme
-      this.world.add(this.dropme);
+      game.world.add(this.dropme);
       console.log("dropme in initphys", this.dropme.position)
 
     //   this.groundShape = new CANNON.Plane();
@@ -83,7 +83,7 @@ export default class Game{
     }
 
     assLoad() {
-      console.log("this is an assload")
+      // console.log("this is an assload")
       const loader = new FBXLoader()
         // this.loader = new THREE.JSONLoader( this.manager ) 
       loader.load( 'models/basicmap.fbx', function ( object ){
@@ -116,7 +116,7 @@ export default class Game{
     }
 
     createColliders(){
-      console.log('im the object in CC', game.object)
+      // console.log('im the object in CC', game.object)
       const scaleAdjust = 0.9;
       const divisor = 2 / scaleAdjust;
       game.object.children.forEach(function(child){
@@ -137,21 +137,15 @@ export default class Game{
       requestAnimationFrame( function(){ 
         game.animate();       
       } );   
-      // game.world.step(this.fixedTimeStep);
-        // console.log(this.clock.getDelta())
-      if (this.clock.getDelta() > 0) {
-        game.world.step(this.fixedTimeStep * this.clock.getDelta())
-      }
-
-
-
-
-      // this.dropBall.position.copy(this.dropme.position)
-
-      console.log("dropme in animate ", this.dropme)
+      // console.log(game.clock.getDelta()) 
+      // if (game.clock.getDelta() > 0) {
+      //   game.world.step(this.fixedTimeStep * game.clock.getDelta())
+      // }
+        console.log(game.world)
+      // console.log("dropme in animate ", this.dropme)
       // console.log('dropball in animage', this.dropBall)
-      this.dropme.position.copy(this.dropBall.position)
-      // this.dropBall.quaternion.copy(this.dropme.quaternion)
+      this.dropBall.position.copy(this.dropme.position)
+      this.dropBall.quaternion.copy(this.dropme.quaternion)
       this.controls.update(this.clock.getDelta())
       this.renderer.render( this.scene, this.camera );
     }
