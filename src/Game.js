@@ -1,4 +1,4 @@
-
+import FirstPersonControls from "./FirstPersonControls";
 import PointerLockControls from './PointerLockControls';
 FBXLoader = require('three-fbx-loader');
 
@@ -17,8 +17,6 @@ export default class Game{
       this.clock = new THREE.Clock();
 
       this.camera = new THREE.PerspectiveCamera( 65, window.innerWidth/window.innerHeight, 0.1, 10000 );
-      this.camera.position.set(0,40,100)
-
 
       this.controls = new PointerLockControls(this.camera);
       instructions.addEventListener( 'click', this.controls.lock, false );
@@ -33,151 +31,130 @@ export default class Game{
 
       this.scene.add(this.controls.getObject())
       
-      // this.controls.movementSpeed = 100;
-      // this.controls.lookSpeed = 0.7;
 
 
-//------------------------------------------------------------------
-// Models
-//------------------------------------------------------------------
+      this.material = new THREE.MeshLambertMaterial();
+ 
+      this.thing = new THREE.SphereGeometry(30, 20, 20)
+      this.dropBall = new THREE.Mesh(this.thing, this.material)
+      this.dropBall.castShadow = true
+      this.scene.add(this.dropBall)
 
-      // this.manager = new THREE.LoadingManager();
-      // this.manager.onStart = function( url, itemsLoaded, itemsTotal) {
-      //   console.log( 'Started loading file')
-      // }
-      // this.manager.onProgress = function(){
-      //   console.log('loading complete')
-      // }
       // use ObjectLoader not objLoader
-      function assLoad() {
-        console.log(game)
-        const loader = new FBXLoader()
-          // this.loader = new THREE.JSONLoader( this.manager ) 
-        loader.load( 'models/basicmap.fbx', function ( object ){
-          object.traverse( function( children ) {
-            if(children.isMesh) {
-              children.receiveShadow = true
-              children.castShadow = true
-              console.log(object.children.receiveShadow)
-            } else if(children.isPointLight) {
-              children.castShadow = true
-            } else if(children.isSpotLight) {
-              children.castShadow = true
-            }
-          })
-
-        loader.load('models/platforms.fbx', function(platforms){
-          platforms.traverse(function (children){
-            if (children.isMesh){
-              children.receiveShadow = true
-              children.castShadow = true
-            } else {
-              children.castShadow = true
-            }
-          })
-          platforms.position.set(0,0,700)
-          game.scene.add(platforms)
-        })
-        game.scene.add( object )
-        console.log(object.children)
-        })
-      }
-      assLoad()
-
-
-//------------------------------------------------------------------
-// Objects
-//------------------------------------------------------------------
-      // this.material = new THREE.MeshPhongMaterial
-      // this.side = new THREE.BoxBufferGeometry(100,40, 1)
-      // this.sideDoor = new THREE.BoxBufferGeometry(90, 40, 1)
-
-
-      // Ball -----------------
-//       this.ball = new THREE.SphereBufferGeometry( 3, 20, 30 )
-//       this.sphere = new THREE.Mesh(this.ball, this.material)
-//       this.sphere.position.set(-10,5,-3)
-//       this.scene.add(this.sphere)
-//       this.sphere.castShadow = true
-//       this.sphere.receiveShadow = true
-//       this.currentSphereX = this.sphere.position.x
-//       this.currentSphereY = this.sphere.position.y
-//       this.addBody = function() {
-//         let newSphr = new THREE.Mesh(this.ball, this.material)
-//         let x = Math.floor(Math.random() * -250)
-//         let z = Math.floor(Math.random() * 250)
-//         newSphr.position.set(x, 5, z)
-//         this.currentSphereX = newSphr.position.x
-//         this.currentSphereY = newSphr.position.y
-//         this.scene.add(newSphr)
-//         this.controls.interact = false
-//       }
-
-      // Wall 1----------
-//       this.createWall = function(yRotation) {
-//         let side = new THREE.BoxBufferGeometry(2000,10,1)
-//         let wall = new THREE.Mesh(side, this.material)
-//         wall.rotation.y = yRotation * Math.PI / 180
-//         wall.position.set(10,2,-20)
-//         this.scene.add(wall)
-//         wall.castShadow = true
-//         wall.receiveShadow = true
-//       }
-//       this.createWall(0)
-//       this.createWall(-90)
-
-//       // Floor ---------------
-//       let floor = new THREE.PlaneGeometry(10000, 10000, 100, 100)
-//       let floormat = new THREE.MeshPhongMaterial ()
-//       this.ground = new THREE.Mesh(floor, floormat)
-//       this.ground.rotation.x = -90 * Math.PI / 180
-//       this.ground.position.y = -1
-//       this.ground.receiveShadow = true
-//       this.scene.add(this.ground)
+      
+      this.assLoad()
 
       this.renderer = new THREE.WebGLRenderer({antialias:true});
       this.renderer.setSize( window.innerWidth, window.innerHeight );
       this.renderer.shadowMap.enabled = true
       this.renderer.shadowMap.type = THREE.PCFSoftShadowMap
       document.body.appendChild( this.renderer.domElement );
-
-      this.animate()
+      setTimeout(this.animate, 500)
 
     }
 
-    // intiPhysics(){
-    //    const world = new CANNON.World();
-    //   this.world = world;
-    //   this.fixedTimeStep = 1.0/60.0;
-    //   this.damping = 0.01;
-    //   this.body
+    initPhysics(){
+      const world = new CANNON.World();
+      game.world = world;
+      console.log(game.world)
+      this.fixedTimeStep = 1.0/60.0;
+      
 
-    //   this.world.broadphase = new CANNON.NaiveBroadphase();
-    //   this.world.gravity.set(0, -10, 0);
+      // this.damping = 0.01;
+
+      game.world.broadphase = new CANNON.NaiveBroadphase();
+      game.world.gravity.set(0, -10, 0);
+
+      const sphere = new CANNON.Sphere(1);
+      const dropme = new CANNON.Body({mass: 0.5}) 
+      dropme.addShape(sphere);
+      dropme.position.set(-100, 40, 0)
+      this.dropme = dropme
+      this.world.add(this.dropme);
+      console.log("dropme in initphys", this.dropme.position)
 
     //   this.groundShape = new CANNON.Plane();
     //   this.groundMaterial = new CANNON.Material();
     //   this.groundBody = new CANNON.Body({ mass: 0, material: groundMaterial });
-    //   this.groundBody.quaternion.setFromAxisAngle( new CANNON.Vec3(1,0,0), -Math.PI/2);
+      // this.groundBody.quaternion.setFromAxisAngle( new CANNON.Vec3(1,0,0), -Math.PI/2);
     //   this.groundBody.addShape(groundShape);
     //   this.world.add(this.groundBody);
+    game.createColliders()
+    }
 
-    //   // this.animate()
-    // }
+    assLoad() {
+      console.log("this is an assload")
+      const loader = new FBXLoader()
+        // this.loader = new THREE.JSONLoader( this.manager ) 
+      loader.load( 'models/basicmap.fbx', function ( object ){
+        object.traverse( function( children ) {
+          if(children.isMesh) {
+            children.receiveShadow = true
+            children.castShadow = true
+          } else if(children.isPointLight) {
+            children.castShadow = true
+          } else if(children.isSpotLight) {
+            children.castShadow = true
+          }
+        })
+      game.scene.add( object )
+      game.object = object
+      game.initPhysics()
+      })
+      // loader.load('models/platforms.fbx', function(platforms){
+      //   platforms.traverse(function (children){
+      //     if (children.isMesh){
+      //       children.receiveShadow = true
+      //       children.castShadow = true
+      //     } else {
+      //       children.castShadow = true
+      //     }
+      //   })
+      //   platforms.position.set(0,0,700)
+      //   game.scene.add(platforms)
+      // })
+    }
 
-    animate() {
-          const game = this;
-//           let pos = this.controls.getObject().position
-//           let x = this.currentSphereX
-//           let y = this.currentSphereY
-//           if (this.controls.interact && Math.abs(pos.x - x) <= 5 && Math.abs(pos.y - y) <= 5) {
-//             this.addBody()
+    createColliders(){
+      console.log('im the object in CC', game.object)
+      const scaleAdjust = 0.9;
+      const divisor = 2 / scaleAdjust;
+      game.object.children.forEach(function(child){
+        if (child.isMesh){
+          child.visible = true;
+          const halfExtents = new CANNON.Vec3(child.scale.x/divisor, child.scale.y/divisor, child.scale.z/divisor);
+          const box = new CANNON.Box(halfExtents);
+          const body = new CANNON.Body({mass:0});
+          body.addShape(box);
+          body.position.copy(child.position);
+          body.quaternion.copy(child.quaternion);
+          game.world.add(body);
+        }
+      })
+    }
 
-//           }
-          requestAnimationFrame( function(){ game.animate(); } );
-          this.controls.update(this.clock.getDelta())
-          this.renderer.render( this.scene, this.camera );
+    animate(){
+      requestAnimationFrame( function(){ 
+        game.animate();       
+      } );   
+      // game.world.step(this.fixedTimeStep);
+        // console.log(this.clock.getDelta())
+      if (this.clock.getDelta() > 0) {
+        game.world.step(this.fixedTimeStep * this.clock.getDelta())
       }
+
+
+
+
+      // this.dropBall.position.copy(this.dropme.position)
+
+      console.log("dropme in animate ", this.dropme)
+      // console.log('dropball in animage', this.dropBall)
+      this.dropme.position.copy(this.dropBall.position)
+      // this.dropBall.quaternion.copy(this.dropme.quaternion)
+      this.controls.update(this.clock.getDelta())
+      this.renderer.render( this.scene, this.camera );
+    }
   }
 
 
