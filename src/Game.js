@@ -4,11 +4,51 @@ FBXLoader = require('three-fbx-loader');
 
 export default class Game{
     constructor(){
-        this.init();
+        this.initPhysics()
+        this.init()
+        this.assLoad()
+        // this.createColliders()
+        // this.animate()
+    }
+
+   
+    initPhysics(){
+      console.log('in initphysics')
+      const world = new CANNON.World();
+      this.world = world;
+      this.world.fixedTimeStep = 1.0/60.0;
+      
+      this.world.damping = 0.01;
+
+      this.world.gravity.set(0, -10, 0);
+      this.world.broadphase = new CANNON.NaiveBroadphase();
+
+      // this.createColliders()
+
+      this.sphere = new CANNON.Sphere(40);
+      this.dropme = new CANNON.Body({mass: 1}) 
+      this.dropme.addShape(this.sphere);      
+      // this.dropme.position.set(0, 80, -140)
+      this.dropme.linearDamping = 0.9
+      // this.dropme = dropme
+      this.world.add(this.dropme);
+      console.log('dropme', this.dropme)
+
+      this.groundShape = new CANNON.Plane();
+      this.groundMaterial = new CANNON.Material();
+      this.groundBody = new CANNON.Body({ mass: 0 });
+      this.groundBody.quaternion.setFromAxisAngle( new CANNON.Vec3(1,0,0), -Math.PI/2);
+      this.groundBody.addShape(this.groundShape);
+      this.groundBody.position.set(0, 0, 0)
+      this.world.add(this.groundBody);
+      console.log(this)
+
+      // this.createColliders()      
     }
 
     init(){
-      const game = this;
+      console.log('in init')
+      // const game = this;
       let blocker = document.getElementById('blocker')
       let instructions = document.getElementById( 'instructions' );
 
@@ -18,7 +58,9 @@ export default class Game{
 
       this.camera = new THREE.PerspectiveCamera( 65, window.innerWidth/window.innerHeight, 0.1, 10000 );
 
-      this.controls = new PointerLockControls(this.camera);
+      console.log('dropme object for camera', this.dropme)
+
+      this.controls = new PointerLockControls(this.camera, this.dropme);
       instructions.addEventListener( 'click', this.controls.lock, false );
       this.controls.addEventListener( 'lock', function () {
         instructions.style.display = 'none';
@@ -28,22 +70,16 @@ export default class Game{
         blocker.style.display = 'block';
         instructions.style.display = '';
       } );
-
       this.scene.add(this.controls.getObject())
-      
-
 
       this.material = new THREE.MeshLambertMaterial();
  
-      this.thing = new THREE.SphereGeometry(30, 20, 20)
-      this.dropBall = new THREE.Mesh(this.thing, this.material)
-      this.dropBall.castShadow = true
-      this.scene.add(this.dropBall)
+      // this.thing = new THREE.SphereGeometry(30, 20, 20)
+      // this.dropBall = new THREE.Mesh(this.thing, this.material)
+      // this.dropBall.castShadow = true
+      // this.scene.add(this.dropBall)
 
-      // use ObjectLoader not objLoader
-      
-      this.assLoad()
-
+            
       this.renderer = new THREE.WebGLRenderer({antialias:true});
       this.renderer.setSize( window.innerWidth, window.innerHeight );
       this.renderer.shadowMap.enabled = true
@@ -51,39 +87,15 @@ export default class Game{
       document.body.appendChild( this.renderer.domElement );
       setTimeout(this.animate, 500)
 
+      // this.assLoad()
+      // this.createColliders()      
+
     }
 
-    initPhysics(){
-      const world = new CANNON.World();
-      game.world = world;
-      console.log(game.world)
-      this.fixedTimeStep = 1.0/60.0;
-      
 
-      // this.damping = 0.01;
-
-      game.world.broadphase = new CANNON.NaiveBroadphase();
-      game.world.gravity.set(0, -10, 0);
-
-      const sphere = new CANNON.Sphere(1);
-      const dropme = new CANNON.Body({mass: 1}) 
-      dropme.addShape(sphere);
-      dropme.position.set(-100, 40, 0)
-      this.dropme = dropme
-      game.world.add(this.dropme);
-      console.log("dropme in initphys", this.dropme.position)
-
-    //   this.groundShape = new CANNON.Plane();
-    //   this.groundMaterial = new CANNON.Material();
-    //   this.groundBody = new CANNON.Body({ mass: 0, material: groundMaterial });
-      // this.groundBody.quaternion.setFromAxisAngle( new CANNON.Vec3(1,0,0), -Math.PI/2);
-    //   this.groundBody.addShape(groundShape);
-    //   this.world.add(this.groundBody);
-    game.createColliders()
-    }
 
     assLoad() {
-      // console.log("this is an assload")
+      console.log("this is an assload")
       const loader = new FBXLoader()
         // this.loader = new THREE.JSONLoader( this.manager ) 
       loader.load( 'models/basicmap.fbx', function ( object ){
@@ -99,28 +111,29 @@ export default class Game{
         })
       game.scene.add( object )
       game.object = object
+      game.createColliders()
       game.initPhysics()
       })
-      // loader.load('models/platforms.fbx', function(platforms){
-      //   platforms.traverse(function (children){
-      //     if (children.isMesh){
-      //       children.receiveShadow = true
-      //       children.castShadow = true
-      //     } else {
-      //       children.castShadow = true
-      //     }
-      //   })
-      //   platforms.position.set(0,0,700)
-      //   game.scene.add(platforms)
-      // })
+      loader.load('models/platforms.fbx', function(platforms){
+        platforms.traverse(function (children){
+          if (children.isMesh){
+            children.receiveShadow = true
+            children.castShadow = true
+          } else {
+            children.castShadow = true
+          }
+        })
+        platforms.position.set(0,0,700)
+        game.scene.add(platforms)
+      })
     }
 
     createColliders(){
-      // console.log('im the object in CC', game.object)
-      const scaleAdjust = 0.9;
+      console.log('im making colliders', game.object)
+      const scaleAdjust = .6;
       const divisor = 2 / scaleAdjust;
       game.object.children.forEach(function(child){
-        if (child.isMesh){
+        if (child.isMesh) {
           child.visible = true;
           const halfExtents = new CANNON.Vec3(child.scale.x/divisor, child.scale.y/divisor, child.scale.z/divisor);
           const box = new CANNON.Box(halfExtents);
@@ -129,25 +142,43 @@ export default class Game{
           body.position.copy(child.position);
           body.quaternion.copy(child.quaternion);
           game.world.add(body);
+          console.log(body)
+          // console.log(this.dropme)
         }
       })
+      // game.initPhysics()
+      // this.animate()
     }
 
     animate(){
-      requestAnimationFrame( function(){ 
-        game.animate();       
-      } );   
+      // console.log(contact.bi.id)
+      // console.log('clock', game.clock)
+      // console.log(document.body)
       // console.log(game.clock.getDelta()) 
-      // if (game.clock.getDelta() > 0) {
+      // if (game.clock.getDelta() > 0 || game.fixedTimeStep === undefined) {
       //   game.world.step(this.fixedTimeStep * game.clock.getDelta())
       // }
-        console.log(game.world)
-      // console.log("dropme in animate ", this.dropme)
-      // console.log('dropball in animage', this.dropBall)
-      this.dropBall.position.copy(this.dropme.position)
-      this.dropBall.quaternion.copy(this.dropme.quaternion)
-      this.controls.update(this.clock.getDelta())
-      this.renderer.render( this.scene, this.camera );
+
+      // game.world.step(game.fixedTimeStep )
+
+      // game.world.step(game.fixedTimeStep * game.clock.getDelta())
+        // console.log(game.fixedTimeStep)
+        // console.log(game.clock.getDelta())
+        // console.log(game.world.step)
+      // console.log("dropme in animate ", game.dropme.position)
+      // console.log('dropball in animate', game.dropBall.position)
+      // game.dropBall.position.copy(game.dropme.position)
+      // game.dropBall.quaternion.copy(game.dropme.quaternion)
+      game.controls.update(game.clock.getDelta())
+      game.renderer.render( game.scene, game.camera );
+      requestAnimationFrame( function(){ 
+        // if (game.clock.getDelta() > 0 || game.fixedTimeStep === undefined) {
+        //   game.world.step(this.fixedTimeStep * game.clock.getDelta())
+        // }
+        game.world.step(game.fixedTimeStep )
+  
+        game.animate();       
+      } ); 
     }
   }
 
