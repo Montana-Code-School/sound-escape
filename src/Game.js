@@ -38,6 +38,12 @@ export default class Game{
       this.world.broadphase = new CANNON.NaiveBroadphase();
 
       // this.createColliders()
+        this.boxx = new CANNON.Box(new CANNON.Vec3(1,1,1))
+        this.cube = new CANNON.Body({mass:0})
+        this.cube.addShape(this.boxx)
+        this.cube.position.set(0, 1, 0)
+        this.world.add(this.cube)
+
 
       this.sphere = new CANNON.Sphere(.5);
       this.camBody = new CANNON.Body({mass: 0}) 
@@ -162,7 +168,7 @@ export default class Game{
 
     createColliders(){
       console.log('in colliders')
-      const scaleAdjust = 2000;
+      const scaleAdjust = .0000000000000000000000000002;
       const divisor = 2 / scaleAdjust;
       game.object.children.forEach(function(child){
         // console.log('game children', game.object.children)
