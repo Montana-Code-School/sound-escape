@@ -34,19 +34,26 @@ export default class Game{
       this.world.addContactMaterial(physicsContactMaterial);
 
 
-      this.world.gravity.set(0, -10, 0);
+      this.world.gravity.set(0, -.00000001, 0);
       this.world.broadphase = new CANNON.NaiveBroadphase();
 
       // this.createColliders()
+        this.testMaterial = new CANNON.Material()
+        
         this.boxx = new CANNON.Box(new CANNON.Vec3(1,1,1))
-        this.cube = new CANNON.Body({mass:0})
+        this.cube = new CANNON.Body({mass:0, material: this.testMaterial})
+        this.boxGeometry = new THREE.BoxGeometry(2,2,2)
         this.cube.addShape(this.boxx)
-        this.cube.position.set(0, 1, 0)
+        let boxMesh = new THREE.Mesh(this.boxGeometry, this.testMaterial)
+        this.boxMesh = boxMesh
+        this.cube.position.set(0, 2, -7)
         this.world.add(this.cube)
 
 
       this.sphere = new CANNON.Sphere(.5);
-      this.camBody = new CANNON.Body({mass: 0}) 
+      this.sphereGeometry = new THREE.SphereGeometry(this.sphere.radius, 20)
+      this.sphereMesh = new THREE.Mesh(this.sphereGeometry, this.material)
+      this.camBody = new CANNON.Body({mass: 0, material: this.testMaterial}) 
       this.camBody.addShape(this.sphere);      
       // this.camBody.position.set(0, 80, -140)
       this.camBody.linearDamping = 0.9
@@ -111,12 +118,15 @@ export default class Game{
       } );
       this.scene.add(this.controls.getObject())
 
+      this.scene.add(this.sphereMesh)
+
       this.material = new THREE.MeshLambertMaterial();
- 
-      // this.thing = new THREE.SphereGeometry(30, 20, 20)
-      // this.dropBall = new THREE.Mesh(this.thing, this.material)
-      // this.dropBall.castShadow = true
-      // this.scene.add(this.dropBall)
+      this.thing = new THREE.SphereGeometry(1, 12)
+      this.dropBall = new THREE.Mesh(this.thing, this.material)
+      this.dropBall.castShadow = true
+      this.dropBall.position.set(0,2,-8)
+      this.scene.add(this.dropBall)
+      this.scene.add(this.boxMesh)
 
 
       this.renderer = new THREE.WebGLRenderer({antialias:true});
@@ -187,7 +197,9 @@ export default class Game{
           // console.log('drops me', this.camBody)
         }
       })
-      console.log('world for debug', this.world )
+      console.log('world for debug', this.world.bodies )
+      console.log('box', this.cube)
+      console.log('sphere', this.camBody)
       this.cannonDebugRenderer = new THREE.CannonDebugRenderer( this.scene, this.world );
       console.log(this.cannonDebugRenderer)
       // game.initPhysics()
@@ -215,7 +227,9 @@ export default class Game{
       game.cannonDebugRenderer.update();  
       game.controls.update(game.clock.getDelta())
       game.renderer.render( game.scene, game.camera );
-      requestAnimationFrame( function(){ 
+      requestAnimationFrame( function(){
+        game.sphereMesh.position.copy(game.camBody.position)
+        game.sphereMesh.quaternion.copy(game.camBody.quaternion) 
         // if (game.clock.getDelta() > 0 || game.fixedTimeStep === undefined) {
         //   game.world.step(this.fixedTimeStep * game.clock.getDelta())
         // }

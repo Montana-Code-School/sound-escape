@@ -200,8 +200,8 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
 		this.direction.z = Number( this.moveForward ) - Number( this.moveBackward );
 		this.direction.x = Number( this.moveLeft ) - Number( this.moveRight );
 		this.direction.normalize(); // this ensures consistent movements in all directions
-		if ( this.moveForward || this.moveBackward ) this.velocity.z -= this.direction.z * 50.0 * delta;
-		if ( this.moveLeft || this.moveRight ) this.velocity.x -= this.direction.x * 50.0 * delta;
+		if ( this.moveForward || this.moveBackward ) this.velocity.z -= this.direction.z * 10.0 * delta;
+		if ( this.moveLeft || this.moveRight ) this.velocity.x -= this.direction.x * 10.0 * delta;
 		this.velocity.y = Math.max(0, this.velocity.y)
 		this.yawObject.translateX(this.velocity.x * delta)
 		this.yawObject.translateY(this.velocity.y * delta)
