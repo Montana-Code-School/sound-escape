@@ -1,5 +1,6 @@
 import FirstPersonControls from "./FirstPersonControls";
 import PointerLockControls from './PointerLockControls';
+import CannonDebugRenderer from './CannonDebugRenderer';
 FBXLoader = require('three-fbx-loader');
 
 export default class Game{
@@ -14,6 +15,7 @@ export default class Game{
       console.log('in initphysics')
       const world = new CANNON.World();
       this.world = world;
+
       this.world.fixedTimeStep = 1.0/60.0;
       
       this.world.damping = 0.05;
@@ -37,13 +39,13 @@ export default class Game{
 
       // this.createColliders()
 
-      this.sphere = new CANNON.Sphere(200);
-      this.camBody = new CANNON.Body({mass: 50}) 
+      this.sphere = new CANNON.Sphere(.5);
+      this.camBody = new CANNON.Body({mass: 0}) 
       this.camBody.addShape(this.sphere);      
       // this.camBody.position.set(0, 80, -140)
       this.camBody.linearDamping = 0.9
       this.camBody.collisionResponse = 0
-      this.camBody.addEventListener('collide', function(e){console.log('croc')})
+      // this.camBody.addEventListener('collide', function(e){console.log('croc')})
       this.world.add(this.camBody);
       // console.log('world', this.world.bodies[0])
 
@@ -51,17 +53,17 @@ export default class Game{
       this.groundBody = new CANNON.Body({ mass: 0 });
       this.groundBody.quaternion.setFromAxisAngle( new CANNON.Vec3(1,0,0), -Math.PI/2);
       this.groundBody.addShape(this.groundShape);
-      this.groundBody.addEventListener('collide', function(e){console.log('aligator')})
+      // this.groundBody.addEventListener('collide', function(e){console.log('aligator')})
 
       this.groundBody.position.set(0, 0, 0)
       this.world.add(this.groundBody);
 
 
-      // this.world.bodies[0].addEventListener("collide",function(e){
+      // this.camBody.addEventListener("collide",function(e){
       //       this.contactNormal = new CANNON.Vec3(); // Normal in the contact, pointing *out* of whatever the player touched
       //       this.upAxis = new CANNON.Vec3(0,1,0);
       //       this.contact = e.contact;
-      //       console.log("ouch", this.contact)
+      //       console.log("ouch", this.contact.bi)
       //       // contact.bi and contact.bj are the colliding bodies, and contact.ni is the collision normal.
       //       // We do not yet know which one is which! Let's check.
       //       if(this.contact.bi.id == game.world.bodies[0].id)  // bi is the player body, flip the contact normal
@@ -110,7 +112,7 @@ export default class Game{
       // this.dropBall.castShadow = true
       // this.scene.add(this.dropBall)
 
-            
+
       this.renderer = new THREE.WebGLRenderer({antialias:true});
       this.renderer.setSize( window.innerWidth, window.innerHeight );
       this.renderer.shadowMap.enabled = true
@@ -160,25 +162,28 @@ export default class Game{
 
     createColliders(){
       console.log('in colliders')
-      const scaleAdjust = .5;
+      const scaleAdjust = 2000;
       const divisor = 2 / scaleAdjust;
       game.object.children.forEach(function(child){
-        console.log(game.object)
+        // console.log('game children', game.object.children)
         if (child.isMesh) {
           child.visible = true;
           const halfExtents = new CANNON.Vec3(child.scale.x/divisor, child.scale.y/divisor, child.scale.z/divisor);
           const box = new CANNON.Box(halfExtents);
           const body = new CANNON.Body({mass:1});
           body.addShape(box);
-          body.addEventListener('collide', function(e){ console.log('this happened')})
+          // body.addEventListener('collide', function(e){ console.log('this happened', e.body.shapes)})
           body.position.copy(child.position);
           body.quaternion.copy(child.quaternion);
-          body.collisionResponse = true
+          body.collisionResponse = 0
           game.world.add(body);
-          console.log('im a bodiesssss', body)
+          // console.log('im a bodiesssss', body)
           // console.log('drops me', this.camBody)
         }
       })
+      console.log('world for debug', this.world )
+      this.cannonDebugRenderer = new THREE.CannonDebugRenderer( this.scene, this.world );
+      console.log(this.cannonDebugRenderer)
       // game.initPhysics()
       // this.animate()
     }
@@ -201,6 +206,7 @@ export default class Game{
       // console.log('dropball in animate', game.dropBall.position)
       // game.camBody.position.copy(game.camBody.position)
       // game.dropBall.quaternion.copy(game.camBody.quaternion)
+      game.cannonDebugRenderer.update();  
       game.controls.update(game.clock.getDelta())
       game.renderer.render( game.scene, game.camera );
       requestAnimationFrame( function(){ 

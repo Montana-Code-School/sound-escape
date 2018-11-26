@@ -11,7 +11,7 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
 
 	this.domElement = domElement || document.body;
 
-    this.eyeYPos = 60; // eyes are 2 meters above the ground
+    this.eyeYPos = 2; // eyes are 2 meters above the ground
     this.velocityFactor = 0.2;
     this.jumpVelocity = 20;
 
@@ -19,7 +19,7 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
     this.pitchObject.add( camera );
 
     this.yawObject = new THREE.Object3D();
-    this.yawObject.position.y = 60;
+    this.yawObject.position.y = 2;
     this.yawObject.add( this.pitchObject );
 
     this.quat = new THREE.Quaternion();
@@ -72,8 +72,8 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
         var movementX = event.movementX || event.mozMovementX || event.webkitMovementX || 0;
         var movementY = event.movementY || event.mozMovementY || event.webkitMovementY || 0;
 
-        this.yawObject.rotation.y -= movementX * 0.002;
-        this.pitchObject.rotation.x -= movementY * 0.002;
+        this.yawObject.rotation.y -= movementX * 0.001;
+        this.pitchObject.rotation.x -= movementY * 0.001;
 
         this.pitchObject.rotation.x = Math.max( - PI_2, Math.min( PI_2, this.pitchObject.rotation.x ) );
     };
@@ -200,8 +200,8 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
 		this.direction.z = Number( this.moveForward ) - Number( this.moveBackward );
 		this.direction.x = Number( this.moveLeft ) - Number( this.moveRight );
 		this.direction.normalize(); // this ensures consistent movements in all directions
-		if ( this.moveForward || this.moveBackward ) this.velocity.z -= this.direction.z * 400.0 * delta;
-		if ( this.moveLeft || this.moveRight ) this.velocity.x -= this.direction.x * 400.0 * delta;
+		if ( this.moveForward || this.moveBackward ) this.velocity.z -= this.direction.z * 100.0 * delta;
+		if ( this.moveLeft || this.moveRight ) this.velocity.x -= this.direction.x * 100.0 * delta;
 		this.velocity.y = Math.max(0, this.velocity.y)
 		this.yawObject.translateX(this.velocity.x * delta)
 		this.yawObject.translateY(this.velocity.y * delta)
