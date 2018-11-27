@@ -1,8 +1,7 @@
 
+// import * as THREE from 'three'
 THREE = require('three')
-CANNON = require('cannon')
 
-import FirstPersonControls from './FirstPersonControls'
 import Game from './Game'
 
 document.addEventListener('DOMContentLoaded', function(){
@@ -11,4 +10,3 @@ document.addEventListener('DOMContentLoaded', function(){
   window.game = game;//For debugging only
 });
 
-console.log('we here')
