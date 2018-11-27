@@ -61,7 +61,7 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
 
 
 
-    // this.velocity = this.cannonBody.velocity;
+    this.velocity = this.cannonBody.velocity;
 
     var PI_2 = Math.PI / 2;
 
@@ -188,28 +188,69 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
     //     this.yawObject.translateX(this.velocity.x * delta)
     //     this.yawObject.translateY(this.velocity.y * delta)
     //     this.yawObject.translateZ(this.velocity.z * delta)
-    //     this.yawObject.position.copy(this.cannonBody.position);
-    //     this.cannonBody.position.copy(this.yawObject.position)
+    //     // this.yawObject.position.copy(this.cannonBody.position);
+    //     // this.cannonBody.position.copy(this.yawObject.position)
     // };
 
-    this.update = function(delta) {
-		// this.raycaster.ray.origin.copy(this.yawObject.position)
-		this.velocity.x -= this.velocity.x * 1.0 * delta;
-		this.velocity.z -= this.velocity.z * 1.0 * delta;
-		this.velocity.y -= 9.82 * 100 * delta; // 100.0 = mass
-		this.direction.z = Number( this.moveForward ) - Number( this.moveBackward );
-		this.direction.x = Number( this.moveLeft ) - Number( this.moveRight );
-		this.direction.normalize(); // this ensures consistent movements in all directions
-		if ( this.moveForward || this.moveBackward ) this.velocity.z -= this.direction.z * 50.0 * delta;
-		if ( this.moveLeft || this.moveRight ) this.velocity.x -= this.direction.x * 50.0 * delta;
-		this.velocity.y = Math.max(0, this.velocity.y)
-		this.yawObject.translateX(this.velocity.x * delta)
-		this.yawObject.translateY(this.velocity.y * delta)
-        this.yawObject.translateZ(this.velocity.z * delta)  
-        game.camBody.position.copy(this.yawObject.position)
-        // console.log("cambody",game.camBody.position,"yaw",this.yawObject.position)
+    this.update = function ( delta ) {
+        // if ( this.enabled === false ) return;
+        delta *= 500.1;
+ 
+        this.inputVelocity.set(0,0,0);
+ 
+        if ( this.moveForward ){
+            this.inputVelocity.z = -this.velocityFactor * delta;
+        }
+        if ( this.moveBackward ){
+            this.inputVelocity.z = this.velocityFactor * delta;
+        }
+ 
+        if ( this.moveLeft ){
+            this.inputVelocity.x = -this.velocityFactor * delta;
+        }
+        if ( this.moveRight ){
+            this.inputVelocity.x = this.velocityFactor * delta;
+        }
+ 
+        // Convert velocity to world coordinates
+        this.euler.x = this.pitchObject.rotation.x;
+        this.euler.y = this.yawObject.rotation.y;
+        this.euler.order = 'XYZ';
+        this.quat.setFromEuler(this.euler);
+        this.inputVelocity.applyQuaternion(this.quat);
+        // quat.multiplyVector3(this.inputVelocity);
+ 
+        // Add to the object
+        this.velocity.x += this.inputVelocity.x;
+        this.velocity.z += this.inputVelocity.z;
+ 
+        this.yawObject.position.copy(this.cannonBody.position);
+    };
 
-	}
+
+
+    // this.update = function(delta) {
+	// 	// this.raycaster.ray.origin.copy(this.yawObject.position)
+	// 	this.velocity.x -= this.velocity.x * 1.0 * delta;
+	// 	this.velocity.z -= this.velocity.z * 1.0 * delta;
+	// 	this.velocity.y -= 9.82 * 100 * delta; // 100.0 = mass
+	// 	this.direction.z = Number( this.moveForward ) - Number( this.moveBackward );
+	// 	this.direction.x = Number( this.moveLeft ) - Number( this.moveRight );
+	// 	this.direction.normalize(); // this ensures consistent movements in all directions
+	// 	if ( this.moveForward || this.moveBackward ) this.velocity.z -= this.direction.z * 50.0 * delta;
+	// 	if ( this.moveLeft || this.moveRight ) this.velocity.x -= this.direction.x * 50.0 * delta;
+	// 	this.velocity.y = Math.max(0, this.velocity.y)
+	// 	this.yawObject.translateX(this.velocity.x * delta)
+	// 	this.yawObject.translateY(this.velocity.y * delta)
+    //     this.yawObject.translateZ(this.velocity.z * delta)  
+    //             // this.yawObject.position.copy(this.cannonBody.position);
+
+
+    //     // this.cannonBody.position.copy(this.yawObject.position)
+    //     // game.camBody.position.copy(this.yawObject.position)
+    //     // console.log("cambody",game.camBody.position,"yaw",this.yawObject.position)
+
+	// }
 
 
 

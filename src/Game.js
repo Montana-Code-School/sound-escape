@@ -43,7 +43,7 @@ export default class Game{
 
       // Cannon Box body
       this.boxx = new CANNON.Box(new CANNON.Vec3(1.5,1.5,1.5))
-      this.cube = new CANNON.Body({mass:1, material: this.testMaterial})
+      this.cube = new CANNON.Body({mass:5, material: this.testMaterial})
       this.cube.angularDamping = 0.01
       this.cube.linearDamping = 0.01
       this.cube.position.set(0, 2, -7)
@@ -55,12 +55,12 @@ export default class Game{
 
 
       // Cannon Cam Sphere
-      this.sphere = new CANNON.Sphere(.5);
-      this.camBody = new CANNON.Body({mass: 1, material: this.testMaterial}) 
+      this.sphere = new CANNON.Sphere(2);
+      this.camBody = new CANNON.Body({mass: 10}) 
       this.camBody.addShape(this.sphere);      
       this.camBody.linearDamping = 0.9
-      this.camBody.collisionResponse = 0
-      this.camBody.position.set(0,5,0)
+      // this.camBody.collisionResponse = true
+      this.camBody.position.set(0,5,20)
       // this.camBody.addEventListener('collide', function(e){console.log('croc')})
       this.world.add(this.camBody);
 
@@ -109,29 +109,29 @@ export default class Game{
       // Three Box Mesh 
       this.boxGeometry = new THREE.BoxGeometry(3,3,3)
       this.boxMesh = new THREE.Mesh(this.boxGeometry, this.material)
+      // this.boxMesh.receiveShadow = true
+      this.boxMesh.castShadow = true
       this.scene.add(this.boxMesh)
       // console.log(this.boxMesh)
 
       // Three Sphere Mesh
-      this.sphereGeometry = new THREE.SphereGeometry(this.sphere.radius, 20)
-      this.sphereMesh = new THREE.Mesh(this.sphereGeometry, this.material)
-      this.scene.add(this.sphereMesh)
+      // this.sphereGeometry = new THREE.SphereGeometry(this.sphere.radius, 20)
+      // this.sphereMesh = new THREE.Mesh(this.sphereGeometry, this.material)
+      // this.scene.add(this.sphereMesh)
 
 
 
 
-      // Three Plane
-      this.groundMaterial = new THREE.MeshLambertMaterial();
+      // Three Plane ahhhhh
+      this.groundMaterial = new THREE.MeshLambertMaterial({ color: 0xdddddd } );
+      this.geometry = new THREE.PlaneGeometry( 300, 300, 50, 50 );
+      this.geometry.applyMatrix( new THREE.Matrix4().makeRotationX( - Math.PI / 2 ) );
 
+      this.floor = new THREE.Mesh( this.geometry, this.material );
+      this.floor.castShadow = true;
+      this.floor.receiveShadow = true;
+      this.scene.add( this.floor );
 
-      this.meshPlane = new THREE.Mesh( new THREE.PlaneBufferGeometry( 200, 200 ), this.groundMaterial );
-      // this.meshPlane.position.y = -4;
-      this.meshPlane.rotation.x = - Math.PI / 2;
-      this.meshPlane.receiveShadow = false;
-      // this.scene.add( this.meshPlane );
-      // console.log(this.meshPlane.position)
-      // console.log(this.groundBody.position)
-      this.meshPlane.position.copy(this.groundBody.position)
 
       // Three Renderer
       this.renderer = new THREE.WebGLRenderer({antialias:true});
@@ -154,7 +154,7 @@ export default class Game{
       console.log("in assload")
       const loader = new FBXLoader()
         // this.loader = new THREE.JSONLoader( this.manager ) 
-      loader.load( 'models/basic.fbx', function ( object ){
+      loader.load( 'models/basicmap.fbx', function ( object ){
         object.traverse( function( children ) {
           if(children.isMesh) {
             children.receiveShadow = true
@@ -186,11 +186,12 @@ export default class Game{
 
     createColliders(){
       console.log('in colliders')
-      const scaleAdjust = .25;
+      const scaleAdjust = 1.5;
       const divisor = 2 / scaleAdjust;
       game.object.children.forEach(function(child){
         // console.log('game children', game.object.children)
         if (child.isMesh) {
+          console.log(child)
           child.visible = true;
           const halfExtents = new CANNON.Vec3(child.scale.x/divisor, child.scale.y/divisor, child.scale.z/divisor);
           const box = new CANNON.Box(halfExtents);
@@ -199,7 +200,7 @@ export default class Game{
           // body.addEventListener('collide', function(e){ console.log('this happened', e.body.shapes)})
           body.position.copy(child.position);
           body.quaternion.copy(child.quaternion);
-          body.collisionResponse = 0
+          body.collisionResponse = true
           game.world.add(body);
           // console.log('im a bodiesssss', body)
           // console.log('drops me', this.camBody)
@@ -215,12 +216,17 @@ export default class Game{
       game.controls.update(game.clock.getDelta())
       game.renderer.render( game.scene, game.camera );
       requestAnimationFrame( function(){
-        game.sphereMesh.position.copy(game.camBody.position)
-        game.sphereMesh.quaternion.copy(game.camBody.quaternion) 
+        // game.sphereMesh.position.copy(game.camBody.position)
+        // game.sphereMesh.quaternion.copy(game.camBody.quaternion) 
+        game.boxMesh.position.copy(game.cube.position)
+        // game.boxMesh.position.x = game.cube.position.x
+        // game.boxMesh.position.y = game.cube.position.y
+        // game.boxMesh.position.z = game.cube.position.z
+        game.boxMesh.quaternion.copy(game.cube.quaternion)
 
-        game.boxMesh.position.x = game.cube.position.x
-        game.boxMesh.position.y = game.cube.position.y
-        game.boxMesh.position.z = game.cube.position.z
+        // game.boxMesh.quaternion.x = game.cube.quaternion.x
+        // game.boxMesh.quaternion.y = game.cube.quaternion.y
+        // game.boxMesh.quaternion.z = game.cube.quaternion.z
         // console.log(game.boxMesh.position)
         game.world.step(game.world.fixedTimeStep)
 // console.log( game.fixedTimeStep)
