@@ -42,21 +42,19 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
     this.cannonBody = cannonBody
 
     this.cannonBody.addEventListener("collide",function(e){
-        console.log("event listneerwers")
         // contact.bi and contact.bj are the colliding bodies, and contact.ni is the collision normal.
         // We do not yet know which one is which! Let's check.
     
         if(e.contact.bi.id == scope.cannonBody.id) { // bi is the player body, flip the contact normal
             e.contact.ni.negate(scope.contactNormal);
-            console.log("if if if")
         }
         else {
             scope.contactNormal.copy(e.contact.ni); // bi is something else. Keep the normal as it is
-            console.log("else else else")
         }
         // If contactNormal.dot(upAxis) is between 0 and 1, we know that the contact normal is somewhat in the up direction.
-        if(scope.contactNormal.dot(scope.upAxis) > 0.5) // Use a "good" threshold value between 0 and 1 here!
-            this.canJump = true;
+        if(scope.contactNormal.dot(scope.upAxis) > 0.5){ // Use a "good" threshold value between 0 and 1 here!
+            scope.canJump = true;
+        }
     });
 
 
@@ -267,6 +265,7 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
 			scope.dispatchEvent( { type: 'unlock' } );
 
 			scope.isLocked = false;
+
 
 		}
 
