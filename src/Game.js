@@ -186,7 +186,7 @@ export default class Game{
 
     createColliders(){
       console.log('in colliders')
-      const scaleAdjust = 1.5;
+      const scaleAdjust = 1;
       const divisor = 2 / scaleAdjust;
       game.object.children.forEach(function(child){
         // console.log('game children', game.object.children)
