@@ -97,12 +97,12 @@ export default class Game{
       this.renderer.shadowMap.enabled = true
       this.renderer.shadowMap.type = THREE.PCFSoftShadowMap
       document.body.appendChild( this.renderer.domElement );
-      this.cannonDebugRenderer = new THREE.CannonDebugRenderer( this.scene, this.world );
+      // this.cannonDebugRenderer = new THREE.CannonDebugRenderer( this.scene, this.world );
     }
 
     assLoad() {
       const loader = new FBXLoader()
-      loader.load( 'models/step.fbx', function ( object ){
+      loader.load( 'https://s3-us-west-2.amazonaws.com/sound-escape/imgs/step.fbx', function ( object ){
         object.traverse( function( children ) {
           if(children.isMesh) {
             children.receiveShadow = true
@@ -139,7 +139,7 @@ export default class Game{
 
     animate(){
       const game = this
-      game.cannonDebugRenderer.update();  
+      // game.cannonDebugRenderer.update();  
       game.controls.update(game.clock.getDelta())
       game.renderer.render( game.scene, game.camera );
       requestAnimationFrame( function(){
