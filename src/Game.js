@@ -43,7 +43,7 @@ export default class Game{
 
       // Cannon Box body
       this.boxx = new CANNON.Box(new CANNON.Vec3(1.5,1.5,1.5))
-      this.cube = new CANNON.Body({mass:5, material: this.testMaterial})
+      this.cube = new CANNON.Body({mass:.1, material: this.testMaterial})
       this.cube.angularDamping = 0.01
       this.cube.linearDamping = 0.01
       this.cube.position.set(0, 2, -7)
@@ -154,7 +154,7 @@ export default class Game{
       console.log("in assload")
       const loader = new FBXLoader()
         // this.loader = new THREE.JSONLoader( this.manager ) 
-      loader.load( 'models/basicmap.fbx', function ( object ){
+      loader.load( 'models/step.fbx', function ( object ){
         object.traverse( function( children ) {
           if(children.isMesh) {
             children.receiveShadow = true
@@ -170,7 +170,7 @@ export default class Game{
       game.createColliders()
       })
       
-      loader.load('models/platforms.fbx', function(platforms){
+      loader.load('models/abstract.fbx', function(platforms){
         platforms.traverse(function (children){
           if (children.isMesh){
             children.receiveShadow = true
@@ -186,12 +186,12 @@ export default class Game{
 
     createColliders(){
       console.log('in colliders')
-      const scaleAdjust = 1;
+      const scaleAdjust = 2;
       const divisor = 2 / scaleAdjust;
       game.object.children.forEach(function(child){
         // console.log('game children', game.object.children)
         if (child.isMesh) {
-          console.log(child)
+          console.log("some scale", child.scale)
           child.visible = true;
           const halfExtents = new CANNON.Vec3(child.scale.x/divisor, child.scale.y/divisor, child.scale.z/divisor);
           const box = new CANNON.Box(halfExtents);
