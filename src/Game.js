@@ -1,5 +1,7 @@
 import PointerLockControls from './PointerLockControls';
 import CannonDebugRenderer from './CannonDebugRenderer';
+const TWEEN = require('@tweenjs/tween.js');
+
 FBXLoader = require('three-fbx-loader');
 
 export default class Game{
@@ -7,7 +9,8 @@ export default class Game{
         this.initPhysics()
         this.init()
         this.assLoad()
-        this.animate()
+        
+        setTimeout(this.animate(), 1000)
     }
 
     initPhysics(){
@@ -59,7 +62,8 @@ export default class Game{
       let blocker = document.getElementById('blocker')
       let instructions = document.getElementById( 'instructions' );
       this.scene = new THREE.Scene();
-      this.scene.background = new THREE.Color(0,0,0);
+      this.scene.background = new THREE.Color(0x828282);
+      // this.scene.fog = new THREE.FogExp2(0x828282, 0.04)
       this.clock = new THREE.Clock();
       this.camera = new THREE.PerspectiveCamera( 65, window.innerWidth/window.innerHeight, 0.1, 10000 );
       this.controls = new PointerLockControls(this.camera, this.camBody);
@@ -83,10 +87,10 @@ export default class Game{
 
       // Three Plane ahhhhh
       this.groundMaterial = new THREE.MeshLambertMaterial({ color: 0xdddddd } );
-      this.geometry = new THREE.PlaneGeometry( 300, 300, 50, 50 );
+      this.geometry = new THREE.PlaneGeometry( 10000, 10000, 50, 50 );
       this.geometry.applyMatrix( new THREE.Matrix4().makeRotationX( - Math.PI / 2 ) );
       this.floor = new THREE.Mesh( this.geometry, this.material );
-      this.floor.castShadow = true;
+      // this.floor.castShadow = true;
       this.floor.receiveShadow = true;
       this.scene.add( this.floor );
 
@@ -97,21 +101,26 @@ export default class Game{
       this.renderer.shadowMap.enabled = true
       this.renderer.shadowMap.type = THREE.PCFSoftShadowMap
       document.body.appendChild( this.renderer.domElement );
-      this.cannonDebugRenderer = new THREE.CannonDebugRenderer( this.scene, this.world );
+      // this.cannonDebugRenderer = new THREE.CannonDebugRenderer( this.scene, this.world );
     }
 
     assLoad() {
       const loader = new FBXLoader()
-      loader.load( 'models/step.fbx', function ( object ){
+      loader.load( 'https://s3-us-west-2.amazonaws.com/sound-escape/imgs/station.fbx', function ( object ){
         object.traverse( function( children ) {
-          if(children.isMesh) {
+          if(children.name.includes('door')) {
+            console.log(children.position)
+          }
+          if (children.name.includes('roof')) {
+            children.receiveShadow = true
+          } else if(children.isMesh && !children.name.includes('roof')) {
             children.receiveShadow = true
             children.castShadow = true
           } else if(children.isPointLight) {
             children.castShadow = true
-          } else if(children.isSpotLight) {
+          } else if(children.isHemiLight) {
             children.castShadow = true
-          }
+          } 
         })
       game.scene.add( object )
       game.object = object
@@ -123,12 +132,13 @@ export default class Game{
       const scaleAdjust = 2;
       const divisor = 2 / scaleAdjust;
       game.object.children.forEach(function(child){
-        if (child.isMesh) {
+        if (child.isMesh && !child.name.includes('ground')) {
           child.visible = true;
           const halfExtents = new CANNON.Vec3(child.scale.x/divisor, child.scale.y/divisor, child.scale.z/divisor);
           const box = new CANNON.Box(halfExtents);
           const body = new CANNON.Body({mass:0});
           body.addShape(box);
+          body.name = child.name
           body.position.copy(child.position);
           body.quaternion.copy(child.quaternion);
           body.collisionResponse = true
@@ -137,9 +147,57 @@ export default class Game{
       })
     }
 
+    doorOpen() {
+      let door;
+      let doorBody;
+      game.object.children.forEach((child) => {
+        if (child.name === 'door0Model') {
+          door = child
+        }
+      })
+      game.world.bodies.forEach((body) => {
+        if (body.name === 'door0Model') {
+          doorBody = body
+        }
+      })
+      let updateDoor = function () {
+        door.position.z = current.z
+        door.position.x = current.x
+        doorBody.position.z = current.z
+        doorBody.position.x = current.x
+      }
+      let current = {x: -46, z: 8.8}
+      let easing = TWEEN.Easing.CubicEaseInOut = function ( k ) {
+        if ( ( k *= 2 ) < 1 ) return 0.5* k * k * k;
+        return 0.5 * ( ( k -= 2 ) * k * k + 2 );
+          };
+      let tweenHead = new TWEEN.Tween(current)
+                  .to({x:-46, z:8.8}, 500)
+                  .delay(200)
+                  .easing(easing)
+                  .onUpdate(updateDoor)
+
+      let tweenMiddle = new TWEEN.Tween(current)
+                  .to({x:-47, z:8.8}, 2000)
+                  .delay(200)
+                  .easing(easing)
+                  .onUpdate(updateDoor)
+
+      let tweenBack = new TWEEN.Tween(current)
+                  .to({x:-47, z: 3}, 2000)
+                  .delay(200)
+                  .easing(easing)
+                  .onUpdate(updateDoor)
+
+      tweenHead.chain(tweenMiddle)
+      tweenMiddle.chain(tweenBack)
+      tweenHead.start()
+    }
+
     animate(){
       const game = this
-      game.cannonDebugRenderer.update();  
+      // game.cannonDebugRenderer.update();  
+      TWEEN.update()
       game.controls.update(game.clock.getDelta())
       game.renderer.render( game.scene, game.camera );
       requestAnimationFrame( function(){
