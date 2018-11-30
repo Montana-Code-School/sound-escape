@@ -9,8 +9,9 @@ export default class Game{
         this.initPhysics()
         this.init()
         this.assLoad()
+        // this.rickRoll()
 
-        setTimeout(this.animate(), 1000)
+        setTimeout(this.animate(), 2000)
     }
 
     initPhysics(){
@@ -77,7 +78,8 @@ export default class Game{
         blocker.style.display = 'block';
         instructions.style.display = '';
       } );
-
+      this.listener = new THREE.AudioListener()
+      this.camera.add( this.listener)
       this.scene.add(this.controls.getObject())
 
       // Three Box Mesh
@@ -110,9 +112,10 @@ export default class Game{
 
       loader.load( 'https://s3-us-west-2.amazonaws.com/sound-escape/imgs/station.fbx', function ( object ){
         object.traverse( function( children ) {
-          if(children.name.includes('door')) {
-            console.log(children.position)
-          }
+          // if(children.name.includes('crown')) {
+          //   console.log('im a tree', children)
+          //   // this.rickTree = children
+          // }
           if (children.name.includes('roof')) {
             children.receiveShadow = true
           } else if(children.isMesh && !children.name.includes('roof')) {
@@ -127,6 +130,8 @@ export default class Game{
       game.scene.add( object )
       game.object = object
       game.createColliders()
+      // game.rickRoll()
+
       })
     }
 
@@ -146,6 +151,23 @@ export default class Game{
           body.collisionResponse = true
           game.world.add(body);
         }
+      })
+    }
+
+    rickRoll() {
+      let rick, rolling
+      game.object.children.forEach((child) => {
+        if (child.name === 'crown3005Model') {          
+        rick = child
+        }
+      })
+      rolling = new THREE.PositionalAudio( this.listener )
+      this.audioLoader = new THREE.AudioLoader()
+      this.audioLoader.load('https://s3-us-west-2.amazonaws.com/sound-escape/music/rick-astley-never-gonna-give-you-up-hq.mp3', function( buffer ) {
+        rolling.setBuffer( buffer )
+        rolling.setRefDistance( 1 )
+        rolling.play()
+        rick.add(rolling)
       })
     }
 
@@ -195,6 +217,8 @@ export default class Game{
       tweenMiddle.chain(tweenBack)
       tweenHead.start()
     }
+
+  
 
     animate(){
       const game = this
