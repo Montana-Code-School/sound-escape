@@ -9,17 +9,14 @@ export default class Game{
         this.initPhysics()
         this.init()
         this.assLoad()
-        // this.rickRoll()
-
         setTimeout(this.animate(), 2000)
     }
 
     initPhysics(){
+      //Build a Cannon world
       const world = new CANNON.World();
       this.world = world;
       this.world.fixedTimeStep = 1.0/60.0;
-      // this.world.defaultContactMaterial.contactEquationStiffness = 1e9;
-      // this.world.defaultContactMaterial.contactEquationRelaxation = 4;
       const physicsMaterial = new CANNON.Material("groundMaterial");
       const physicsContactMaterial = new CANNON.ContactMaterial(
                                                               physicsMaterial,
@@ -27,8 +24,6 @@ export default class Game{
                                                               { friction:0.9, 
                                                                 restitution:0.0
                                                               });
-      console.log("physicsMaterial", physicsMaterial)
-      console.log("contactMaterial", physicsContactMaterial)
       this.world.addContactMaterial(physicsContactMaterial);
       this.world.gravity.set(0, -50, 0);
       this.world.broadphase = new CANNON.NaiveBroadphase();
@@ -44,7 +39,6 @@ export default class Game{
       this.cube.addShape(this.boxx)
       this.world.add(this.cube)
 
-
       // Cannon Cam Sphere
       this.sphere = new CANNON.Sphere(2);
       this.camBody = new CANNON.Body({mass: 7, material: physicsMaterial})
@@ -52,10 +46,7 @@ export default class Game{
       this.camBody.linearDamping = 0.99;
       this.camBody.angularDamping = 0.99;
       this.camBody.position.set(0,5,20)
-      console.log("camBody", this.camBody)
       this.world.add(this.camBody);
-
-
 
       // Cannon Plane
       this.groundShape = new CANNON.Plane();
@@ -63,11 +54,11 @@ export default class Game{
       this.groundBody.quaternion.setFromAxisAngle( new CANNON.Vec3(1,0,0), -Math.PI/2);
       this.groundBody.addShape(this.groundShape);
       this.groundBody.position.set(0, 0, 0)
-      console.log("groundBody", this.groundBody)
       this.world.add(this.groundBody);
     }
 
     init(){
+      //Initialize a THREE scene with a camera, renderer, and controls
       let blocker = document.getElementById('blocker')
       let instructions = document.getElementById( 'instructions' );
       this.astley = document.getElementsByClassName('astley fadeIn')
@@ -78,7 +69,7 @@ export default class Game{
       this.doorTwoIsOpen = false
       this.noteBlocks = []
       this.scene.background = new THREE.Color(0x828282);
-      // this.scene.fog = new THREE.FogExp2(0x828282, 0.04)
+      this.scene.fog = new THREE.FogExp2(0x828282, 0.04)
       this.clock = new THREE.Clock();
       this.camera = new THREE.PerspectiveCamera( 65, window.innerWidth/window.innerHeight, 0.1, 300 );
       this.controls = new PointerLockControls(this.camera, this.camBody);
@@ -101,16 +92,13 @@ export default class Game{
       this.boxMesh.castShadow = true
       this.scene.add(this.boxMesh)
 
-
-      // Three Plane ahhhhh
+      // Three Plane Mesh
       this.groundMaterial = new THREE.MeshLambertMaterial({ color: 0xdddddd } );
       this.geometry = new THREE.PlaneGeometry( 10000, 10000, 50, 50 );
       this.geometry.applyMatrix( new THREE.Matrix4().makeRotationX( - Math.PI / 2 ) );
       this.floor = new THREE.Mesh( this.geometry, this.material );
-      // this.floor.castShadow = true;
       this.floor.receiveShadow = true;
       this.scene.add( this.floor );
-
 
       // Three Renderer
       this.renderer = new THREE.WebGLRenderer({antialias:true});
@@ -118,6 +106,8 @@ export default class Game{
       this.renderer.shadowMap.enabled = true
       this.renderer.shadowMap.type = THREE.PCFSoftShadowMap
       document.body.appendChild( this.renderer.domElement );
+
+      // !!!!!---Enable CANNON Debug Renderer---!!!!!
       // this.cannonDebugRenderer = new THREE.CannonDebugRenderer( this.scene, this.world );
     }
 
@@ -139,9 +129,7 @@ export default class Game{
         })
       game.scene.add( object )
       game.object = object
-
       game.createColliders()
-
       })
     }
 
@@ -168,7 +156,6 @@ export default class Game{
           if (!child.name.includes('Text')) {
             game.world.add(body);
           }
-
         }
       })
     }
@@ -241,8 +228,11 @@ export default class Game{
 
 
     animate(){
-      const game = this
+
+      // !!!!!---Enable CANNON Debug Renderer---!!!!!
       // game.cannonDebugRenderer.update();
+
+      const game = this
       TWEEN.update()
       game.controls.update(game.clock.getDelta())
       game.renderer.render( game.scene, game.camera );
