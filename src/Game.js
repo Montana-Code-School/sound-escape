@@ -63,6 +63,7 @@ export default class Game{
       let blocker = document.getElementById('blocker')
       let instructions = document.getElementById( 'instructions' );
       this.astley = document.getElementsByClassName('astley fadeIn')
+      this.winner = document.getElementsByClassName('winner animateWin')
       this.scene = new THREE.Scene();
       this.scene.background = new THREE.Color(0x828282);
       // this.scene.fog = new THREE.FogExp2(0x828282, 0.04)
@@ -166,10 +167,11 @@ export default class Game{
       this.audioLoader = new THREE.AudioLoader()
       this.audioLoader.load('https://s3-us-west-2.amazonaws.com/sound-escape/music/rick-astley-never-gonna-give-you-up-hq.mp3', function( buffer ) {
         rolling.setBuffer( buffer )
-        rolling.setRefDistance( 1 )
+        rolling.setRefDistance( .5 )
         rolling.play()
         rick.add(rolling)
       })
+      console.log(potentialRollers)
     }
 
     doorOpen() {

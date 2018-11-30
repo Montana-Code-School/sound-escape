@@ -125,7 +125,7 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
 
     this.onClick = ( event ) => {
       this.intersects.forEach((intersect) => {
-        console.log(intersect.object.name)
+        console.log(intersect.object)
         if (intersect.object.name.includes('button')) {
           game.doorOpen()
           game.rickRoll()
@@ -135,8 +135,15 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
             game.astley[0].style.display = 'none'
           }, 5500)
         //   game.rickRoll()
+      }
+        if (intersect.object.children !== undefined && intersect.object.children.length !== 0) {
+          console.log(intersect.object.children)
+          if (intersect.object.children[0].buffer.duration === 212.6033560090703) {
+            game.winner[0].style.display = 'block'
+          }
         }
       })
+
     }
 
     document.addEventListener( 'mousemove', this.onMouseMove, false );

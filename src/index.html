@@ -77,11 +77,34 @@
       .fadeIn {
         animation-name: fadeIn;
       }
+      .winner {
+        position: absolute;
+        display: none;
+        font-family: cursive;
+        animation-duration: 5s;
+        width:100%;
+        height: 100%;
+        animation-fill-mode: both;
+        color: white;
+        font-size: 50px;
+        background-color: black
+      }
+      @keyframes animateWin {
+        0% {opacity: 0;}
+        100% {opacity: 1;}
+      }
+      .animateWin {
+        animation-name: animateWin
+      }
 
 		</style>
   </head>
   <body>
     <h1 class="astley fadeIn">Astley</h1>
+    <div class="winner animateWin">
+      <h1>Thanks for playing our Demo.</h1>
+
+    </div>
     <div id="reticle">
       <div id="dot"></div>
     </div>
