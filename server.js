@@ -7,3 +7,4 @@ app.use(express.static(path.join(__dirname, 'dist' )));
 app.listen(port, () => {
   console.log(port + " yo!")
 })
+console.log("process env", process.env.PORT)
