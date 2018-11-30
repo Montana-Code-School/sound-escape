@@ -126,15 +126,15 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
     this.onClick = ( event ) => {
       this.intersects.forEach((intersect) => {
         console.log(intersect.object)
-        if (intersect.object.name.includes('button')) {
+        if (intersect.object.name.includes('button') && !game.doorIsOpen) {
           game.doorOpen()
           game.rickRoll()
           console.log(game.astley)
           game.astley[0].style.display = 'block'
+          game.doorIsOpen = true
           setTimeout(() => {
             game.astley[0].style.display = 'none'
           }, 5500)
-        //   game.rickRoll()
       }
         if (intersect.object.children !== undefined && intersect.object.children.length !== 0) {
           console.log(intersect.object.children)

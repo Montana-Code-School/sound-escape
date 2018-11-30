@@ -65,6 +65,7 @@ export default class Game{
       this.astley = document.getElementsByClassName('astley fadeIn')
       this.winner = document.getElementsByClassName('winner animateWin')
       this.scene = new THREE.Scene();
+      this.doorIsOpen = false
       this.scene.background = new THREE.Color(0x828282);
       // this.scene.fog = new THREE.FogExp2(0x828282, 0.04)
       this.clock = new THREE.Clock();
@@ -113,10 +114,6 @@ export default class Game{
 
       loader.load( 'https://s3-us-west-2.amazonaws.com/sound-escape/imgs/station.fbx', function ( object ){
         object.traverse( function( children ) {
-          // if(children.name.includes('crown')) {
-          //   console.log('im a tree', children)
-          //   // this.rickTree = children
-          // }
           if (children.name.includes('roof')) {
             children.receiveShadow = true
           } else if(children.isMesh && !children.name.includes('roof')) {
@@ -131,7 +128,6 @@ export default class Game{
       game.scene.add( object )
       game.object = object
       game.createColliders()
-      // game.rickRoll()
 
       })
     }
@@ -167,11 +163,10 @@ export default class Game{
       this.audioLoader = new THREE.AudioLoader()
       this.audioLoader.load('https://s3-us-west-2.amazonaws.com/sound-escape/music/rick-astley-never-gonna-give-you-up-hq.mp3', function( buffer ) {
         rolling.setBuffer( buffer )
-        rolling.setRefDistance( .5 )
+        rolling.setRefDistance( .2 )
         rolling.play()
         rick.add(rolling)
       })
-      console.log(potentialRollers)
     }
 
     doorOpen() {
