@@ -58,16 +58,9 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
         if ( scope.isLocked === false ) return;
         const movementX = event.movementX || event.mozMovementX || event.webkitMovementX || 0;
         const movementY = event.movementY || event.mozMovementY || event.webkitMovementY || 0;
-
         this.yawObject.rotation.y -= movementX * 0.001;
         this.pitchObject.rotation.x -= movementY * 0.001;
         this.pitchObject.rotation.x = Math.max( - PI_2, Math.min( PI_2, this.pitchObject.rotation.x ) );
-        // this.mouse.x = this.pitchObject.rotation.x
-        // this.mouse.y = this.yawObject.rotation.y
-
-
-
-        // this.ray.ray.direction.normalize()
         if (game.object !== undefined) {
           this.intersects = this.ray.intersectObjects(game.object.children)
         }
@@ -123,7 +116,6 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
 
     this.onClick = ( event ) => {
       this.intersects.forEach((intersect) => {
-        console.log(intersect.object)
         if (intersect.object.name.includes('button') && !game.doorIsOpen) {
           game.doorOpen('door0Model', 0)
           game.doorOneIsOpen = true
@@ -137,10 +129,10 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
           }
           if (game.noteBlocks.length === 4) {
             if (game.noteBlocks.join('') === "FACE" && !game.doorTwoIsOpen) {
-              let F = new Audio('./notes/F.mp3')
-              let A = new Audio('./notes/A.mp3')
-              let C = new Audio('./notes/C.mp3')
-              let E = new Audio('./notes/E.mp3')
+              let F = new Audio('https://s3-us-west-2.amazonaws.com/sound-escape/sounds/Room+One+notes/F.mp3')
+              let A = new Audio('https://s3-us-west-2.amazonaws.com/sound-escape/sounds/Room+One+notes/A.mp3')
+              let C = new Audio('https://s3-us-west-2.amazonaws.com/sound-escape/sounds/Room+One+notes/C.mp3')
+              let E = new Audio('https://s3-us-west-2.amazonaws.com/sound-escape/sounds/Room+One+notes/E.mp3')
               game.doorOpen('door1Model', -18)
               game.doorTwoIsOpen = true
               setTimeout(() => F.play(), 1000)
@@ -158,10 +150,8 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
               game.noteBlocks = []
             }
           }
-          console.log(game.noteBlocks)
         }
         if (intersect.object.children !== undefined && intersect.object.children.length !== 0) {
-          console.log(intersect.object.children)
           if (intersect.object.children[0].buffer.duration === 212.6033560090703) {
             game.winner[0].style.display = 'block'
           }
