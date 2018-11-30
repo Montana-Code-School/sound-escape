@@ -155,12 +155,13 @@ export default class Game{
     }
 
     rickRoll() {
-      let rick, rolling
+      let rick, rolling, potentialRollers = []
       game.object.children.forEach((child) => {
-        if (child.name === 'crown3005Model') {          
-        rick = child
+        if (child.name.includes('trunk')) {
+          potentialRollers.push(child)
         }
       })
+      rick = potentialRollers[Math.floor(Math.random()*potentialRollers.length)]
       rolling = new THREE.PositionalAudio( this.listener )
       this.audioLoader = new THREE.AudioLoader()
       this.audioLoader.load('https://s3-us-west-2.amazonaws.com/sound-escape/music/rick-astley-never-gonna-give-you-up-hq.mp3', function( buffer ) {
@@ -218,7 +219,7 @@ export default class Game{
       tweenHead.start()
     }
 
-  
+
 
     animate(){
       const game = this
