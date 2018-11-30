@@ -119,7 +119,7 @@ export default class Game{
     assLoad() {
       const loader = new FBXLoader()
 
-      loader.load( 'https://s3-us-west-2.amazonaws.com/sound-escape/models/stationtest.fbx', function ( object ){
+      loader.load( 'https://s3-us-west-2.amazonaws.com/sound-escape/imgs/station.fbx', function ( object ){
         object.traverse( function( children ) {
           if (children.name.includes('roof')) {
             children.receiveShadow = true
