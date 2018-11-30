@@ -128,6 +128,11 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
         console.log(intersect.object.name)
         if (intersect.object.name.includes('button')) {
           game.doorOpen()
+          console.log(game.astley)
+          game.astley[0].style.display = 'block'
+          setTimeout(() => {
+            game.astley[0].style.display = 'none'
+          }, 5500)
         }
       })
     }

@@ -59,11 +59,29 @@
         margin: auto;
         top: 45%
       }
-
+      .astley {
+        position: absolute;
+        left: 36%;
+        top: 10%;
+        display: none;
+        font-family: cursive;
+        animation-duration: 5s;
+        animation-fill-mode: both;
+        font-size: 80px
+      }
+      @keyframes fadeIn {
+        0% {opacity: 0;}
+        50% {opacity: 1}
+        100% {opacity: 0;}
+      }
+      .fadeIn {
+        animation-name: fadeIn;
+      }
 
 		</style>
   </head>
   <body>
+    <h1 class="astley fadeIn">Astley</h1>
     <div id="reticle">
       <div id="dot"></div>
     </div>
