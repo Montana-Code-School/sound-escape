@@ -44,6 +44,7 @@ export default class Game{
       this.cube.addShape(this.boxx)
       this.world.add(this.cube)
 
+
       // Cannon Cam Sphere
       this.sphere = new CANNON.Sphere(2);
       this.camBody = new CANNON.Body({mass: 7, material: physicsMaterial})
@@ -53,6 +54,8 @@ export default class Game{
       this.camBody.position.set(0,5,20)
       console.log("camBody", this.camBody)
       this.world.add(this.camBody);
+
+
 
       // Cannon Plane
       this.groundShape = new CANNON.Plane();
@@ -70,11 +73,14 @@ export default class Game{
       this.astley = document.getElementsByClassName('astley fadeIn')
       this.winner = document.getElementsByClassName('winner animateWin')
       this.scene = new THREE.Scene();
-      this.doorIsOpen = false
+      this.audioLoader = new THREE.AudioLoader()
+      this.doorOneIsOpen = false
+      this.doorTwoIsOpen = false
+      this.noteBlocks = []
       this.scene.background = new THREE.Color(0x828282);
       // this.scene.fog = new THREE.FogExp2(0x828282, 0.04)
       this.clock = new THREE.Clock();
-      this.camera = new THREE.PerspectiveCamera( 65, window.innerWidth/window.innerHeight, 0.1, 10000 );
+      this.camera = new THREE.PerspectiveCamera( 65, window.innerWidth/window.innerHeight, 0.1, 300 );
       this.controls = new PointerLockControls(this.camera, this.camBody);
       instructions.addEventListener( 'click', this.controls.lock, false );
       this.controls.addEventListener( 'lock', function () {
@@ -94,6 +100,7 @@ export default class Game{
       this.boxMesh = new THREE.Mesh(this.boxGeometry, this.material)
       this.boxMesh.castShadow = true
       this.scene.add(this.boxMesh)
+
 
       // Three Plane ahhhhh
       this.groundMaterial = new THREE.MeshLambertMaterial({ color: 0xdddddd } );
@@ -132,6 +139,7 @@ export default class Game{
         })
       game.scene.add( object )
       game.object = object
+
       game.createColliders()
 
       })
@@ -148,10 +156,19 @@ export default class Game{
           const body = new CANNON.Body({mass:0});
           body.addShape(box);
           body.name = child.name
+          if (child.name.includes('NoteBlock')) {
+            child.note = 'https://s3-us-west-2.amazonaws.com/sound-escape/sounds/Room+One+notes/' + child.name.charAt(0) + '.mp3'
+            if (child.name.includes('shia')) {
+              child.note = 'https://s3-us-west-2.amazonaws.com/sound-escape/sounds/shia.wav'
+            }
+          }
           body.position.copy(child.position);
           body.quaternion.copy(child.quaternion);
           body.collisionResponse = true
-          game.world.add(body);
+          if (!child.name.includes('Text')) {
+            game.world.add(body);
+          }
+
         }
       })
     }
@@ -165,7 +182,7 @@ export default class Game{
       })
       rick = potentialRollers[Math.floor(Math.random()*potentialRollers.length)]
       rolling = new THREE.PositionalAudio( this.listener )
-      this.audioLoader = new THREE.AudioLoader()
+
       this.audioLoader.load('https://s3-us-west-2.amazonaws.com/sound-escape/music/rick-astley-never-gonna-give-you-up-hq.mp3', function( buffer ) {
         rolling.setBuffer( buffer )
         rolling.setRefDistance( .2 )
@@ -174,16 +191,16 @@ export default class Game{
       })
     }
 
-    doorOpen() {
+    doorOpen(doorName, whichDoor) {
       let door;
       let doorBody;
       game.object.children.forEach((child) => {
-        if (child.name === 'door0Model') {
+        if (child.name === doorName) {
           door = child
         }
       })
       game.world.bodies.forEach((body) => {
-        if (body.name === 'door0Model') {
+        if (body.name === doorName) {
           doorBody = body
         }
       })
@@ -199,19 +216,19 @@ export default class Game{
         return 0.5 * ( ( k -= 2 ) * k * k + 2 );
           };
       let tweenHead = new TWEEN.Tween(current)
-                  .to({x:-46, z:8.8}, 500)
+                  .to({x:-46 + whichDoor, z:8.8}, 500)
                   .delay(200)
                   .easing(easing)
                   .onUpdate(updateDoor)
 
       let tweenMiddle = new TWEEN.Tween(current)
-                  .to({x:-47, z:8.8}, 2000)
+                  .to({x:-47 + whichDoor, z:8.8}, 2000)
                   .delay(200)
                   .easing(easing)
                   .onUpdate(updateDoor)
 
       let tweenBack = new TWEEN.Tween(current)
-                  .to({x:-47, z: 3}, 2000)
+                  .to({x:-47 + whichDoor, z: 3}, 2000)
                   .delay(200)
                   .easing(easing)
                   .onUpdate(updateDoor)

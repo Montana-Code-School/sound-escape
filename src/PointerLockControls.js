@@ -125,15 +125,41 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
       this.intersects.forEach((intersect) => {
         console.log(intersect.object)
         if (intersect.object.name.includes('button') && !game.doorIsOpen) {
-          game.doorOpen()
-          game.rickRoll()
-          console.log(game.astley)
-          game.astley[0].style.display = 'block'
-          game.doorIsOpen = true
-          setTimeout(() => {
-            game.astley[0].style.display = 'none'
-          }, 5500)
+          game.doorOpen('door0Model', 0)
+          game.doorOneIsOpen = true
       }
+        if (intersect.object.note) {
+          let audio = new Audio(intersect.object.note);
+          audio.play();
+          game.noteBlocks.push(intersect.object.name.charAt(0))
+          if (intersect.object.name === "shiaNoteBlock") {
+            game.noteBlocks = []
+          }
+          if (game.noteBlocks.length === 4) {
+            if (game.noteBlocks.join('') === "FACE" && !game.doorTwoIsOpen) {
+              let F = new Audio('./notes/F.mp3')
+              let A = new Audio('./notes/A.mp3')
+              let C = new Audio('./notes/C.mp3')
+              let E = new Audio('./notes/E.mp3')
+              game.doorOpen('door1Model', -18)
+              game.doorTwoIsOpen = true
+              setTimeout(() => F.play(), 1000)
+              setTimeout(() => A.play(), 1250)
+              setTimeout(() => C.play(), 1500)
+              setTimeout(() => E.play(), 1750)
+              game.rickRoll()
+              game.astley[0].style.display = 'block'
+
+              setTimeout(() => {
+                game.astley[0].style.display = 'none'
+              }, 5500)
+
+            } else {
+              game.noteBlocks = []
+            }
+          }
+          console.log(game.noteBlocks)
+        }
         if (intersect.object.children !== undefined && intersect.object.children.length !== 0) {
           console.log(intersect.object.children)
           if (intersect.object.children[0].buffer.duration === 212.6033560090703) {
