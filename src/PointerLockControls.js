@@ -9,13 +9,11 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
 
     const scope = this;
 	this.domElement = domElement || document.body;
-    this.eyeYPos = 2; // eyes are 2 meters above the ground
     this.velocityFactor = 0.2;
     this.jumpVelocity = 20;
     this.pitchObject = new THREE.Object3D();
     this.pitchObject.add( camera );
     this.yawObject = new THREE.Object3D();
-    this.yawObject.position.y = 2;
     this.yawObject.add( this.pitchObject );
     this.quat = new THREE.Quaternion();
     this.moveForward = false;
@@ -167,7 +165,7 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
 
     this.update = ( delta ) => {
         // if ( this.enabled === false ) return;
-        delta *= 500.1;
+        delta *= 400;
         this.inputVelocity.set(0,0,0);
         if ( this.moveForward ){
             this.inputVelocity.z = -this.velocityFactor * delta;
@@ -194,7 +192,9 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
         this.velocity.z += this.inputVelocity.z;
 
         this.ray.setFromCamera(this.mouse, camera)
-        this.yawObject.position.copy(this.cannonBody.position);
+        this.yawObject.position.x = (this.cannonBody.position.x);
+        this.yawObject.position.y = (this.cannonBody.position.y + 1);
+        this.yawObject.position.z = (this.cannonBody.position.z);
 
         //!!!!!!!!!!!------enable motion sickness mode-------!!!!!!!!!
         // this.yawObject.quaternion.copy(this.cannonBody.quaternion)

@@ -18,17 +18,19 @@ export default class Game{
       const world = new CANNON.World();
       this.world = world;
       this.world.fixedTimeStep = 1.0/60.0;
-      this.world.defaultContactMaterial.contactEquationStiffness = 1e9;
-      this.world.defaultContactMaterial.contactEquationRelaxation = 4;
-      const physicsMaterial = new CANNON.Material("slipperyMaterial");
+      // this.world.defaultContactMaterial.contactEquationStiffness = 1e9;
+      // this.world.defaultContactMaterial.contactEquationRelaxation = 4;
+      const physicsMaterial = new CANNON.Material("groundMaterial");
       const physicsContactMaterial = new CANNON.ContactMaterial(
                                                               physicsMaterial,
                                                               physicsMaterial,
-                                                              0.0, // friction coefficient
-                                                              0.3  // restitution
-                                                              );
+                                                              { friction:0.9, 
+                                                                restitution:0.0
+                                                              });
+      console.log("physicsMaterial", physicsMaterial)
+      console.log("contactMaterial", physicsContactMaterial)
       this.world.addContactMaterial(physicsContactMaterial);
-      this.world.gravity.set(0, -70, 0);
+      this.world.gravity.set(0, -50, 0);
       this.world.broadphase = new CANNON.NaiveBroadphase();
       this.material = new THREE.MeshLambertMaterial( { color: 0xdddddd } )
       this.testMaterial = new CANNON.Material()
@@ -44,18 +46,21 @@ export default class Game{
 
       // Cannon Cam Sphere
       this.sphere = new CANNON.Sphere(2);
-      this.camBody = new CANNON.Body({mass: 10})
+      this.camBody = new CANNON.Body({mass: 7, material: physicsMaterial})
       this.camBody.addShape(this.sphere);
-      this.camBody.linearDamping = 0.9
+      this.camBody.linearDamping = 0.99;
+      this.camBody.angularDamping = 0.99;
       this.camBody.position.set(0,5,20)
+      console.log("camBody", this.camBody)
       this.world.add(this.camBody);
 
       // Cannon Plane
       this.groundShape = new CANNON.Plane();
-      this.groundBody = new CANNON.Body({ mass: 0 });
+      this.groundBody = new CANNON.Body({ mass: 0, material: physicsMaterial });
       this.groundBody.quaternion.setFromAxisAngle( new CANNON.Vec3(1,0,0), -Math.PI/2);
       this.groundBody.addShape(this.groundShape);
       this.groundBody.position.set(0, 0, 0)
+      console.log("groundBody", this.groundBody)
       this.world.add(this.groundBody);
     }
 
