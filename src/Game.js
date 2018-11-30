@@ -152,7 +152,7 @@ export default class Game{
           body.addShape(box);
           body.name = child.name
           if (child.name.includes('NoteBlock')) {
-            child.note = './notes/' + child.name.charAt(0) + '.mp3'
+            child.note = 'https://s3-us-west-2.amazonaws.com/sound-escape/sounds/Room+One+notes/' + child.name.charAt(0) + '.mp3'
             if (child.name.includes('shia')) {
               child.note = 'https://s3-us-west-2.amazonaws.com/sound-escape/sounds/shia.wav'
             }
@@ -160,7 +160,7 @@ export default class Game{
           body.position.copy(child.position);
           body.quaternion.copy(child.quaternion);
           body.collisionResponse = true
-          if (!child.name.includes('NoteBlock')) {
+          if (!child.name.includes('Text')) {
             game.world.add(body);
           }
 
