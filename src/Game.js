@@ -9,8 +9,9 @@ export default class Game{
         this.initPhysics()
         this.init()
         this.assLoad()
-        
-        setTimeout(this.animate(), 1000)
+        // this.rickRoll()
+
+        setTimeout(this.animate(), 2000)
     }
 
     initPhysics(){
@@ -27,11 +28,11 @@ export default class Game{
                                                               0.3  // restitution
                                                               );
       this.world.addContactMaterial(physicsContactMaterial);
-      this.world.gravity.set(0, -10, 0);
+      this.world.gravity.set(0, -70, 0);
       this.world.broadphase = new CANNON.NaiveBroadphase();
       this.material = new THREE.MeshLambertMaterial( { color: 0xdddddd } )
       this.testMaterial = new CANNON.Material()
-      
+
       // Cannon Box body
       this.boxx = new CANNON.Box(new CANNON.Vec3(1.5,1.5,1.5))
       this.cube = new CANNON.Body({mass:.1, material: this.testMaterial})
@@ -43,8 +44,8 @@ export default class Game{
 
       // Cannon Cam Sphere
       this.sphere = new CANNON.Sphere(2);
-      this.camBody = new CANNON.Body({mass: 10}) 
-      this.camBody.addShape(this.sphere);      
+      this.camBody = new CANNON.Body({mass: 10})
+      this.camBody.addShape(this.sphere);
       this.camBody.linearDamping = 0.9
       this.camBody.position.set(0,5,20)
       this.world.add(this.camBody);
@@ -61,7 +62,10 @@ export default class Game{
     init(){
       let blocker = document.getElementById('blocker')
       let instructions = document.getElementById( 'instructions' );
+      this.astley = document.getElementsByClassName('astley fadeIn')
+      this.winner = document.getElementsByClassName('winner animateWin')
       this.scene = new THREE.Scene();
+      this.doorIsOpen = false
       this.scene.background = new THREE.Color(0x828282);
       // this.scene.fog = new THREE.FogExp2(0x828282, 0.04)
       this.clock = new THREE.Clock();
@@ -76,10 +80,11 @@ export default class Game{
         blocker.style.display = 'block';
         instructions.style.display = '';
       } );
-
+      this.listener = new THREE.AudioListener()
+      this.camera.add( this.listener)
       this.scene.add(this.controls.getObject())
 
-      // Three Box Mesh 
+      // Three Box Mesh
       this.boxGeometry = new THREE.BoxGeometry(3,3,3)
       this.boxMesh = new THREE.Mesh(this.boxGeometry, this.material)
       this.boxMesh.castShadow = true
@@ -109,9 +114,6 @@ export default class Game{
 
       loader.load( 'https://s3-us-west-2.amazonaws.com/sound-escape/imgs/station.fbx', function ( object ){
         object.traverse( function( children ) {
-          if(children.name.includes('door')) {
-            console.log(children.position)
-          }
           if (children.name.includes('roof')) {
             children.receiveShadow = true
           } else if(children.isMesh && !children.name.includes('roof')) {
@@ -121,11 +123,12 @@ export default class Game{
             children.castShadow = true
           } else if(children.isHemiLight) {
             children.castShadow = true
-          } 
+          }
         })
       game.scene.add( object )
       game.object = object
       game.createColliders()
+
       })
     }
 
@@ -145,6 +148,24 @@ export default class Game{
           body.collisionResponse = true
           game.world.add(body);
         }
+      })
+    }
+
+    rickRoll() {
+      let rick, rolling, potentialRollers = []
+      game.object.children.forEach((child) => {
+        if (child.name.includes('trunk')) {
+          potentialRollers.push(child)
+        }
+      })
+      rick = potentialRollers[Math.floor(Math.random()*potentialRollers.length)]
+      rolling = new THREE.PositionalAudio( this.listener )
+      this.audioLoader = new THREE.AudioLoader()
+      this.audioLoader.load('https://s3-us-west-2.amazonaws.com/sound-escape/music/rick-astley-never-gonna-give-you-up-hq.mp3', function( buffer ) {
+        rolling.setBuffer( buffer )
+        rolling.setRefDistance( .2 )
+        rolling.play()
+        rick.add(rolling)
       })
     }
 
@@ -195,9 +216,11 @@ export default class Game{
       tweenHead.start()
     }
 
+
+
     animate(){
       const game = this
-      // game.cannonDebugRenderer.update();  
+      // game.cannonDebugRenderer.update();
       TWEEN.update()
       game.controls.update(game.clock.getDelta())
       game.renderer.render( game.scene, game.camera );
@@ -205,9 +228,7 @@ export default class Game{
         game.boxMesh.position.copy(game.cube.position)
         game.boxMesh.quaternion.copy(game.cube.quaternion)
         game.world.step(game.world.fixedTimeStep)
-        game.animate();       
-      } ); 
+        game.animate();
+      } );
     }
   }
-
-
