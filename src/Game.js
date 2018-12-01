@@ -9,26 +9,23 @@ export default class Game{
         this.initPhysics()
         this.init()
         this.assLoad()
-        // this.rickRoll()
-
         setTimeout(this.animate(), 2000)
     }
 
     initPhysics(){
+      //Build a Cannon world
       const world = new CANNON.World();
       this.world = world;
       this.world.fixedTimeStep = 1.0/60.0;
-      this.world.defaultContactMaterial.contactEquationStiffness = 1e9;
-      this.world.defaultContactMaterial.contactEquationRelaxation = 4;
-      const physicsMaterial = new CANNON.Material("slipperyMaterial");
+      const physicsMaterial = new CANNON.Material("groundMaterial");
       const physicsContactMaterial = new CANNON.ContactMaterial(
                                                               physicsMaterial,
                                                               physicsMaterial,
-                                                              0.0, // friction coefficient
-                                                              0.3  // restitution
-                                                              );
+                                                              { friction:0.9, 
+                                                                restitution:0.0
+                                                              });
       this.world.addContactMaterial(physicsContactMaterial);
-      this.world.gravity.set(0, -70, 0);
+      this.world.gravity.set(0, -50, 0);
       this.world.broadphase = new CANNON.NaiveBroadphase();
       this.material = new THREE.MeshLambertMaterial( { color: 0xdddddd } )
       this.testMaterial = new CANNON.Material()
@@ -44,15 +41,16 @@ export default class Game{
 
       // Cannon Cam Sphere
       this.sphere = new CANNON.Sphere(2);
-      this.camBody = new CANNON.Body({mass: 10})
+      this.camBody = new CANNON.Body({mass: 7, material: physicsMaterial})
       this.camBody.addShape(this.sphere);
-      this.camBody.linearDamping = 0.9
+      this.camBody.linearDamping = 0.99;
+      this.camBody.angularDamping = 0.99;
       this.camBody.position.set(0,5,20)
       this.world.add(this.camBody);
 
       // Cannon Plane
       this.groundShape = new CANNON.Plane();
-      this.groundBody = new CANNON.Body({ mass: 0 });
+      this.groundBody = new CANNON.Body({ mass: 0, material: physicsMaterial });
       this.groundBody.quaternion.setFromAxisAngle( new CANNON.Vec3(1,0,0), -Math.PI/2);
       this.groundBody.addShape(this.groundShape);
       this.groundBody.position.set(0, 0, 0)
@@ -60,16 +58,20 @@ export default class Game{
     }
 
     init(){
+      //Initialize a THREE scene with a camera, renderer, and controls
       let blocker = document.getElementById('blocker')
       let instructions = document.getElementById( 'instructions' );
       this.astley = document.getElementsByClassName('astley fadeIn')
       this.winner = document.getElementsByClassName('winner animateWin')
       this.scene = new THREE.Scene();
-      this.doorIsOpen = false
+      this.audioLoader = new THREE.AudioLoader()
+      this.doorOneIsOpen = false
+      this.doorTwoIsOpen = false
+      this.noteBlocks = []
       this.scene.background = new THREE.Color(0x828282);
-      // this.scene.fog = new THREE.FogExp2(0x828282, 0.04)
+      this.scene.fog = new THREE.FogExp2(0x828282, 0.04)
       this.clock = new THREE.Clock();
-      this.camera = new THREE.PerspectiveCamera( 65, window.innerWidth/window.innerHeight, 0.1, 10000 );
+      this.camera = new THREE.PerspectiveCamera( 65, window.innerWidth/window.innerHeight, 0.1, 300 );
       this.controls = new PointerLockControls(this.camera, this.camBody);
       instructions.addEventListener( 'click', this.controls.lock, false );
       this.controls.addEventListener( 'lock', function () {
@@ -90,15 +92,13 @@ export default class Game{
       this.boxMesh.castShadow = true
       this.scene.add(this.boxMesh)
 
-      // Three Plane ahhhhh
+      // Three Plane Mesh
       this.groundMaterial = new THREE.MeshLambertMaterial({ color: 0xdddddd } );
       this.geometry = new THREE.PlaneGeometry( 10000, 10000, 50, 50 );
       this.geometry.applyMatrix( new THREE.Matrix4().makeRotationX( - Math.PI / 2 ) );
       this.floor = new THREE.Mesh( this.geometry, this.material );
-      // this.floor.castShadow = true;
       this.floor.receiveShadow = true;
       this.scene.add( this.floor );
-
 
       // Three Renderer
       this.renderer = new THREE.WebGLRenderer({antialias:true});
@@ -106,6 +106,8 @@ export default class Game{
       this.renderer.shadowMap.enabled = true
       this.renderer.shadowMap.type = THREE.PCFSoftShadowMap
       document.body.appendChild( this.renderer.domElement );
+
+      // !!!!!---Enable CANNON Debug Renderer---!!!!!
       // this.cannonDebugRenderer = new THREE.CannonDebugRenderer( this.scene, this.world );
     }
 
@@ -128,7 +130,6 @@ export default class Game{
       game.scene.add( object )
       game.object = object
       game.createColliders()
-
       })
     }
 
@@ -143,10 +144,18 @@ export default class Game{
           const body = new CANNON.Body({mass:0});
           body.addShape(box);
           body.name = child.name
+          if (child.name.includes('NoteBlock')) {
+            child.note = 'https://s3-us-west-2.amazonaws.com/sound-escape/sounds/Room+One+notes/' + child.name.charAt(0) + '.mp3'
+            if (child.name.includes('shia')) {
+              child.note = 'https://s3-us-west-2.amazonaws.com/sound-escape/sounds/shia.wav'
+            }
+          }
           body.position.copy(child.position);
           body.quaternion.copy(child.quaternion);
           body.collisionResponse = true
-          game.world.add(body);
+          if (!child.name.includes('Text')) {
+            game.world.add(body);
+          }
         }
       })
     }
@@ -160,7 +169,7 @@ export default class Game{
       })
       rick = potentialRollers[Math.floor(Math.random()*potentialRollers.length)]
       rolling = new THREE.PositionalAudio( this.listener )
-      this.audioLoader = new THREE.AudioLoader()
+
       this.audioLoader.load('https://s3-us-west-2.amazonaws.com/sound-escape/music/rick-astley-never-gonna-give-you-up-hq.mp3', function( buffer ) {
         rolling.setBuffer( buffer )
         rolling.setRefDistance( .2 )
@@ -169,16 +178,16 @@ export default class Game{
       })
     }
 
-    doorOpen() {
+    doorOpen(doorName, whichDoor) {
       let door;
       let doorBody;
       game.object.children.forEach((child) => {
-        if (child.name === 'door0Model') {
+        if (child.name === doorName) {
           door = child
         }
       })
       game.world.bodies.forEach((body) => {
-        if (body.name === 'door0Model') {
+        if (body.name === doorName) {
           doorBody = body
         }
       })
@@ -194,19 +203,19 @@ export default class Game{
         return 0.5 * ( ( k -= 2 ) * k * k + 2 );
           };
       let tweenHead = new TWEEN.Tween(current)
-                  .to({x:-46, z:8.8}, 500)
+                  .to({x:-46 + whichDoor, z:8.8}, 500)
                   .delay(200)
                   .easing(easing)
                   .onUpdate(updateDoor)
 
       let tweenMiddle = new TWEEN.Tween(current)
-                  .to({x:-47, z:8.8}, 2000)
+                  .to({x:-47 + whichDoor, z:8.8}, 2000)
                   .delay(200)
                   .easing(easing)
                   .onUpdate(updateDoor)
 
       let tweenBack = new TWEEN.Tween(current)
-                  .to({x:-47, z: 3}, 2000)
+                  .to({x:-47 + whichDoor, z: 3}, 2000)
                   .delay(200)
                   .easing(easing)
                   .onUpdate(updateDoor)
@@ -219,8 +228,11 @@ export default class Game{
 
 
     animate(){
-      const game = this
+
+      // !!!!!---Enable CANNON Debug Renderer---!!!!!
       // game.cannonDebugRenderer.update();
+
+      const game = this
       TWEEN.update()
       game.controls.update(game.clock.getDelta())
       game.renderer.render( game.scene, game.camera );

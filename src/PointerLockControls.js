@@ -9,13 +9,11 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
 
     const scope = this;
 	this.domElement = domElement || document.body;
-    this.eyeYPos = 2; // eyes are 2 meters above the ground
     this.velocityFactor = 0.2;
     this.jumpVelocity = 20;
     this.pitchObject = new THREE.Object3D();
     this.pitchObject.add( camera );
     this.yawObject = new THREE.Object3D();
-    this.yawObject.position.y = 2;
     this.yawObject.add( this.pitchObject );
     this.quat = new THREE.Quaternion();
     this.moveForward = false;
@@ -60,16 +58,9 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
         if ( scope.isLocked === false ) return;
         const movementX = event.movementX || event.mozMovementX || event.webkitMovementX || 0;
         const movementY = event.movementY || event.mozMovementY || event.webkitMovementY || 0;
-
         this.yawObject.rotation.y -= movementX * 0.001;
         this.pitchObject.rotation.x -= movementY * 0.001;
         this.pitchObject.rotation.x = Math.max( - PI_2, Math.min( PI_2, this.pitchObject.rotation.x ) );
-        // this.mouse.x = this.pitchObject.rotation.x
-        // this.mouse.y = this.yawObject.rotation.y
-
-
-
-        // this.ray.ray.direction.normalize()
         if (game.object !== undefined) {
           this.intersects = this.ray.intersectObjects(game.object.children)
         }
@@ -125,19 +116,42 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
 
     this.onClick = ( event ) => {
       this.intersects.forEach((intersect) => {
-        console.log(intersect.object)
         if (intersect.object.name.includes('button') && !game.doorIsOpen) {
-          game.doorOpen()
-          game.rickRoll()
-          console.log(game.astley)
-          game.astley[0].style.display = 'block'
-          game.doorIsOpen = true
-          setTimeout(() => {
-            game.astley[0].style.display = 'none'
-          }, 5500)
+          game.doorOpen('door0Model', 0)
+          game.doorOneIsOpen = true
       }
+        if (intersect.object.note) {
+          let audio = new Audio(intersect.object.note);
+          audio.play();
+          game.noteBlocks.push(intersect.object.name.charAt(0))
+          if (intersect.object.name === "shiaNoteBlock") {
+            game.noteBlocks = []
+          }
+          if (game.noteBlocks.length === 4) {
+            if (game.noteBlocks.join('') === "FACE" && !game.doorTwoIsOpen) {
+              let F = new Audio('https://s3-us-west-2.amazonaws.com/sound-escape/sounds/Room+One+notes/F.mp3')
+              let A = new Audio('https://s3-us-west-2.amazonaws.com/sound-escape/sounds/Room+One+notes/A.mp3')
+              let C = new Audio('https://s3-us-west-2.amazonaws.com/sound-escape/sounds/Room+One+notes/C.mp3')
+              let E = new Audio('https://s3-us-west-2.amazonaws.com/sound-escape/sounds/Room+One+notes/E.mp3')
+              game.doorOpen('door1Model', -18)
+              game.doorTwoIsOpen = true
+              setTimeout(() => F.play(), 1000)
+              setTimeout(() => A.play(), 1250)
+              setTimeout(() => C.play(), 1500)
+              setTimeout(() => E.play(), 1750)
+              game.rickRoll()
+              game.astley[0].style.display = 'block'
+
+              setTimeout(() => {
+                game.astley[0].style.display = 'none'
+              }, 5500)
+
+            } else {
+              game.noteBlocks = []
+            }
+          }
+        }
         if (intersect.object.children !== undefined && intersect.object.children.length !== 0) {
-          console.log(intersect.object.children)
           if (intersect.object.children[0].buffer.duration === 212.6033560090703) {
             game.winner[0].style.display = 'block'
           }
@@ -167,7 +181,7 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
 
     this.update = ( delta ) => {
         // if ( this.enabled === false ) return;
-        delta *= 500.1;
+        delta *= 400;
         this.inputVelocity.set(0,0,0);
         if ( this.moveForward ){
             this.inputVelocity.z = -this.velocityFactor * delta;
@@ -194,7 +208,9 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
         this.velocity.z += this.inputVelocity.z;
 
         this.ray.setFromCamera(this.mouse, camera)
-        this.yawObject.position.copy(this.cannonBody.position);
+        this.yawObject.position.x = (this.cannonBody.position.x);
+        this.yawObject.position.y = (this.cannonBody.position.y + 1);
+        this.yawObject.position.z = (this.cannonBody.position.z);
 
         //!!!!!!!!!!!------enable motion sickness mode-------!!!!!!!!!
         // this.yawObject.quaternion.copy(this.cannonBody.quaternion)
