@@ -119,6 +119,7 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
         if (intersect.object.name.includes('button') && !game.doorIsOpen) {
           game.doorOpen('door0Model', 0)
           game.doorOneIsOpen = true
+          game.face[0].style.display = 'block'
       }
         if (intersect.object.note) {
           let audio = new Audio(intersect.object.note);

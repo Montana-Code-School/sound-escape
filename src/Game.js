@@ -61,6 +61,7 @@ export default class Game{
       //Initialize a THREE scene with a camera, renderer, and controls
       let blocker = document.getElementById('blocker')
       let instructions = document.getElementById( 'instructions' );
+      this.face = document.getElementsByClassName('face fadeIn')
       this.astley = document.getElementsByClassName('astley fadeIn')
       this.winner = document.getElementsByClassName('winner animateWin')
       this.scene = new THREE.Scene();
@@ -114,8 +115,10 @@ export default class Game{
     assLoad() {
       const loader = new FBXLoader()
 
-      loader.load( 'https://s3-us-west-2.amazonaws.com/sound-escape/imgs/station.fbx', function ( object ){
-        object.traverse( function( children ) {
+      // loader.load( 'https://s3-us-west-2.amazonaws.com/sound-escape/imgs/station.fbx', function ( object ){
+      loader.load( 'models/station.fbx', function ( object ){
+
+      object.traverse( function( children ) {
           if (children.name.includes('roof')) {
             children.receiveShadow = true
           } else if(children.isMesh && !children.name.includes('roof')) {
@@ -148,6 +151,7 @@ export default class Game{
             child.note = 'https://s3-us-west-2.amazonaws.com/sound-escape/sounds/Room+One+notes/' + child.name.charAt(0) + '.mp3'
             if (child.name.includes('shia')) {
               child.note = 'https://s3-us-west-2.amazonaws.com/sound-escape/sounds/shia.wav'
+              console.log(child)
             }
           }
           body.position.copy(child.position);
@@ -173,6 +177,7 @@ export default class Game{
       this.audioLoader.load('https://s3-us-west-2.amazonaws.com/sound-escape/music/rick-astley-never-gonna-give-you-up-hq.mp3', function( buffer ) {
         rolling.setBuffer( buffer )
         rolling.setRefDistance( .2 )
+        rolling.setLoop( true )
         rolling.play()
         rick.add(rolling)
       })
