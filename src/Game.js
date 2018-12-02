@@ -27,7 +27,7 @@ export default class Game{
       this.world.addContactMaterial(physicsContactMaterial);
       this.world.gravity.set(0, -50, 0);
       this.world.broadphase = new CANNON.NaiveBroadphase();
-      this.material = new THREE.MeshLambertMaterial( { color: 0xdddddd } )
+      this.material = new THREE.MeshPhongMaterial( { color: 0x777777, shininess: 0 } )
       this.testMaterial = new CANNON.Material()
 
       // Cannon Box body
@@ -69,8 +69,8 @@ export default class Game{
       this.doorOneIsOpen = false
       this.doorTwoIsOpen = false
       this.noteBlocks = []
-      this.scene.background = new THREE.Color(0x828282);
-      this.scene.fog = new THREE.FogExp2(0x828282, 0.04)
+      this.scene.background = new THREE.Color(0x282828);
+      this.scene.fog = new THREE.FogExp2(0x282828, 0.04)
       this.clock = new THREE.Clock();
       this.camera = new THREE.PerspectiveCamera( 65, window.innerWidth/window.innerHeight, 0.1, 300 );
       this.controls = new PointerLockControls(this.camera, this.camBody);
@@ -87,35 +87,13 @@ export default class Game{
       this.camera.add( this.listener)
       this.scene.add(this.controls.getObject())
 
-      
-      this.hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.6 );
+      // Hemi Light
+      this.hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.5 );
       this.hemiLight.color.setHSL( 0.6, 1, 0.6 );
       this.hemiLight.groundColor.setHSL( 0.095, 1, 0.75 );
       this.hemiLight.position.set( 100, 500, 100 );
       this.scene.add( this.hemiLight );
-      // this.hemiLightHelper = new THREE.HemisphereLightHelper( this.hemiLight, 100 );
-      // this.scene.add( this.hemiLightHelper );
-
-      this.spotLight = new THREE.SpotLight( 0xffffff, 4, 40 );
-      // this.spotLight.position.set( 0, 10, 0 );
-      this.spotLight.angle = Math.PI / 4;
-      this.spotLight.penumbra = 0.05;
-      this.spotLight.decay = 2;
-      this.spotLight.distance = 200;
-      this.spotLight.castShadow = true;
-      this.spotLight.shadow.mapSize.width = 1024;
-      this.spotLight.shadow.mapSize.height = 1024;
-      this.spotLight.shadow.camera.near = 10;
-      this.spotLight.shadow.camera.far = 200;
-   
-      this.camera.add(this.spotLight)
-      this.spotLight.position.set = (10, 10, -10)
-      console.log(this.camera)
-      // this.spotLight.target = this.camera.parent
-      // this.camera.add(this.spotLight.target)
-      // this.spotLight.target.position.set(0,0,31)
-
-
+  
       // Three Box Mesh
       this.boxGeometry = new THREE.BoxGeometry(3,3,3)
       this.boxMesh = new THREE.Mesh(this.boxGeometry, this.material)
@@ -123,7 +101,7 @@ export default class Game{
       this.scene.add(this.boxMesh)
 
       // Three Plane Mesh
-      this.groundMaterial = new THREE.MeshPhongMaterial({ color: 0x282828, reflectivity: .2 } );
+      this.groundMaterial = new THREE.MeshPhongMaterial({ color: 0x727272, shininess: 0 } );
       this.geometry = new THREE.PlaneGeometry( 10000, 10000, 50, 50 );
       this.geometry.applyMatrix( new THREE.Matrix4().makeRotationX( - Math.PI / 2 ) );
       this.floor = new THREE.Mesh( this.geometry, this.groundMaterial );
@@ -136,6 +114,9 @@ export default class Game{
       this.renderer.setSize( window.innerWidth, window.innerHeight );
       this.renderer.shadowMap.enabled = true
       this.renderer.shadowMap.type = THREE.PCFSoftShadowMap
+
+      this.effectFilm = new THREE.FilmPass( 0.35, 0.025, 648, false );
+
       document.body.appendChild( this.renderer.domElement );
 
       // !!!!!---Enable CANNON Debug Renderer---!!!!!
@@ -148,15 +129,15 @@ export default class Game{
       // loader.load( 'https://s3-us-west-2.amazonaws.com/sound-escape/imgs/station.fbx', function ( object ){
       loader.load( 'models/station.fbx', function ( object ){
 
+        
       object.traverse( function( children ) {
          if(children.isMesh) {
             children.receiveShadow = true
             children.castShadow = true
+            children.material = game.material
           } else if(children.isPointLight) {
             children.castShadow = true
-          } else if(children.isHemiLight) {
-            children.castShadow = true
-          }
+          } 
         })
       game.scene.add( object )
       game.object = object
