@@ -120,6 +120,7 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
       this.intersects.forEach((intersect) => {
         if (intersect.object.name.includes('button') && !game.doorIsOpen) {
             let B = new Audio('https://s3-us-west-2.amazonaws.com/sound-escape/sounds/electric_door_opening_2.mp3')
+            B.volume = 0.1
             game.doorOpen('door0Model', 0)
             game.doorOneIsOpen = true
             setTimeout(() => B.play(), 1000)
@@ -127,6 +128,7 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
       }
         if (intersect.object.note) {
           let audio = new Audio(intersect.object.note);
+          audio.volume = 0.1
           audio.play();
           game.noteBlocks.push(intersect.object.name.charAt(0))
           if (intersect.object.name === "shiaNoteBlock") {
@@ -139,9 +141,15 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
               let C = new Audio('https://s3-us-west-2.amazonaws.com/sound-escape/sounds/Room+One+notes/C.mp3')
               let E = new Audio('https://s3-us-west-2.amazonaws.com/sound-escape/sounds/Room+One+notes/E.mp3')
               let B = new Audio('https://s3-us-west-2.amazonaws.com/sound-escape/sounds/electric_door_opening_2.mp3')
+          
 
               game.doorOpen('door1Model', -18)
               game.doorTwoIsOpen = true
+              B.volume = 0.1
+              F.volume = 0.1
+              A.volume = 0.1
+              C.volume = 0.1
+              E.volume = 0.1
               setTimeout(() => F.play(), 1000)
               setTimeout(() => A.play(), 1250)
               setTimeout(() => C.play(), 1500)
@@ -231,7 +239,7 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
 			scope.isLocked = true;
 		} else {
 			scope.dispatchEvent( { type: 'unlock' } );
-			scope.isLocked = false;
+            scope.isLocked = false;
 		}
 	}
 

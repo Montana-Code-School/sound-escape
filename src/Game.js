@@ -32,10 +32,10 @@ export default class Game{
 
       // Cannon Box body
       this.boxx = new CANNON.Box(new CANNON.Vec3(1.5,1.5,1.5))
-      this.cube = new CANNON.Body({mass:.1, material: this.testMaterial})
+      this.cube = new CANNON.Body({mass:.3, material: this.testMaterial})
       this.cube.angularDamping = 0.01
       this.cube.linearDamping = 0.01
-      this.cube.position.set(0, 2, -7)
+      this.cube.position.set(-6, 3, -6)
       this.cube.addShape(this.boxx)
       this.world.add(this.cube)
 
@@ -70,7 +70,7 @@ export default class Game{
       this.doorTwoIsOpen = false
       this.noteBlocks = []
       this.scene.background = new THREE.Color(0x282828);
-      this.scene.fog = new THREE.FogExp2(0x282828, 0.04)
+      this.scene.fog = new THREE.FogExp2(0x282828, 0.042)
       this.clock = new THREE.Clock();
       this.camera = new THREE.PerspectiveCamera( 65, window.innerWidth/window.innerHeight, 0.1, 300 );
       this.controls = new PointerLockControls(this.camera, this.camBody);
@@ -114,9 +114,8 @@ export default class Game{
       this.renderer.setSize( window.innerWidth, window.innerHeight );
       this.renderer.shadowMap.enabled = true
       this.renderer.shadowMap.type = THREE.PCFSoftShadowMap
-
-      this.effectFilm = new THREE.FilmPass( 0.35, 0.025, 648, false );
-
+      this.renderer.shadowMap.size = (2048, 2048)
+      
       document.body.appendChild( this.renderer.domElement );
 
       // !!!!!---Enable CANNON Debug Renderer---!!!!!
@@ -160,7 +159,6 @@ export default class Game{
             child.note = 'https://s3-us-west-2.amazonaws.com/sound-escape/sounds/Room+One+notes/' + child.name.charAt(0) + '.mp3'
             if (child.name.includes('shia')) {
               child.note = 'https://s3-us-west-2.amazonaws.com/sound-escape/sounds/shia.wav'
-              console.log(child)
             }
           }
           body.position.copy(child.position);
@@ -174,7 +172,7 @@ export default class Game{
     }
 
     rickRoll() {
-      let rick, rolling, potentialRollers = []
+      let ambience, rick, rolling, potentialRollers = []
       game.object.children.forEach((child) => {
         if (child.name.includes('trunk')) {
           potentialRollers.push(child)
@@ -189,6 +187,13 @@ export default class Game{
         rolling.setLoop( true )
         rolling.play()
         rick.add(rolling)
+      })
+      ambience = new THREE.Audio( this.listener )
+      this.audioLoader.load('https://s3-us-west-2.amazonaws.com/sound-escape/sounds/night-ambience1.mp3', function( buffer ) {
+        ambience.setLoop( true )
+        ambience.setBuffer( buffer )
+        ambience.setVolume(0.01)
+        ambience.play()
       })
     }
 
