@@ -1,6 +1,7 @@
 import PointerLockControls from './PointerLockControls';
 import CannonDebugRenderer from './CannonDebugRenderer';
 const TWEEN = require('@tweenjs/tween.js');
+const Color = require('./color');
 
 FBXLoader = require('three-fbx-loader');
 
@@ -116,6 +117,7 @@ export default class Game{
 
       loader.load( 'https://s3-us-west-2.amazonaws.com/sound-escape/imgs/station.fbx', function ( object ){
         object.traverse( function( children ) {
+          Color(children)
           if (children.name.includes('roof')) {
             children.receiveShadow = true
           } else if(children.isMesh && !children.name.includes('roof')) {
