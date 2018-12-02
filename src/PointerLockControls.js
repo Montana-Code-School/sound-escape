@@ -11,6 +11,8 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
 	this.domElement = domElement || document.body;
     this.velocityFactor = 0.2;
     this.jumpVelocity = 20;
+
+    
     this.pitchObject = new THREE.Object3D();
     this.pitchObject.add( camera );
     this.yawObject = new THREE.Object3D();

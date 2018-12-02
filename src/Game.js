@@ -87,6 +87,35 @@ export default class Game{
       this.camera.add( this.listener)
       this.scene.add(this.controls.getObject())
 
+      
+      this.hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.6 );
+      this.hemiLight.color.setHSL( 0.6, 1, 0.6 );
+      this.hemiLight.groundColor.setHSL( 0.095, 1, 0.75 );
+      this.hemiLight.position.set( 100, 500, 100 );
+      this.scene.add( this.hemiLight );
+      // this.hemiLightHelper = new THREE.HemisphereLightHelper( this.hemiLight, 100 );
+      // this.scene.add( this.hemiLightHelper );
+
+      this.spotLight = new THREE.SpotLight( 0xffffff, 4, 40 );
+      // this.spotLight.position.set( 0, 10, 0 );
+      this.spotLight.angle = Math.PI / 4;
+      this.spotLight.penumbra = 0.05;
+      this.spotLight.decay = 2;
+      this.spotLight.distance = 200;
+      this.spotLight.castShadow = true;
+      this.spotLight.shadow.mapSize.width = 1024;
+      this.spotLight.shadow.mapSize.height = 1024;
+      this.spotLight.shadow.camera.near = 10;
+      this.spotLight.shadow.camera.far = 200;
+   
+      this.camera.add(this.spotLight)
+      this.spotLight.position.set = (10, 10, -10)
+      console.log(this.camera)
+      // this.spotLight.target = this.camera.parent
+      // this.camera.add(this.spotLight.target)
+      // this.spotLight.target.position.set(0,0,31)
+
+
       // Three Box Mesh
       this.boxGeometry = new THREE.BoxGeometry(3,3,3)
       this.boxMesh = new THREE.Mesh(this.boxGeometry, this.material)
@@ -94,11 +123,12 @@ export default class Game{
       this.scene.add(this.boxMesh)
 
       // Three Plane Mesh
-      this.groundMaterial = new THREE.MeshLambertMaterial({ color: 0xdddddd } );
+      this.groundMaterial = new THREE.MeshPhongMaterial({ color: 0x282828, reflectivity: .2 } );
       this.geometry = new THREE.PlaneGeometry( 10000, 10000, 50, 50 );
       this.geometry.applyMatrix( new THREE.Matrix4().makeRotationX( - Math.PI / 2 ) );
-      this.floor = new THREE.Mesh( this.geometry, this.material );
+      this.floor = new THREE.Mesh( this.geometry, this.groundMaterial );
       this.floor.receiveShadow = true;
+      this.floor.castShadow = true
       this.scene.add( this.floor );
 
       // Three Renderer
@@ -119,9 +149,7 @@ export default class Game{
       loader.load( 'models/station.fbx', function ( object ){
 
       object.traverse( function( children ) {
-          if (children.name.includes('roof')) {
-            children.receiveShadow = true
-          } else if(children.isMesh && !children.name.includes('roof')) {
+         if(children.isMesh) {
             children.receiveShadow = true
             children.castShadow = true
           } else if(children.isPointLight) {
@@ -236,9 +264,9 @@ export default class Game{
 
       // !!!!!---Enable CANNON Debug Renderer---!!!!!
       // game.cannonDebugRenderer.update();
-
       const game = this
       TWEEN.update()
+      // game.spotLight.position.copy(game.camera.position)
       game.controls.update(game.clock.getDelta())
       game.renderer.render( game.scene, game.camera );
       requestAnimationFrame( function(){
