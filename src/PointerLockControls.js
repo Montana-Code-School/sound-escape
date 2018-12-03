@@ -4,6 +4,7 @@
  */
 
 import * as THREE from 'three'
+const Util = require('./Utilities/Funcs')
 
 const PointerLockControls = function ( camera, cannonBody, domElement ) {
 
@@ -115,64 +116,54 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
     };
 
     this.onClick = ( event ) => {
-      this.intersects.forEach((intersect) => {
+    game.controls.intersects.forEach((intersect) => {
         if (intersect.object.name.includes('button') && !game.doorIsOpen) {
             let B = new Audio('https://s3-us-west-2.amazonaws.com/sound-escape/sounds/electric_door_opening_2.mp3')
             B.volume = 0.5
-            game.doorOpen('door0Model', 0)
+            Util.doorOpen('door0Model', 0)
             game.doorOneIsOpen = true
             setTimeout(() => B.play(), 1000)
             game.face[0].style.display = 'block'
         }
         if (intersect.object.note) {
-          let audio = new Audio(intersect.object.note);
-          audio.volume = 0.5
-          audio.play();
-          game.noteBlocks.push(intersect.object.name.charAt(0))
-          if (intersect.object.name === "shiaNoteBlock") {
+        let audio = new Audio(intersect.object.note);
+        audio.volume = 0.5
+        audio.play();
+        game.noteBlocks.push(intersect.object.name.charAt(0))
+        if (intersect.object.name === "shiaNoteBlock") {
             game.noteBlocks = []
-          }
-          if (game.noteBlocks.length === 4) {
+        }
+        if (game.noteBlocks.length === 4) {
             if (game.noteBlocks.join('') === "FACE" && !game.doorTwoIsOpen) {
-              let F = new Audio('https://s3-us-west-2.amazonaws.com/sound-escape/sounds/Room+One+notes/F.mp3')
-              let A = new Audio('https://s3-us-west-2.amazonaws.com/sound-escape/sounds/Room+One+notes/A.mp3')
-              let C = new Audio('https://s3-us-west-2.amazonaws.com/sound-escape/sounds/Room+One+notes/C.mp3')
-              let E = new Audio('https://s3-us-west-2.amazonaws.com/sound-escape/sounds/Room+One+notes/E.mp3')
-              let B = new Audio('https://s3-us-west-2.amazonaws.com/sound-escape/sounds/electric_door_opening_2.mp3')
+            let fmaj7 = new Audio('https://s3-us-west-2.amazonaws.com/sound-escape/sounds/Fmaj7.mp3')
+            let B = new Audio('https://s3-us-west-2.amazonaws.com/sound-escape/sounds/electric_door_opening_2.mp3')
+            Util.doorOpen('door1Model', -18)
+            game.doorTwoIsOpen = true
+            B.volume = 0.1
+            fmaj7.volume = 0.1
+            setTimeout(() => fmaj7.play(), 700)
+            setTimeout(() => B.play(), 1000)
 
-              game.doorOpen('door1Model', -18)
-              game.doorTwoIsOpen = true
-              B.volume = 0.5
-              F.volume = 0.5
-              A.volume = 0.5
-              C.volume = 0.5
-              E.volume = 0.5
-              setTimeout(() => F.play(), 1000)
-              setTimeout(() => A.play(), 1250)
-              setTimeout(() => C.play(), 1500)
-              setTimeout(() => E.play(), 1750)
-              setTimeout(() => B.play(), 1000)
+            Util.rickRoll()
+            game.astley[0].style.display = 'block'
 
-              game.rickRoll()
-              game.astley[0].style.display = 'block'
-
-              setTimeout(() => {
+            setTimeout(() => {
                 game.astley[0].style.display = 'none'
-              }, 5500)
+            }, 5500)
 
             } else {
-              game.noteBlocks = []
+            game.noteBlocks = []
             }
-          }
+        }
         }
         if (intersect.object.children !== undefined && intersect.object.children.length !== 0) {
-          if (intersect.object.children[0].buffer.duration === 212.6033560090703) {
+        if (intersect.object.children[0].buffer.duration === 212.6033560090703) {
             game.winner[0].style.display = 'block'
-          }
         }
-      })
+        }
+    })
 
-    }
+    } 
 
     document.addEventListener( 'mousemove', this.onMouseMove, false );
     document.addEventListener( 'keydown', this.onKeyDown, false );

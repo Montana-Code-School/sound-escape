@@ -1,7 +1,7 @@
 import PointerLockControls from './PointerLockControls';
 import CannonDebugRenderer from './CannonDebugRenderer';
+const Util = require('./Utilities/Funcs');
 const TWEEN = require('@tweenjs/tween.js');
-const Color = require('./color');
 
 FBXLoader = require('three-fbx-loader');
 
@@ -26,7 +26,7 @@ export default class Game{
                                                                 restitution:0.0
                                                               });
       this.world.addContactMaterial(physicsContactMaterial);
-      this.world.gravity.set(0, -50, 0);
+      this.world.gravity.set(0, -75, 0);
       this.world.broadphase = new CANNON.NaiveBroadphase();
       this.redmat = new THREE.MeshPhongMaterial()
       this.testMaterial = new CANNON.Material()
@@ -127,7 +127,7 @@ export default class Game{
       const loader = new FBXLoader()
       loader.load( 'https://s3-us-west-2.amazonaws.com/sound-escape/imgs/station.fbx', function ( object ){
         object.traverse( function( children ) {
-          Color(children)
+          Util.color(children)
           if(children.isMesh) {
             children.receiveShadow = true
             children.castShadow = true
@@ -138,111 +138,8 @@ export default class Game{
 
       game.scene.add( object )
       game.object = object
-      game.createColliders()
+      Util.createColliders()
       })
-    }
-
-    createColliders(){
-      const scaleAdjust = 2;
-      const divisor = 2 / scaleAdjust;
-      game.object.children.forEach(function(child, i){
-        if (child.isMesh && !child.name.includes('ground')) {
-          child.visible = true;
-          const halfExtents = new CANNON.Vec3(child.scale.x/divisor, child.scale.y/divisor, child.scale.z/divisor);
-          const box = new CANNON.Box(halfExtents);
-          const body = new CANNON.Body({mass:0});
-          body.addShape(box);
-          body.name = child.name
-          if (child.name.includes('NoteBlock')) {
-            child.note = 'https://s3-us-west-2.amazonaws.com/sound-escape/sounds/Room+One+notes/' + child.name.charAt(0) + '.mp3'
-            if (child.name.includes('shia')) {
-              child.note = 'https://s3-us-west-2.amazonaws.com/sound-escape/sounds/shia.wav'
-              console.log(child)
-            }
-          }
-          body.position.copy(child.position);
-          body.quaternion.copy(child.quaternion);
-          body.collisionResponse = true
-          if (!child.name.includes('Text')) {
-            game.world.add(body);
-          }
-
-        }
-      })
-    }
-
-    rickRoll() {
-      let ambience, rick, rolling, potentialRollers = []
-      game.object.children.forEach((child) => {
-        if (child.name.includes('trunk')) {
-          potentialRollers.push(child)
-        }
-      })
-      rick = potentialRollers[Math.floor(Math.random()*potentialRollers.length)]
-      rolling = new THREE.PositionalAudio( this.listener )
-
-      this.audioLoader.load('https://s3-us-west-2.amazonaws.com/sound-escape/music/rick-astley-never-gonna-give-you-up-hq.mp3', function( buffer ) {
-        rolling.setBuffer( buffer )
-        rolling.setRefDistance( .3 )
-        rolling.setVolume(1.5)
-        rolling.setLoop( true )
-        rolling.play()
-        rick.add(rolling)
-      })
-      ambience = new THREE.Audio( this.listener )
-      this.audioLoader.load('https://s3-us-west-2.amazonaws.com/sound-escape/sounds/night-ambience1.mp3', function( buffer ) {
-        ambience.setLoop( true )
-        ambience.setBuffer( buffer )
-        ambience.setVolume(0.03)
-        ambience.play()
-      })
-    }
-
-    doorOpen(doorName, whichDoor) {
-      let door;
-      let doorBody;
-      game.object.children.forEach((child) => {
-        if (child.name === doorName) {
-          door = child
-        }
-      })
-      game.world.bodies.forEach((body) => {
-        if (body.name === doorName) {
-          doorBody = body
-        }
-      })
-      let updateDoor = function () {
-        door.position.z = current.z
-        door.position.x = current.x
-        doorBody.position.z = current.z
-        doorBody.position.x = current.x
-      }
-      let current = {x: -46, z: 8.8}
-      let easing = TWEEN.Easing.CubicEaseInOut = function ( k ) {
-        if ( ( k *= 2 ) < 1 ) return 0.5* k * k * k;
-        return 0.5 * ( ( k -= 2 ) * k * k + 2 );
-          };
-      let tweenHead = new TWEEN.Tween(current)
-                  .to({x:-46 + whichDoor, z:8.8}, 500)
-                  .delay(200)
-                  .easing(easing)
-                  .onUpdate(updateDoor)
-
-      let tweenMiddle = new TWEEN.Tween(current)
-                  .to({x:-47 + whichDoor, z:8.8}, 2000)
-                  .delay(200)
-                  .easing(easing)
-                  .onUpdate(updateDoor)
-
-      let tweenBack = new TWEEN.Tween(current)
-                  .to({x:-47 + whichDoor, z: 3}, 2000)
-                  .delay(200)
-                  .easing(easing)
-                  .onUpdate(updateDoor)
-
-      tweenHead.chain(tweenMiddle)
-      tweenMiddle.chain(tweenBack)
-      tweenHead.start()
     }
 
     animate(){
