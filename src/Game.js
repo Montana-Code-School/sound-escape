@@ -125,9 +125,8 @@ export default class Game{
     assLoad() {
       const loader = new FBXLoader()
 
-      // loader.load( 'https://s3-us-west-2.amazonaws.com/sound-escape/imgs/station.fbx', function ( object ){
-      loader.load( 'models/station.fbx', function ( object ){
-
+      loader.load( 'https://s3-us-west-2.amazonaws.com/sound-escape/imgs/station.fbx', function ( object ){
+      // loader.load( 'models/station.fbx', function ( object ){
         
       object.traverse( function( children ) {
          if(children.isMesh) {
@@ -183,7 +182,8 @@ export default class Game{
 
       this.audioLoader.load('https://s3-us-west-2.amazonaws.com/sound-escape/music/rick-astley-never-gonna-give-you-up-hq.mp3', function( buffer ) {
         rolling.setBuffer( buffer )
-        rolling.setRefDistance( .2 )
+        rolling.setRefDistance( .3 )
+        rolling.setVolume(1.5)
         rolling.setLoop( true )
         rolling.play()
         rick.add(rolling)
@@ -192,7 +192,7 @@ export default class Game{
       this.audioLoader.load('https://s3-us-west-2.amazonaws.com/sound-escape/sounds/night-ambience1.mp3', function( buffer ) {
         ambience.setLoop( true )
         ambience.setBuffer( buffer )
-        ambience.setVolume(0.01)
+        ambience.setVolume(0.03)
         ambience.play()
       })
     }
