@@ -28,7 +28,6 @@ export default class Game{
       this.world.addContactMaterial(physicsContactMaterial);
       this.world.gravity.set(0, -75, 0);
       this.world.broadphase = new CANNON.NaiveBroadphase();
-      this.redmat = new THREE.MeshPhongMaterial()
       this.testMaterial = new CANNON.Material()
 
       // Cannon Box body
