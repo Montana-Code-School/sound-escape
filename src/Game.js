@@ -28,15 +28,15 @@ export default class Game{
       this.world.addContactMaterial(physicsContactMaterial);
       this.world.gravity.set(0, -50, 0);
       this.world.broadphase = new CANNON.NaiveBroadphase();
-      this.material = new THREE.MeshLambertMaterial( { color: 0xdddddd } )
+      this.material = new THREE.MeshPhongMaterial( { color: 0x777777, shininess: 0 } )
       this.testMaterial = new CANNON.Material()
 
       // Cannon Box body
       this.boxx = new CANNON.Box(new CANNON.Vec3(1.5,1.5,1.5))
-      this.cube = new CANNON.Body({mass:.1, material: this.testMaterial})
+      this.cube = new CANNON.Body({mass:.3, material: this.testMaterial})
       this.cube.angularDamping = 0.01
       this.cube.linearDamping = 0.01
-      this.cube.position.set(0, 2, -7)
+      this.cube.position.set(-6, 3, -6)
       this.cube.addShape(this.boxx)
       this.world.add(this.cube)
 
@@ -70,8 +70,8 @@ export default class Game{
       this.doorOneIsOpen = false
       this.doorTwoIsOpen = false
       this.noteBlocks = []
-      this.scene.background = new THREE.Color(0x828282);
-      this.scene.fog = new THREE.FogExp2(0x828282, 0.04)
+      this.scene.background = new THREE.Color(0x282828);
+      this.scene.fog = new THREE.FogExp2(0x282828, 0.042)
       this.clock = new THREE.Clock();
       this.camera = new THREE.PerspectiveCamera( 65, window.innerWidth/window.innerHeight, 0.1, 300 );
       this.controls = new PointerLockControls(this.camera, this.camBody);
@@ -88,32 +88,13 @@ export default class Game{
       this.camera.add( this.listener)
       this.scene.add(this.controls.getObject())
 
-
-      this.hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.6 );
+      // Hemi Light
+      this.hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.5 );
       this.hemiLight.color.setHSL( 0.6, 1, 0.6 );
       this.hemiLight.groundColor.setHSL( 0.095, 1, 0.75 );
       this.hemiLight.position.set( 100, 500, 100 );
-      // this.scene.add( this.hemiLight );
-      // this.hemiLightHelper = new THREE.HemisphereLightHelper( this.hemiLight, 100 );
-      // this.scene.add( this.hemiLightHelper );
-
-      this.spotLight = new THREE.SpotLight( 0xffffff, 4, 40 );
-      // this.spotLight.position.set( 0, 10, 0 );
-      this.spotLight.angle = Math.PI / 4;
-      this.spotLight.penumbra = 0.000000000000000005;
-      this.spotLight.decay = 2;
-      this.spotLight.distance = 2;
-      this.spotLight.castShadow = true;
-      this.spotLight.shadow.mapSize.width = 1024;
-      this.spotLight.shadow.mapSize.height = 1024;
-      this.spotLight.shadow.camera.near = 10;
-      this.spotLight.shadow.camera.far = 20;
-      console.log(this.camera)
-      // this.spotLight.target = this.camera.parent
-      // this.camera.add(this.spotLight.target)
-      // this.spotLight.target.position.set(0,0,31)
-
-
+      this.scene.add( this.hemiLight );
+  
       // Three Box Mesh
       this.boxGeometry = new THREE.BoxGeometry(3,3,3)
       this.boxMesh = new THREE.Mesh(this.boxGeometry, this.material)
@@ -121,7 +102,7 @@ export default class Game{
       this.scene.add(this.boxMesh)
 
       // Three Plane Mesh
-      this.groundMaterial = new THREE.MeshPhongMaterial({ color: 0x282828, reflectivity: .2 } );
+      this.groundMaterial = new THREE.MeshPhongMaterial({ color: 0x727272, shininess: 0 } );
       this.geometry = new THREE.PlaneGeometry( 10000, 10000, 50, 50 );
       this.geometry.applyMatrix( new THREE.Matrix4().makeRotationX( - Math.PI / 2 ) );
       this.floor = new THREE.Mesh( this.geometry, this.groundMaterial );
@@ -134,6 +115,8 @@ export default class Game{
       this.renderer.setSize( window.innerWidth, window.innerHeight );
       this.renderer.shadowMap.enabled = true
       this.renderer.shadowMap.type = THREE.PCFSoftShadowMap
+      this.renderer.shadowMap.size = (2048, 2048)
+      
       document.body.appendChild( this.renderer.domElement );
 
       // !!!!!---Enable CANNON Debug Renderer---!!!!!
@@ -145,16 +128,13 @@ export default class Game{
       loader.load( 'https://s3-us-west-2.amazonaws.com/sound-escape/imgs/station.fbx', function ( object ){
         object.traverse( function( children ) {
           Color(children)
-          if (children.name.includes('roof')) {
-            children.receiveShadow = true
-          } else if(children.isMesh && !children.name.includes('roof')) {
+          if(children.isMesh) {
             children.receiveShadow = true
             children.castShadow = true
+            children.material = game.material
           } else if(children.isPointLight) {
             children.castShadow = true
-          } else if(children.isHemiLight) {
-            children.castShadow = true
-          }
+          } 
         })
 
       game.scene.add( object )
@@ -193,7 +173,7 @@ export default class Game{
     }
 
     rickRoll() {
-      let rick, rolling, potentialRollers = []
+      let ambience, rick, rolling, potentialRollers = []
       game.object.children.forEach((child) => {
         if (child.name.includes('trunk')) {
           potentialRollers.push(child)
@@ -204,10 +184,18 @@ export default class Game{
 
       this.audioLoader.load('https://s3-us-west-2.amazonaws.com/sound-escape/music/rick-astley-never-gonna-give-you-up-hq.mp3', function( buffer ) {
         rolling.setBuffer( buffer )
-        rolling.setRefDistance( .2 )
+        rolling.setRefDistance( .3 )
+        rolling.setVolume(1.5)
         rolling.setLoop( true )
         rolling.play()
         rick.add(rolling)
+      })
+      ambience = new THREE.Audio( this.listener )
+      this.audioLoader.load('https://s3-us-west-2.amazonaws.com/sound-escape/sounds/night-ambience1.mp3', function( buffer ) {
+        ambience.setLoop( true )
+        ambience.setBuffer( buffer )
+        ambience.setVolume(0.03)
+        ambience.play()
       })
     }
 
@@ -258,15 +246,11 @@ export default class Game{
       tweenHead.start()
     }
 
-
-
     animate(){
-
       // !!!!!---Enable CANNON Debug Renderer---!!!!!
       // game.cannonDebugRenderer.update();
       const game = this
       TWEEN.update()
-
       game.controls.update(game.clock.getDelta())
       game.renderer.render( game.scene, game.camera );
       requestAnimationFrame( function(){
