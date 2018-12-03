@@ -28,7 +28,7 @@ export default class Game{
       this.world.addContactMaterial(physicsContactMaterial);
       this.world.gravity.set(0, -50, 0);
       this.world.broadphase = new CANNON.NaiveBroadphase();
-      this.material = new THREE.MeshPhongMaterial( { color: 0x777777, shininess: 0 } )
+      this.redmat = new THREE.MeshPhongMaterial()
       this.testMaterial = new CANNON.Material()
 
       // Cannon Box body
@@ -97,7 +97,7 @@ export default class Game{
   
       // Three Box Mesh
       this.boxGeometry = new THREE.BoxGeometry(3,3,3)
-      this.boxMesh = new THREE.Mesh(this.boxGeometry, this.material)
+      this.boxMesh = new THREE.Mesh(this.boxGeometry, new THREE.MeshPhongMaterial( { color: 0xff0000 } ))
       this.boxMesh.castShadow = true
       this.scene.add(this.boxMesh)
 
@@ -131,7 +131,6 @@ export default class Game{
           if(children.isMesh) {
             children.receiveShadow = true
             children.castShadow = true
-            children.material = game.material
           } else if(children.isPointLight) {
             children.castShadow = true
           } 
