@@ -10,7 +10,7 @@ export default class Game{
         this.initPhysics()
         this.init()
         this.assLoad()
-        setTimeout(this.animate(), 2000)
+        setTimeout(this.animate(), 300)
     }
 
     initPhysics(){
@@ -22,7 +22,7 @@ export default class Game{
       const physicsContactMaterial = new CANNON.ContactMaterial(
                                                               physicsMaterial,
                                                               physicsMaterial,
-                                                              { friction:0.9, 
+                                                              { friction:0.9,
                                                                 restitution:0.0
                                                               });
       this.world.addContactMaterial(physicsContactMaterial);
@@ -62,6 +62,7 @@ export default class Game{
       //Initialize a THREE scene with a camera, renderer, and controls
       let blocker = document.getElementById('blocker')
       let instructions = document.getElementById( 'instructions' );
+      this.face = document.getElementsByClassName('face fadeIn')
       this.astley = document.getElementsByClassName('astley fadeIn')
       this.winner = document.getElementsByClassName('winner animateWin')
       this.scene = new THREE.Scene();
@@ -87,6 +88,32 @@ export default class Game{
       this.camera.add( this.listener)
       this.scene.add(this.controls.getObject())
 
+
+      this.hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.6 );
+      this.hemiLight.color.setHSL( 0.6, 1, 0.6 );
+      this.hemiLight.groundColor.setHSL( 0.095, 1, 0.75 );
+      this.hemiLight.position.set( 100, 500, 100 );
+      // this.scene.add( this.hemiLight );
+      // this.hemiLightHelper = new THREE.HemisphereLightHelper( this.hemiLight, 100 );
+      // this.scene.add( this.hemiLightHelper );
+
+      this.spotLight = new THREE.SpotLight( 0xffffff, 4, 40 );
+      // this.spotLight.position.set( 0, 10, 0 );
+      this.spotLight.angle = Math.PI / 4;
+      this.spotLight.penumbra = 0.000000000000000005;
+      this.spotLight.decay = 2;
+      this.spotLight.distance = 2;
+      this.spotLight.castShadow = true;
+      this.spotLight.shadow.mapSize.width = 1024;
+      this.spotLight.shadow.mapSize.height = 1024;
+      this.spotLight.shadow.camera.near = 10;
+      this.spotLight.shadow.camera.far = 20;
+      console.log(this.camera)
+      // this.spotLight.target = this.camera.parent
+      // this.camera.add(this.spotLight.target)
+      // this.spotLight.target.position.set(0,0,31)
+
+
       // Three Box Mesh
       this.boxGeometry = new THREE.BoxGeometry(3,3,3)
       this.boxMesh = new THREE.Mesh(this.boxGeometry, this.material)
@@ -94,11 +121,12 @@ export default class Game{
       this.scene.add(this.boxMesh)
 
       // Three Plane Mesh
-      this.groundMaterial = new THREE.MeshLambertMaterial({ color: 0xdddddd } );
+      this.groundMaterial = new THREE.MeshPhongMaterial({ color: 0x282828, reflectivity: .2 } );
       this.geometry = new THREE.PlaneGeometry( 10000, 10000, 50, 50 );
       this.geometry.applyMatrix( new THREE.Matrix4().makeRotationX( - Math.PI / 2 ) );
-      this.floor = new THREE.Mesh( this.geometry, this.material );
+      this.floor = new THREE.Mesh( this.geometry, this.groundMaterial );
       this.floor.receiveShadow = true;
+      this.floor.castShadow = true
       this.scene.add( this.floor );
 
       // Three Renderer
@@ -114,7 +142,6 @@ export default class Game{
 
     assLoad() {
       const loader = new FBXLoader()
-
       loader.load( 'https://s3-us-west-2.amazonaws.com/sound-escape/imgs/station.fbx', function ( object ){
         object.traverse( function( children ) {
           Color(children)
@@ -129,6 +156,7 @@ export default class Game{
             children.castShadow = true
           }
         })
+
       game.scene.add( object )
       game.object = object
       game.createColliders()
@@ -138,7 +166,7 @@ export default class Game{
     createColliders(){
       const scaleAdjust = 2;
       const divisor = 2 / scaleAdjust;
-      game.object.children.forEach(function(child){
+      game.object.children.forEach(function(child, i){
         if (child.isMesh && !child.name.includes('ground')) {
           child.visible = true;
           const halfExtents = new CANNON.Vec3(child.scale.x/divisor, child.scale.y/divisor, child.scale.z/divisor);
@@ -150,6 +178,7 @@ export default class Game{
             child.note = 'https://s3-us-west-2.amazonaws.com/sound-escape/sounds/Room+One+notes/' + child.name.charAt(0) + '.mp3'
             if (child.name.includes('shia')) {
               child.note = 'https://s3-us-west-2.amazonaws.com/sound-escape/sounds/shia.wav'
+              console.log(child)
             }
           }
           body.position.copy(child.position);
@@ -158,6 +187,7 @@ export default class Game{
           if (!child.name.includes('Text')) {
             game.world.add(body);
           }
+
         }
       })
     }
@@ -175,6 +205,7 @@ export default class Game{
       this.audioLoader.load('https://s3-us-west-2.amazonaws.com/sound-escape/music/rick-astley-never-gonna-give-you-up-hq.mp3', function( buffer ) {
         rolling.setBuffer( buffer )
         rolling.setRefDistance( .2 )
+        rolling.setLoop( true )
         rolling.play()
         rick.add(rolling)
       })
@@ -233,9 +264,9 @@ export default class Game{
 
       // !!!!!---Enable CANNON Debug Renderer---!!!!!
       // game.cannonDebugRenderer.update();
-
       const game = this
       TWEEN.update()
+
       game.controls.update(game.clock.getDelta())
       game.renderer.render( game.scene, game.camera );
       requestAnimationFrame( function(){
