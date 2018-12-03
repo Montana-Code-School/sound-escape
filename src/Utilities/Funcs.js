@@ -47,7 +47,6 @@ export function rickRoll(songURL) {
       rolling.play()
       rick.add(rolling)
     })
-
   }
 
 export function color(mesh) {
