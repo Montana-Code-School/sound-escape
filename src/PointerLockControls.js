@@ -56,7 +56,7 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
     const PI_2 = Math.PI / 2;
 
     this.onMouseMove = ( event ) => {
-        if ( scope.isLocked === false ) return;
+        if ( scope.enabled === false ) return;
         const movementX = event.movementX || event.mozMovementX || event.webkitMovementX || 0;
         const movementY = event.movementY || event.mozMovementY || event.webkitMovementY || 0;
         this.yawObject.rotation.y -= movementX * 0.001;
@@ -92,6 +92,9 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
                 this.canJump = false;
                 break;
         }
+        if (game.object !== undefined) {
+            this.intersects = this.ray.intersectObjects(game.object.children)
+        }  
     };
 
     this.onKeyUp = ( event ) => {
@@ -185,7 +188,10 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
     this.euler = new THREE.Euler();
 
     this.update = ( delta ) => {
-        // if ( this.enabled === false ) return;
+        this.yawObject.position.x = (this.cannonBody.position.x);
+        this.yawObject.position.y = (this.cannonBody.position.y + 1);
+        this.yawObject.position.z = (this.cannonBody.position.z);
+        if ( scope.enabled === false ) return;
         delta *= 400;
         this.inputVelocity.set(0,0,0);
         if ( this.moveForward ){
@@ -213,9 +219,6 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
         this.velocity.z += this.inputVelocity.z;
 
         this.ray.setFromCamera(this.mouse, camera)
-        this.yawObject.position.x = (this.cannonBody.position.x);
-        this.yawObject.position.y = (this.cannonBody.position.y + 1);
-        this.yawObject.position.z = (this.cannonBody.position.z);
 
         //!!!!!!!!!!!------enable motion sickness mode-------!!!!!!!!!
         // this.yawObject.quaternion.copy(this.cannonBody.quaternion)
@@ -224,10 +227,10 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
 	function onPointerlockChange() {
 		if ( document.pointerLockElement === scope.domElement ) {
 			scope.dispatchEvent( { type: 'lock' } );
-			scope.isLocked = true;
+			scope.enabled = true;
 		} else {
 			scope.dispatchEvent( { type: 'unlock' } );
-            scope.isLocked = false;
+            scope.enabled = false;
 		}
 	}
 
