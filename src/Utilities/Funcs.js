@@ -27,17 +27,19 @@ export function createColliders(){
     })
   }
 
-export function rickRoll() {
-    let ambience, rick, rolling, potentialRollers = []
+export function rickRoll(songURL) {
+    let rick, rolling, potentialRollers = []
     game.object.children.forEach((child) => {
-      if (child.name.includes('trunk')) {
+      if (child.name.includes('trunk') && !child.hasSong) {
         potentialRollers.push(child)
       }
     })
-    rick = potentialRollers[Math.floor(Math.random()*potentialRollers.length)]
+    let randomNumber = Math.floor(Math.random()*potentialRollers.length)
+    rick = potentialRollers[randomNumber]
+    rick.hasSong = true
     rolling = new THREE.PositionalAudio( game.listener )
 
-    game.audioLoader.load('https://s3-us-west-2.amazonaws.com/sound-escape/music/rick-astley-never-gonna-give-you-up-hq.mp3', function( buffer ) {
+    game.audioLoader.load(songURL, function( buffer ) {
       rolling.setBuffer( buffer )
       rolling.setRefDistance( .3 )
       rolling.setVolume(1.5)
@@ -45,21 +47,14 @@ export function rickRoll() {
       rolling.play()
       rick.add(rolling)
     })
-    ambience = new THREE.Audio( game.listener )
-    game.audioLoader.load('https://s3-us-west-2.amazonaws.com/sound-escape/sounds/night-ambience1.mp3', function( buffer ) {
-      ambience.setLoop( true )
-      ambience.setBuffer( buffer )
-      ambience.setVolume(0.03)
-      ambience.play()
-    })
   }
 
 export function color(mesh) {
     if (mesh.name.includes('crown') || mesh.name.includes('buttonModel') || mesh.name.includes('Text'))
         mesh.material = new THREE.MeshPhongMaterial( { color: 0xff0000 } );
-    else 
+    else
         mesh.material = new THREE.MeshPhongMaterial({ color: 0x777777, shininess: 0 })
-} 
+}
 
 export function doorOpen(doorName, whichDoor) {
     const TWEEN = require('@tweenjs/tween.js');
