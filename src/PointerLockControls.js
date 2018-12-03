@@ -4,6 +4,7 @@
  */
 
 import * as THREE from 'three'
+const Util = require('./Utilities/Funcs')
 
 const PointerLockControls = function ( camera, cannonBody, domElement ) {
 
@@ -55,7 +56,7 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
     const PI_2 = Math.PI / 2;
 
     this.onMouseMove = ( event ) => {
-        if ( scope.isLocked === false ) return;
+        if ( scope.enabled === false ) return;
         const movementX = event.movementX || event.mozMovementX || event.webkitMovementX || 0;
         const movementY = event.movementY || event.mozMovementY || event.webkitMovementY || 0;
         this.yawObject.rotation.y -= movementX * 0.001;
@@ -91,6 +92,9 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
                 this.canJump = false;
                 break;
         }
+        if (game.object !== undefined) {
+            this.intersects = this.ray.intersectObjects(game.object.children)
+        }
     };
 
     this.onKeyUp = ( event ) => {
@@ -112,51 +116,68 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
                 this.moveRight = false;
                 break;
         }
+        if (game.object !== undefined) {
+            this.intersects = this.ray.intersectObjects(game.object.children)
+        }
     };
 
     this.onClick = ( event ) => {
-      this.intersects.forEach((intersect) => {
-        if (intersect.object.name.includes('button') && !game.doorIsOpen) {
-          game.doorOpen('door0Model', 0)
-          game.doorOneIsOpen = true
-      }
+    game.controls.intersects.forEach((intersect) => {
+        if (intersect.object.name.includes('button') && !game.doorOneIsOpen) {
+            let B = new Audio('https://s3-us-west-2.amazonaws.com/sound-escape/sounds/electric_door_opening_2.mp3')
+            B.volume = 0.5
+            Util.doorOpen('door0Model', 0)
+            game.doorOneIsOpen = true
+            setTimeout(() => B.play(), 1000)
+            game.face[0].style.display = 'block'
+        }
         if (intersect.object.note) {
-          let audio = new Audio(intersect.object.note);
-          audio.play();
-          game.noteBlocks.push(intersect.object.name.charAt(0))
-          if (intersect.object.name === "shiaNoteBlock") {
+        let audio = new Audio(intersect.object.note);
+        audio.volume = 0.5
+        audio.play();
+        game.noteBlocks.push(intersect.object.name.charAt(0))
+        if (intersect.object.name === "shiaNoteBlock") {
             game.noteBlocks = []
-          }
-          if (game.noteBlocks.length === 4) {
+        }
+        if (game.noteBlocks.length === 4) {
             if (game.noteBlocks.join('') === "FACE" && !game.doorTwoIsOpen) {
-              let F = new Audio('https://s3-us-west-2.amazonaws.com/sound-escape/sounds/Room+One+notes/F.mp3')
-              let A = new Audio('https://s3-us-west-2.amazonaws.com/sound-escape/sounds/Room+One+notes/A.mp3')
-              let C = new Audio('https://s3-us-west-2.amazonaws.com/sound-escape/sounds/Room+One+notes/C.mp3')
-              let E = new Audio('https://s3-us-west-2.amazonaws.com/sound-escape/sounds/Room+One+notes/E.mp3')
-              game.doorOpen('door1Model', -18)
-              game.doorTwoIsOpen = true
-              setTimeout(() => F.play(), 1000)
-              setTimeout(() => A.play(), 1250)
-              setTimeout(() => C.play(), 1500)
-              setTimeout(() => E.play(), 1750)
-              game.rickRoll()
-              game.astley[0].style.display = 'block'
+            let fmaj7 = new Audio('https://s3-us-west-2.amazonaws.com/sound-escape/sounds/Fmaj7.mp3')
+            let B = new Audio('https://s3-us-west-2.amazonaws.com/sound-escape/sounds/electric_door_opening_2.mp3')
+            Util.doorOpen('door1Model', -18)
+            game.doorTwoIsOpen = true
+            B.volume = 0.1
+            fmaj7.volume = 0.1
+            setTimeout(() => fmaj7.play(), 700)
+            setTimeout(() => B.play(), 1000)
 
-              setTimeout(() => {
+            Util.rickRoll('https://s3-us-west-2.amazonaws.com/sound-escape/music/rick-astley-never-gonna-give-you-up-hq.mp3')
+            Util.rickRoll('https://s3-us-west-2.amazonaws.com/sound-escape/music/Toto+-+Africa+(Video).mp3')
+            Util.rickRoll('https://s3-us-west-2.amazonaws.com/sound-escape/music/F+it+up+-+Louis+Cole+(Live+Sesh).mp3')
+            Util.rickRoll('https://s3-us-west-2.amazonaws.com/sound-escape/music/Peaches+-+The+Presidents+of+the+United+States+of+America.mp3')
+            let ambience = new THREE.Audio( game.listener )
+            game.audioLoader.load('https://s3-us-west-2.amazonaws.com/sound-escape/sounds/night-ambience1.mp3', function( buffer ) {
+              ambience.setLoop( true )
+              ambience.setBuffer( buffer )
+              ambience.setVolume(0.03)
+              ambience.play()
+            })
+            game.astley[0].style.display = 'block'
+
+            setTimeout(() => {
                 game.astley[0].style.display = 'none'
-              }, 5500)
+            }, 5500)
 
             } else {
-              game.noteBlocks = []
+            game.noteBlocks = []
             }
-          }
+        }
         }
         if (intersect.object.children !== undefined && intersect.object.children.length !== 0) {
-          if (intersect.object.children[0].buffer.duration === 212.6033560090703) {
+        if (intersect.object.children[0].buffer.duration === 212.6033560090703) {
             game.winner[0].style.display = 'block'
-          }
         }
-      })
+        }
+    })
 
     }
 
@@ -180,7 +201,10 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
     this.euler = new THREE.Euler();
 
     this.update = ( delta ) => {
-        // if ( this.enabled === false ) return;
+        this.yawObject.position.x = (this.cannonBody.position.x);
+        this.yawObject.position.y = (this.cannonBody.position.y + 1);
+        this.yawObject.position.z = (this.cannonBody.position.z);
+        if ( scope.enabled === false ) return;
         delta *= 400;
         this.inputVelocity.set(0,0,0);
         if ( this.moveForward ){
@@ -208,9 +232,6 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
         this.velocity.z += this.inputVelocity.z;
 
         this.ray.setFromCamera(this.mouse, camera)
-        this.yawObject.position.x = (this.cannonBody.position.x);
-        this.yawObject.position.y = (this.cannonBody.position.y + 1);
-        this.yawObject.position.z = (this.cannonBody.position.z);
 
         //!!!!!!!!!!!------enable motion sickness mode-------!!!!!!!!!
         // this.yawObject.quaternion.copy(this.cannonBody.quaternion)
@@ -219,10 +240,10 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
 	function onPointerlockChange() {
 		if ( document.pointerLockElement === scope.domElement ) {
 			scope.dispatchEvent( { type: 'lock' } );
-			scope.isLocked = true;
+			scope.enabled = true;
 		} else {
 			scope.dispatchEvent( { type: 'unlock' } );
-			scope.isLocked = false;
+            scope.enabled = false;
 		}
 	}
 
