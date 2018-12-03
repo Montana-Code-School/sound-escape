@@ -1,6 +1,7 @@
 import PointerLockControls from './PointerLockControls';
 import CannonDebugRenderer from './CannonDebugRenderer';
 const TWEEN = require('@tweenjs/tween.js');
+const Color = require('./color');
 
 FBXLoader = require('three-fbx-loader');
 
@@ -9,7 +10,7 @@ export default class Game{
         this.initPhysics()
         this.init()
         this.assLoad()
-        setTimeout(this.animate(), 2000)
+        setTimeout(this.animate(), 300)
     }
 
     initPhysics(){
@@ -21,7 +22,7 @@ export default class Game{
       const physicsContactMaterial = new CANNON.ContactMaterial(
                                                               physicsMaterial,
                                                               physicsMaterial,
-                                                              { friction:0.9, 
+                                                              { friction:0.9,
                                                                 restitution:0.0
                                                               });
       this.world.addContactMaterial(physicsContactMaterial);
@@ -124,12 +125,10 @@ export default class Game{
 
     assLoad() {
       const loader = new FBXLoader()
-
       loader.load( 'https://s3-us-west-2.amazonaws.com/sound-escape/imgs/station.fbx', function ( object ){
-      // loader.load( 'models/station.fbx', function ( object ){
-        
-      object.traverse( function( children ) {
-         if(children.isMesh) {
+        object.traverse( function( children ) {
+          Color(children)
+          if(children.isMesh) {
             children.receiveShadow = true
             children.castShadow = true
             children.material = game.material
@@ -137,6 +136,7 @@ export default class Game{
             children.castShadow = true
           } 
         })
+
       game.scene.add( object )
       game.object = object
       game.createColliders()
@@ -146,7 +146,7 @@ export default class Game{
     createColliders(){
       const scaleAdjust = 2;
       const divisor = 2 / scaleAdjust;
-      game.object.children.forEach(function(child){
+      game.object.children.forEach(function(child, i){
         if (child.isMesh && !child.name.includes('ground')) {
           child.visible = true;
           const halfExtents = new CANNON.Vec3(child.scale.x/divisor, child.scale.y/divisor, child.scale.z/divisor);
@@ -158,6 +158,7 @@ export default class Game{
             child.note = 'https://s3-us-west-2.amazonaws.com/sound-escape/sounds/Room+One+notes/' + child.name.charAt(0) + '.mp3'
             if (child.name.includes('shia')) {
               child.note = 'https://s3-us-west-2.amazonaws.com/sound-escape/sounds/shia.wav'
+              console.log(child)
             }
           }
           body.position.copy(child.position);
@@ -166,6 +167,7 @@ export default class Game{
           if (!child.name.includes('Text')) {
             game.world.add(body);
           }
+
         }
       })
     }
@@ -244,15 +246,11 @@ export default class Game{
       tweenHead.start()
     }
 
-
-
     animate(){
-
       // !!!!!---Enable CANNON Debug Renderer---!!!!!
       // game.cannonDebugRenderer.update();
       const game = this
       TWEEN.update()
-      // game.spotLight.position.copy(game.camera.position)
       game.controls.update(game.clock.getDelta())
       game.renderer.render( game.scene, game.camera );
       requestAnimationFrame( function(){

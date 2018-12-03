@@ -11,8 +11,6 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
 	this.domElement = domElement || document.body;
     this.velocityFactor = 0.2;
     this.jumpVelocity = 20;
-
-    
     this.pitchObject = new THREE.Object3D();
     this.pitchObject.add( camera );
     this.yawObject = new THREE.Object3D();
@@ -125,7 +123,7 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
             game.doorOneIsOpen = true
             setTimeout(() => B.play(), 1000)
             game.face[0].style.display = 'block'
-      }
+        }
         if (intersect.object.note) {
           let audio = new Audio(intersect.object.note);
           audio.volume = 0.5
@@ -141,7 +139,6 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
               let C = new Audio('https://s3-us-west-2.amazonaws.com/sound-escape/sounds/Room+One+notes/C.mp3')
               let E = new Audio('https://s3-us-west-2.amazonaws.com/sound-escape/sounds/Room+One+notes/E.mp3')
               let B = new Audio('https://s3-us-west-2.amazonaws.com/sound-escape/sounds/electric_door_opening_2.mp3')
-          
 
               game.doorOpen('door1Model', -18)
               game.doorTwoIsOpen = true
