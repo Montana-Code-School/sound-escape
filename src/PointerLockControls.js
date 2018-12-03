@@ -94,7 +94,7 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
         }
         if (game.object !== undefined) {
             this.intersects = this.ray.intersectObjects(game.object.children)
-        }  
+        }
     };
 
     this.onKeyUp = ( event ) => {
@@ -116,11 +116,14 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
                 this.moveRight = false;
                 break;
         }
+        if (game.object !== undefined) {
+            this.intersects = this.ray.intersectObjects(game.object.children)
+        }
     };
 
     this.onClick = ( event ) => {
     game.controls.intersects.forEach((intersect) => {
-        if (intersect.object.name.includes('button') && !game.doorIsOpen) {
+        if (intersect.object.name.includes('button') && !game.doorOneIsOpen) {
             let B = new Audio('https://s3-us-west-2.amazonaws.com/sound-escape/sounds/electric_door_opening_2.mp3')
             B.volume = 0.5
             Util.doorOpen('door0Model', 0)
@@ -147,7 +150,17 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
             setTimeout(() => fmaj7.play(), 700)
             setTimeout(() => B.play(), 1000)
 
-            Util.rickRoll()
+            Util.rickRoll('https://s3-us-west-2.amazonaws.com/sound-escape/music/rick-astley-never-gonna-give-you-up-hq.mp3')
+            Util.rickRoll('https://s3-us-west-2.amazonaws.com/sound-escape/music/Toto+-+Africa+(Video).mp3')
+            Util.rickRoll('https://s3-us-west-2.amazonaws.com/sound-escape/music/F+it+up+-+Louis+Cole+(Live+Sesh).mp3')
+            Util.rickRoll('https://s3-us-west-2.amazonaws.com/sound-escape/music/Peaches+-+The+Presidents+of+the+United+States+of+America.mp3')
+            let ambience = new THREE.Audio( game.listener )
+            game.audioLoader.load('https://s3-us-west-2.amazonaws.com/sound-escape/sounds/night-ambience1.mp3', function( buffer ) {
+              ambience.setLoop( true )
+              ambience.setBuffer( buffer )
+              ambience.setVolume(0.03)
+              ambience.play()
+            })
             game.astley[0].style.display = 'block'
 
             setTimeout(() => {
@@ -166,7 +179,7 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
         }
     })
 
-    } 
+    }
 
     document.addEventListener( 'mousemove', this.onMouseMove, false );
     document.addEventListener( 'keydown', this.onKeyDown, false );
