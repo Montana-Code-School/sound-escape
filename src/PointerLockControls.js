@@ -154,6 +154,11 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
             Util.rickRoll('https://s3-us-west-2.amazonaws.com/sound-escape/music/Toto+-+Africa+(Video).mp3')
             Util.rickRoll('https://s3-us-west-2.amazonaws.com/sound-escape/music/F+it+up+-+Louis+Cole+(Live+Sesh).mp3')
             Util.rickRoll('https://s3-us-west-2.amazonaws.com/sound-escape/music/Peaches+-+The+Presidents+of+the+United+States+of+America.mp3')
+            Util.rickRoll('https://s3-us-west-2.amazonaws.com/sound-escape/music/MESHUGGAH+-+Bleed+(OFFICIAL+MUSIC+VIDEO).mp3')
+            Util.rickRoll('https://s3-us-west-2.amazonaws.com/sound-escape/music/Ragtime+Piano+SCOTT+JOPLIN+.+The+Entertainer+(1902).mp3')
+            Util.rickRoll('https://s3-us-west-2.amazonaws.com/sound-escape/music/Britney+Spears+-+...Baby+One+More+Time.mp3')
+
+
             let ambience = new THREE.Audio( game.listener )
             game.audioLoader.load('https://s3-us-west-2.amazonaws.com/sound-escape/sounds/night-ambience1.mp3', function( buffer ) {
               ambience.setLoop( true )
