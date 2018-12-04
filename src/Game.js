@@ -37,6 +37,7 @@ export default class Game{
       this.cube.linearDamping = 0.01
       this.cube.position.set(-6, 3, -6)
       this.cube.addShape(this.boxx)
+      this.cube.name = "cubeBody"
       this.world.add(this.cube)
 
       // Cannon Cam Sphere
@@ -70,7 +71,7 @@ export default class Game{
       this.doorTwoIsOpen = false
       this.noteBlocks = []
       this.scene.background = new THREE.Color(0x282828);
-      this.scene.fog = new THREE.FogExp2(0x282828, 0.042)
+      this.scene.fog = new THREE.FogExp2(0x282828, 0.05)
       this.clock = new THREE.Clock();
       this.camera = new THREE.PerspectiveCamera( 65, window.innerWidth/window.innerHeight, 0.1, 300 );
       this.controls = new PointerLockControls(this.camera, this.camBody);
@@ -105,6 +106,7 @@ export default class Game{
       this.geometry = new THREE.PlaneGeometry( 10000, 10000, 50, 50 );
       this.geometry.applyMatrix( new THREE.Matrix4().makeRotationX( - Math.PI / 2 ) );
       this.floor = new THREE.Mesh( this.geometry, this.groundMaterial );
+      this.floor.name = "floor"
       this.floor.receiveShadow = true;
       this.floor.castShadow = true
       this.scene.add( this.floor );

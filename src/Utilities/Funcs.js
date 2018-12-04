@@ -1,3 +1,5 @@
+import whichPad from './PadFuncs'
+
 export function createColliders(){
     const scaleAdjust = 2;
     const divisor = 2 / scaleAdjust;
@@ -13,9 +15,10 @@ export function createColliders(){
           child.note = 'https://s3-us-west-2.amazonaws.com/sound-escape/sounds/Room+One+notes/' + child.name.charAt(0) + '.mp3'
           if (child.name.includes('shia')) {
             child.note = 'https://s3-us-west-2.amazonaws.com/sound-escape/sounds/shia.wav'
-            console.log(child)
           }
         }
+        if (child.name.includes('Pad'))
+          body.addEventListener('collide', whichPad)
         body.position.copy(child.position);
         body.quaternion.copy(child.quaternion);
         body.collisionResponse = true
