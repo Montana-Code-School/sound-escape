@@ -209,7 +209,7 @@ export default class Game{
       requestAnimationFrame( function(){
         // update oscillator frequency based on cube position
         let intersection, player
-        if (game.boxMesh.isPickedUp && game.controls.intersects) {
+        if (game.boxMesh.isPickedUp && game.controls.intersects[0]) {
           game.cube.position.copy(game.boxMesh.position)
           game.cube.quaternion.copy(game.boxMesh.quaternion)
             intersection = game.controls.intersects[0]
