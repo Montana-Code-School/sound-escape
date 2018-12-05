@@ -177,7 +177,7 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
                 // success chord
                 let fmaj7 = new Audio('https://s3-us-west-2.amazonaws.com/sound-escape/sounds/Fmaj7.mp3')
                 fmaj7.volume = 0.5
-                setTimeout(() => fmaj7.play(), 700)
+                fmaj7.play()
                 // door two sound and animation
                 game.doorTwoIsOpen = true
                 let B = new Audio('https://s3-us-west-2.amazonaws.com/sound-escape/sounds/electric_door_opening_2.mp3')
@@ -185,6 +185,7 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
                 setTimeout(() => B.play(), 1000)
                 Util.doorOpen('door1Model', -18)
                 // initialize tree music for next puzzle
+                setTimeout(()=>{
                 Util.rickRoll('https://s3-us-west-2.amazonaws.com/sound-escape/music/rick-astley-never-gonna-give-you-up-hq.mp3', 'rick')
                 Util.rickRoll('https://s3-us-west-2.amazonaws.com/sound-escape/music/Toto+-+Africa+(Video).mp3', 'toto')
                 Util.rickRoll('https://s3-us-west-2.amazonaws.com/sound-escape/music/F+it+up+-+Louis+Cole+(Live+Sesh).mp3', 'louis')
@@ -193,6 +194,7 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
                 Util.rickRoll('https://s3-us-west-2.amazonaws.com/sound-escape/music/Ragtime+Piano+SCOTT+JOPLIN+.+The+Entertainer+(1902).mp3', 'entertainer')
                 Util.rickRoll('https://s3-us-west-2.amazonaws.com/sound-escape/music/Britney+Spears+-+...Baby+One+More+Time.mp3', 'britney')
                 // outdoors sounds for next puzzle
+                }, 2000)
                 let ambience = new THREE.Audio( game.listener )
                 game.audioLoader.load('https://s3-us-west-2.amazonaws.com/sound-escape/sounds/night-ambience1.mp3', function( buffer ) {
                   ambience.setLoop( true )
