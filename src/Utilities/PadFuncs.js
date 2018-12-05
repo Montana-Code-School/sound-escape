@@ -1,9 +1,9 @@
 import {color} from './Funcs'
-import Game from '../Game';
+const Reflector = require('three-reflector')(THREE)
 
 const globals = {
     isCube: true,
-    isFoggy: true,
+    isFoggy: false,
     isToon: false,
     hasShape: false
 }
@@ -85,19 +85,27 @@ function pad3(){
 async function pad4(){
     if (!globals.hasShape){
         globals.hasShape = true
+        const mirrorGeometry = new THREE.PlaneGeometry(10,10,1,1)
+        const mirror = new Reflector(mirrorGeometry, {color: 0x889999, recursion: 1, clipBias: 0.003, textureWidth: window.innerWidth * window.devicePixelRatio, textureHeight: window.innerHeight * window.devicePixelRatio})
+        mirror.applyMatrix( new THREE.Matrix4().makeRotationY( Math.PI / 2 ) );
+        mirror.position.set(-5,5,10)
+        mirror.name = 'mirror'
+        game.scene.add(mirror)
         const random = () => Math.floor(Math.random() * 20 + 1)
-        const shapeGeometry = new THREE.TorusKnotGeometry( 1, 0.8, 300, 20, random(), random() )
-        const shapeMaterial = new THREE.MeshBasicMaterial( { color: 0xffff00 } )
+        const shapeGeometry = new THREE.TorusKnotGeometry( 2, 0.2, 70, 20, random(), random() )
+        const shapeMaterial = new THREE.MeshPhongMaterial( { color: 0xffff00 } )
         const shapeMesh = new THREE.Mesh(shapeGeometry, shapeMaterial)
         shapeMesh.castShadow = true
-        shapeMesh.position.set(0,8,10)
+        shapeMesh.receiveShadow = true
+        shapeMesh.position.set(5,8,10)
         shapeMesh.name = 'TorusKnot'
         game.scene.add(shapeMesh)
-        console.log("made a shape???", game.scene.children)
     } else {
         globals.hasShape = false
-        game.scene.remove(game.scene.children[5])
-        console.log("deleted a shape???", game.scene.children)
+        game.scene.traverse(function(obj){
+            if (obj.name === 'TorusKnot' || obj.name === 'mirror')
+                game.scene.remove(obj)
+        })
     }
 }
 

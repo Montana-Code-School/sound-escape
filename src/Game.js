@@ -71,7 +71,7 @@ export default class Game{
       this.doorTwoIsOpen = false
       this.noteBlocks = []
       this.scene.background = new THREE.Color(0x282828);
-      this.scene.fog = new THREE.FogExp2(0x282828, 0.05)
+      this.scene.fog = new THREE.FogExp2(0x282828, 0)
       this.clock = new THREE.Clock();
       this.camera = new THREE.PerspectiveCamera( 65, window.innerWidth/window.innerHeight, 0.1, 300 );
       this.controls = new PointerLockControls(this.camera, this.camBody);
@@ -153,8 +153,8 @@ export default class Game{
       // rotation for torusknot
       this.scene.traverse( function ( object ) {
         if ( object.name === 'TorusKnot' ) {
-          object.rotation.x += 0.01;
-          object.rotation.y += 0.01;
+          object.rotation.x += 0.02;
+          object.rotation.y += 0.02;
         }
       } );
       requestAnimationFrame( function(){
