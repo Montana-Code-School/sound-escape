@@ -1,14 +1,15 @@
 import {color} from './Funcs'
+import Game from '../Game';
 
 const globals = {
     isCube: true,
     isFoggy: true,
     isToon: false,
-    isMotionSick: false
+    hasShape: false
 }
 
-export default function whichPad(collision){
-    switch (collision.contact.bj.name) {
+export default function whichPad(event){
+    switch (event.contact.bj.name) {
         case "Pad0Model":
             pad0()
             break;
@@ -19,13 +20,13 @@ export default function whichPad(collision){
             pad2()
             break;
         case "Pad3Model":
-            pad3(collision)
+            pad3()
             break;
         case "Pad4Model":
-            pad4(collision)
+            pad4()
             break;
         case "Pad5Model":
-            pad5(collision)
+            pad5()
             break;
     }
 }
@@ -81,8 +82,23 @@ function pad3(){
     }
 }
 
-function pad4(){
-    console.log("pad 4")
+async function pad4(){
+    if (!globals.hasShape){
+        globals.hasShape = true
+        const random = () => Math.floor(Math.random() * 20 + 1)
+        const shapeGeometry = new THREE.TorusKnotGeometry( 1, 0.8, 300, 20, random(), random() )
+        const shapeMaterial = new THREE.MeshBasicMaterial( { color: 0xffff00 } )
+        const shapeMesh = new THREE.Mesh(shapeGeometry, shapeMaterial)
+        shapeMesh.castShadow = true
+        shapeMesh.position.set(0,8,10)
+        shapeMesh.name = 'TorusKnot'
+        game.scene.add(shapeMesh)
+        console.log("made a shape???", game.scene.children)
+    } else {
+        globals.hasShape = false
+        game.scene.remove(game.scene.children[5])
+        console.log("deleted a shape???", game.scene.children)
+    }
 }
 
 function pad5(){

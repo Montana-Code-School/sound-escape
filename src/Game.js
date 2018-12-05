@@ -150,6 +150,13 @@ export default class Game{
       TWEEN.update()
       game.controls.update(game.clock.getDelta())
       game.renderer.render( game.scene, game.camera );
+      // rotation for torusknot
+      this.scene.traverse( function ( object ) {
+        if ( object.name === 'TorusKnot' ) {
+          object.rotation.x += 0.01;
+          object.rotation.y += 0.01;
+        }
+      } );
       requestAnimationFrame( function(){
         game.boxMesh.position.copy(game.cube.position)
         game.boxMesh.quaternion.copy(game.cube.quaternion)

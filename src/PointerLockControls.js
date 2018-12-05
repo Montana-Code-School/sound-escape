@@ -33,6 +33,7 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
     this.cannonBody = cannonBody
     this.mouse = new THREE.Vector2()
     this.intersects = []
+    this.isMotionSick = false
 
     this.cannonBody.addEventListener("collide",function(e){
         // contact.bi and contact.bj are the colliding bodies, and contact.ni is the collision normal.
@@ -233,8 +234,8 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
 
         this.ray.setFromCamera(this.mouse, camera)
 
-        //!!!!!!!!!!!------enable motion sickness mode-------!!!!!!!!!
-        // this.yawObject.quaternion.copy(this.cannonBody.quaternion)
+        if (this.isMotionSick)
+            this.yawObject.quaternion.copy(this.cannonBody.quaternion)
     };
 
 	function onPointerlockChange() {
