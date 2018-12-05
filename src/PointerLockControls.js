@@ -11,27 +11,32 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
 
     const scope = this;
 	this.domElement = domElement || document.body;
-    this.velocityFactor = 0.2;
-    this.jumpVelocity = 20;
     this.pitchObject = new THREE.Object3D();
     this.pitchObject.add( camera );
     this.yawObject = new THREE.Object3D();
     this.yawObject.add( this.pitchObject );
+    this.cannonBody = cannonBody
     this.quat = new THREE.Quaternion();
+
+    // movement
     this.moveForward = false;
     this.moveBackward = false;
     this.moveLeft = false;
     this.moveRight = false;
+    this.canJump = false;
+    this.velocityFactor = 0.2;
+    this.jumpVelocity = 20;
     this.velocity = new THREE.Vector3()
     this.direction = new THREE.Vector3()
-    this.canJump = false;
+
     this.contactNormal = new CANNON.Vec3(); // Normal in the contact, pointing *out* of whatever the player touched
     this.upAxis = new CANNON.Vec3(0,1,0);
     this.direction = new THREE.Vector3()
+
+    // raycaster
     this.ray = new THREE.Raycaster()
     this.ray.near = 0
     this.ray.far = 7
-    this.cannonBody = cannonBody
     this.mouse = new THREE.Vector2()
     this.intersects = []
 
@@ -68,11 +73,13 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
         this.yawObject.rotation.y -= movementX * 0.001;
         this.pitchObject.rotation.x -= movementY * 0.001;
         this.pitchObject.rotation.x = Math.max( - PI_2, Math.min( PI_2, this.pitchObject.rotation.x ) );
+        // resets objects intersected by raycaster on mousemove
         if (game.object !== undefined) {
           this.intersects = this.ray.intersectObjects(game.object.children)
         }
     };
 
+    // movement flags
     this.onKeyDown = ( event ) => {
         switch ( event.keyCode ) {
             case 38: // up
@@ -128,120 +135,130 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
     };
 
     this.onClick = ( event ) => {
-      console.log(game.object.children[200])
-
-    game.controls.intersects.forEach((intersect) => {
-      if (intersect.object.name === "box") {
-
-          game.boxMesh.isPickedUp = !game.boxMesh.isPickedUp
-          if (game.boxMesh.isPickedUp === false) {
-            game.waveform.style.display = 'none'
-            SceneUtils.detach(game.boxMesh, game.camera, game.scene)
-
-            if (game.oscillator.frequency.value < 2800 && game.oscillator.frequency.value > 2700) {
-              game.oscillator.stop()
-              let B = new Audio('https://s3-us-west-2.amazonaws.com/sound-escape/sounds/electric_door_opening_2.mp3')
-              B.volume = 0.5
-              Util.doorOpen('door0Model', 0)
-              game.doorOneIsOpen = true
-              setTimeout(() => B.play(), 1000)
-              game.face[0].style.display = 'block'
+      game.controls.intersects.forEach((intersect) => {
+        // picks up or drops oscillator box
+        if (intersect.object.name === "box") {
+            game.boxMesh.isPickedUp = !game.boxMesh.isPickedUp
+            if (game.boxMesh.isPickedUp === false) {
+              game.waveform.style.display = 'none'
+              SceneUtils.detach(game.boxMesh, game.camera, game.scene)
+              // checks if oscillator frequency is in range to open door
+              if (game.oscillator.frequency.value < 2800 && game.oscillator.frequency.value > 2700) {
+                game.oscillator.stop()
+                let B = new Audio('https://s3-us-west-2.amazonaws.com/sound-escape/sounds/electric_door_opening_2.mp3')
+                B.volume = 0.5
+                Util.doorOpen('door0Model', 0)
+                game.doorOneIsOpen = true
+                setTimeout(() => B.play(), 1000)
+                game.face[0].style.display = 'block'
+              }
+            } else if (game.boxMesh.isPickedUp === true)
+              SceneUtils.attach(game.boxMesh, game.scene, game.camera)
+              game.waveform.style.display = 'block'
             }
-          } else if (game.boxMesh.isPickedUp === true)
-            SceneUtils.attach(game.boxMesh, game.scene, game.camera)
-            game.waveform.style.display = 'block'
-          }
-        // if (intersect.object.name.includes('button') && !game.doorOneIsOpen) {
-        //     let B = new Audio('https://s3-us-west-2.amazonaws.com/sound-escape/sounds/electric_door_opening_2.mp3')
-        //     B.volume = 0.5
-        //     Util.doorOpen('door0Model', 0)
-        //     game.doorOneIsOpen = true
-        //     setTimeout(() => B.play(), 1000)
-        //     game.face[0].style.display = 'block'
-        // }
-        if (intersect.object.note) {
-        let audio = new Audio(intersect.object.note);
-        audio.volume = 0.5
-        audio.play();
-        game.noteBlocks.push(intersect.object.name.charAt(0))
-        if (intersect.object.name === "shiaNoteBlock") {
-            game.noteBlocks = []
-        }
-        if (game.noteBlocks.length === 4) {
-            if (game.noteBlocks.join('') === "FACE" && !game.doorTwoIsOpen) {
-            let fmaj7 = new Audio('https://s3-us-west-2.amazonaws.com/sound-escape/sounds/Fmaj7.mp3')
+          // opens door one when button is pressed
+          if (intersect.object.name.includes('button') && !game.doorOneIsOpen) {
+            game.doorOneIsOpen = true
+            game.face[0].style.display = 'block'
+            Util.doorOpen('door0Model', 0)
+            // door sound create and play
             let B = new Audio('https://s3-us-west-2.amazonaws.com/sound-escape/sounds/electric_door_opening_2.mp3')
-            Util.doorOpen('door1Model', -18)
-            game.doorTwoIsOpen = true
-            B.volume = 0.1
-            fmaj7.volume = 0.1
-            setTimeout(() => fmaj7.play(), 700)
+            B.volume = 0.5
             setTimeout(() => B.play(), 1000)
-
-            Util.rickRoll('https://s3-us-west-2.amazonaws.com/sound-escape/music/rick-astley-never-gonna-give-you-up-hq.mp3', 'rick')
-            Util.rickRoll('https://s3-us-west-2.amazonaws.com/sound-escape/music/Toto+-+Africa+(Video).mp3', 'toto')
-            Util.rickRoll('https://s3-us-west-2.amazonaws.com/sound-escape/music/F+it+up+-+Louis+Cole+(Live+Sesh).mp3', 'louis')
-            Util.rickRoll('https://s3-us-west-2.amazonaws.com/sound-escape/music/Peaches+-+The+Presidents+of+the+United+States+of+America.mp3', 'peaches')
-            Util.rickRoll('https://s3-us-west-2.amazonaws.com/sound-escape/music/MESHUGGAH+-+Bleed+(OFFICIAL+MUSIC+VIDEO).mp3', 'bleed')
-            Util.rickRoll('https://s3-us-west-2.amazonaws.com/sound-escape/music/Ragtime+Piano+SCOTT+JOPLIN+.+The+Entertainer+(1902).mp3', 'entertainer')
-            Util.rickRoll('https://s3-us-west-2.amazonaws.com/sound-escape/music/Britney+Spears+-+...Baby+One+More+Time.mp3', 'britney')
-
-
-            let ambience = new THREE.Audio( game.listener )
-            game.audioLoader.load('https://s3-us-west-2.amazonaws.com/sound-escape/sounds/night-ambience1.mp3', function( buffer ) {
-              ambience.setLoop( true )
-              ambience.setBuffer( buffer )
-              ambience.setVolume(0.03)
-              ambience.play()
-            })
-            game.astley[0].style.display = 'block'
-
-            setTimeout(() => {
-                game.astley[0].style.display = 'none'
-            }, 5500)
-
-            } else {
-            game.noteBlocks = []
-            }
-        }
-        }
-        if (intersect.object.children !== undefined && intersect.object.children.length !== 0) {
-        if (intersect.object.tagName === 'rick') {
-            game.winner[0].style.display = 'block'
-        }
-        if(intersect.object.tagName === 'bleed') {
-          this.motionSicknessMode = !this.motionSicknessMode
-          if (!this.motionSicknessMode) {
-            this.yawObject.quaternion.copy(new THREE.Quaternion(0, 0, 0, 0))
           }
-        }
-        if (intersect.object.tagName === 'toto') {
-          this.colorChangeMode = !this.colorChangeMode
-        }
-        if (intersect.object.tagName === 'entertainer') {
-          this.wireFrame = !this.wireFrame
-          if (this.wireFrame) {
-            game.object.children.forEach((child) => {
-              child.material.wireframe = true
-            })
-          }
-
-        }
-        if (intersect.object.tagName = 'britney') {
-          game.object.children.forEach((child) => {
-            let x, y, z
-            if (child.name.includes('trunk') || child.name.includes('crown')) {
-              x = (Math.floor(Math.random() * game.object.children.length) + -400) / 2
-              y = Math.floor(Math.random() * 4)
-              z = (Math.floor(Math.random() * game.object.children.length) + -400) / 2
-              child.position.copy(new THREE.Vector3(x, y, z))
+          // note block checker
+          if (intersect.object.note) {
+            game.noteBlocks.push(intersect.object.name.charAt(0))
+            // play the pressed note
+            let audio = new Audio(intersect.object.note);
+            audio.volume = 0.5
+            audio.play();
+            // resets success array when reset block is pressed
+            if (intersect.object.name === "shiaNoteBlock") {
+              game.noteBlocks = []
             }
-          })
-        }
-      }
-    })
-
+            // checks note array for success
+            if (game.noteBlocks.length === 4) {
+              if (game.noteBlocks.join('') === "FACE" && !game.doorTwoIsOpen) {
+                // success chord
+                let fmaj7 = new Audio('https://s3-us-west-2.amazonaws.com/sound-escape/sounds/Fmaj7.mp3')
+                fmaj7.volume = 0.5
+                setTimeout(() => fmaj7.play(), 700)
+                // door two sound and animation
+                game.doorTwoIsOpen = true
+                let B = new Audio('https://s3-us-west-2.amazonaws.com/sound-escape/sounds/electric_door_opening_2.mp3')
+                B.volume = 0.1
+                setTimeout(() => B.play(), 1000)
+                Util.doorOpen('door1Model', -18)
+                // initialize tree music for next puzzle
+                Util.rickRoll('https://s3-us-west-2.amazonaws.com/sound-escape/music/rick-astley-never-gonna-give-you-up-hq.mp3', 'rick')
+                Util.rickRoll('https://s3-us-west-2.amazonaws.com/sound-escape/music/Toto+-+Africa+(Video).mp3', 'toto')
+                Util.rickRoll('https://s3-us-west-2.amazonaws.com/sound-escape/music/F+it+up+-+Louis+Cole+(Live+Sesh).mp3', 'louis')
+                Util.rickRoll('https://s3-us-west-2.amazonaws.com/sound-escape/music/Peaches+-+The+Presidents+of+the+United+States+of+America.mp3', 'peaches')
+                Util.rickRoll('https://s3-us-west-2.amazonaws.com/sound-escape/music/MESHUGGAH+-+Bleed+(OFFICIAL+MUSIC+VIDEO).mp3', 'bleed')
+                Util.rickRoll('https://s3-us-west-2.amazonaws.com/sound-escape/music/Ragtime+Piano+SCOTT+JOPLIN+.+The+Entertainer+(1902).mp3', 'entertainer')
+                Util.rickRoll('https://s3-us-west-2.amazonaws.com/sound-escape/music/Britney+Spears+-+...Baby+One+More+Time.mp3', 'britney')
+                // outdoors sounds for next puzzle
+                let ambience = new THREE.Audio( game.listener )
+                game.audioLoader.load('https://s3-us-west-2.amazonaws.com/sound-escape/sounds/night-ambience1.mp3', function( buffer ) {
+                  ambience.setLoop( true )
+                  ambience.setBuffer( buffer )
+                  ambience.setVolume(0.03)
+                  ambience.play()
+                })
+                // clue for next puzzle
+                game.astley[0].style.display = 'block'
+                setTimeout(() => {
+                  game.astley[0].style.display = 'none'
+                }, 5500)
+                // resets success array
+                } else {
+                  game.noteBlocks = []
+                }
+              }
+            }
+          // tree checkers
+          if (intersect.object.children !== undefined && intersect.object.children.length !== 0) {
+            // if rick tree is clicked player wins.
+            if (intersect.object.tagName === 'rick') {
+                game.winner[0].style.display = 'block'
+            }
+            // if bleed tree is clicked enable motion sickness mode, turn it off if tree is clicked again
+            if(intersect.object.tagName === 'bleed') {
+              this.motionSicknessMode = !this.motionSicknessMode
+              if (!this.motionSicknessMode) {
+                this.yawObject.quaternion.copy(new THREE.Quaternion(0, 0, 0, 0))
+              }
+            }
+            // if toto tree is clicked enable color change mode
+            if (intersect.object.tagName === 'toto') {
+              this.colorChangeMode = !this.colorChangeMode
+            }
+            // if entertainer tree is clicked enable wireframe
+            if (intersect.object.tagName === 'entertainer') {
+              this.wireFrame = !this.wireFrame
+              if (this.wireFrame) {
+                game.object.children.forEach((child) => {
+                  child.material.wireframe = true
+                })
+              }
+            // if britney tree is clicked, randomize tree positions.
+            }
+            if (intersect.object.tagName === 'britney') {
+              game.object.children.forEach((child) => {
+                let x, y, z
+                if (child.name.includes('trunk') || child.name.includes('crown')) {
+                  x = (Math.floor(Math.random() * game.object.children.length) + -400) / 2
+                  y = Math.floor(Math.random() * 4)
+                  z = (Math.floor(Math.random() * game.object.children.length) + -400) / 2
+                  child.position.copy(new THREE.Vector3(x, y, z))
+                }
+              })
+            }
+          }
+      })
     }
+
 
     document.addEventListener( 'mousemove', this.onMouseMove, false );
     document.addEventListener( 'keydown', this.onKeyDown, false );
@@ -294,6 +311,7 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
         this.velocity.z += this.inputVelocity.z;
 
         this.ray.setFromCamera(this.mouse, camera)
+
         //!!!!!!!!!!!------enable motion sickness mode-------!!!!!!!!!
         if (this.motionSicknessMode) {
           this.yawObject.quaternion.copy(this.cannonBody.quaternion)

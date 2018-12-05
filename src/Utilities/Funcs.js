@@ -1,7 +1,7 @@
 export function createColliders(){
     const scaleAdjust = 2;
     const divisor = 2 / scaleAdjust;
-    game.object.children.forEach(function(child, i){
+    game.object.children.forEach((child, i) => {
       if (child.isMesh && !child.name.includes('ground')) {
         child.visible = true;
         const halfExtents = new CANNON.Vec3(child.scale.x/divisor, child.scale.y/divisor, child.scale.z/divisor);
@@ -9,7 +9,9 @@ export function createColliders(){
         const body = new CANNON.Body({mass:0});
         body.addShape(box);
         body.name = child.name
+        // set three mesh as a property of cannon body
         body.mesh = child
+        // set note sounds as properties of appropriate three meshes
         if (child.name.includes('NoteBlock')) {
           child.note = 'https://s3-us-west-2.amazonaws.com/sound-escape/sounds/Room+One+notes/' + child.name.charAt(0) + '.mp3'
           if (child.name.includes('shia')) {
@@ -20,6 +22,7 @@ export function createColliders(){
         body.position.copy(child.position);
         body.quaternion.copy(child.quaternion);
         body.collisionResponse = true
+        // ensures blender text has no colliders
         if (!child.name.includes('Text')) {
           game.world.add(body);
         }
@@ -30,16 +33,19 @@ export function createColliders(){
 
 export function rickRoll(songURL, tag) {
     let rick, rolling, potentialRollers = []
+    // create array of all tree trunks without songs attached
     game.object.children.forEach((child) => {
       if (child.name.includes('trunk') && !child.hasSong) {
         potentialRollers.push(child)
       }
     })
+    // select random tree from array of eligible trees
     let randomNumber = Math.floor(Math.random()*potentialRollers.length)
     rick = potentialRollers[randomNumber]
+    // ensure no tree has two songs.
     rick.hasSong = true
     rolling = new THREE.PositionalAudio( game.listener )
-
+    // load song based on url passed in.
     game.audioLoader.load(songURL, function( buffer ) {
       rolling.setBuffer( buffer )
       rolling.setRefDistance( .3 )
@@ -48,6 +54,7 @@ export function rickRoll(songURL, tag) {
       rolling.play()
       rick.add(rolling)
     })
+    // set tag to more easily check which tree is clicked
     rick.tagName = tag
   }
 
@@ -83,6 +90,8 @@ export function doorOpen(doorName, whichDoor) {
       if ( ( k *= 2 ) < 1 ) return 0.5* k * k * k;
       return 0.5 * ( ( k -= 2 ) * k * k + 2 );
         };
+
+    // door animations
     let tweenHead = new TWEEN.Tween(current)
                 .to({x:-46 + whichDoor, z:8.8}, 500)
                 .delay(200)
