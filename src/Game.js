@@ -45,7 +45,7 @@ export default class Game{
       this.camBody = new CANNON.Body({mass: 7, material: physicsMaterial})
       this.camBody.addShape(this.sphere);
       this.camBody.linearDamping = 0.99;
-      this.camBody.angularDamping = 0.99;
+      this.camBody.angularDamping = 0.09;
       this.camBody.position.set(0,5,20)
       this.world.add(this.camBody);
 
@@ -68,6 +68,7 @@ export default class Game{
       this.face = document.getElementsByClassName('face fadeIn')
       this.astley = document.getElementsByClassName('astley fadeIn')
       this.winner = document.getElementsByClassName('winner animateWin')
+      this.try = document.getElementsByClassName('try fadeIn')
 
       // scene setting
       this.scene = new THREE.Scene();
@@ -162,7 +163,7 @@ export default class Game{
       const game = this
       // !!!!!---Enable CANNON Debug Renderer---!!!!!
       // game.cannonDebugRenderer.update();
-      
+
       // rotation for torusknot
       this.scene.traverse( function ( object ) {
         if ( object.name === 'TorusKnot' ) {
@@ -195,7 +196,6 @@ export default class Game{
         game.world.step(game.world.fixedTimeStep)
         game.animate();
         TWEEN.update()
-        game.drawLoop()
       } );
     }
   }

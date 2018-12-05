@@ -46,6 +46,9 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
     this.colorChangeMode = false
     this.wireFrame = false
 
+    // audio
+    this.wrong = new Audio('https://s3-us-west-2.amazonaws.com/sound-escape/sounds/wrong.mp3')
+
     this.cannonBody.addEventListener("collide",function(e){
         // contact.bi and contact.bj are the colliding bodies, and contact.ni is the collision normal.
         // We do not yet know which one is which! Let's check.
@@ -146,7 +149,7 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
             if (game.boxMesh.isPickedUp === false) {
               SceneUtils.detach(game.boxMesh, game.camera, game.scene)
               // checks if oscillator frequency is in range to open door
-              
+
             } else if (game.boxMesh.isPickedUp === true)
               SceneUtils.attach(game.boxMesh, game.scene, game.camera)
             }
@@ -177,7 +180,7 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
                 // success chord
                 let fmaj7 = new Audio('https://s3-us-west-2.amazonaws.com/sound-escape/sounds/Fmaj7.mp3')
                 fmaj7.volume = 0.5
-                setTimeout(() => fmaj7.play(), 700)
+                fmaj7.play()
                 // door two sound and animation
                 game.doorTwoIsOpen = true
                 let B = new Audio('https://s3-us-west-2.amazonaws.com/sound-escape/sounds/electric_door_opening_2.mp3')
@@ -185,13 +188,16 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
                 setTimeout(() => B.play(), 1000)
                 Util.doorOpen('door1Model', -18)
                 // initialize tree music for next puzzle
-                Util.rickRoll('https://s3-us-west-2.amazonaws.com/sound-escape/music/rick-astley-never-gonna-give-you-up-hq.mp3', 'rick')
-                Util.rickRoll('https://s3-us-west-2.amazonaws.com/sound-escape/music/Toto+-+Africa+(Video).mp3', 'toto')
-                Util.rickRoll('https://s3-us-west-2.amazonaws.com/sound-escape/music/F+it+up+-+Louis+Cole+(Live+Sesh).mp3', 'louis')
-                Util.rickRoll('https://s3-us-west-2.amazonaws.com/sound-escape/music/Peaches+-+The+Presidents+of+the+United+States+of+America.mp3', 'peaches')
-                Util.rickRoll('https://s3-us-west-2.amazonaws.com/sound-escape/music/MESHUGGAH+-+Bleed+(OFFICIAL+MUSIC+VIDEO).mp3', 'bleed')
-                Util.rickRoll('https://s3-us-west-2.amazonaws.com/sound-escape/music/Ragtime+Piano+SCOTT+JOPLIN+.+The+Entertainer+(1902).mp3', 'entertainer')
-                Util.rickRoll('https://s3-us-west-2.amazonaws.com/sound-escape/music/Britney+Spears+-+...Baby+One+More+Time.mp3', 'britney')
+                setTimeout(() => {
+                  Util.rickRoll('https://s3-us-west-2.amazonaws.com/sound-escape/music/rick-astley-never-gonna-give-you-up-hq.mp3', 'rick')
+                  Util.rickRoll('https://s3-us-west-2.amazonaws.com/sound-escape/music/Toto+-+Africa+(Video).mp3', 'toto')
+                  Util.rickRoll('https://s3-us-west-2.amazonaws.com/sound-escape/music/F+it+up+-+Louis+Cole+(Live+Sesh).mp3', 'louis')
+                  Util.rickRoll('https://s3-us-west-2.amazonaws.com/sound-escape/music/Peaches+-+The+Presidents+of+the+United+States+of+America.mp3', 'peaches')
+                  Util.rickRoll('https://s3-us-west-2.amazonaws.com/sound-escape/music/MESHUGGAH+-+Bleed+(OFFICIAL+MUSIC+VIDEO).mp3', 'bleed')
+                  Util.rickRoll('https://s3-us-west-2.amazonaws.com/sound-escape/music/Ragtime+Piano+SCOTT+JOPLIN+.+The+Entertainer+(1902).mp3', 'entertainer')
+                  Util.rickRoll('https://s3-us-west-2.amazonaws.com/sound-escape/music/Britney+Spears+-+...Baby+One+More+Time.mp3', 'britney')
+                }, 2000)
+
                 // outdoors sounds for next puzzle
                 let ambience = new THREE.Audio( game.listener )
                 game.audioLoader.load('https://s3-us-west-2.amazonaws.com/sound-escape/sounds/night-ambience1.mp3', function( buffer ) {
@@ -207,6 +213,11 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
                 }, 5500)
                 // resets success array
                 } else {
+                  setTimeout(() => this.wrong.play(), 750)
+                  game.try[0].style.display = 'block'
+                  setTimeout(() => {
+                    game.try[0].style.display = 'none'
+                  }, 5000)
                   game.noteBlocks = []
                 }
               }
