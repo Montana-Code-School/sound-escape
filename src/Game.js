@@ -195,7 +195,6 @@ export default class Game{
         game.world.step(game.world.fixedTimeStep)
         game.animate();
         TWEEN.update()
-        game.drawLoop()
       } );
     }
   }
