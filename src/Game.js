@@ -35,7 +35,7 @@ export default class Game{
       this.cube = new CANNON.Body({mass:.3, material: this.testMaterial})
       this.cube.angularDamping = 0.01
       this.cube.linearDamping = 0.01
-      this.cube.position.set(-6, 3, -6)
+      this.cube.position.set(5, 3, 10)
       this.cube.addShape(this.boxx)
       this.cube.name = "cubeBody"
       this.world.add(this.cube)
@@ -127,6 +127,7 @@ export default class Game{
     assLoad() {
       const loader = new FBXLoader()
       loader.load( 'https://s3-us-west-2.amazonaws.com/sound-escape/imgs/station.fbx', function ( object ){
+        object.name = 'fbxFile'
         object.traverse( function( children ) {
           Util.color(children)
           if(children.isMesh) {

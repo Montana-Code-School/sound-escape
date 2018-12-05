@@ -17,8 +17,6 @@ export function createColliders(){
             child.note = 'https://s3-us-west-2.amazonaws.com/sound-escape/sounds/shia.wav'
           }
         }
-        if (child.name.includes('Pad'))
-          body.addEventListener('collide', whichPad)
         body.position.copy(child.position);
         body.quaternion.copy(child.quaternion);
         body.collisionResponse = true
@@ -53,8 +51,10 @@ export function rickRoll(songURL) {
   }
 
 export function color(mesh) {
-    if (mesh.name.includes('crown') || mesh.name.includes('buttonModel') || mesh.name.includes('Text'))
+    if (mesh.name.includes('crown') || mesh.name.includes('buttonModel') || mesh.name.includes('Text') || mesh.name.includes('PadCase'))
         mesh.material = new THREE.MeshPhongMaterial( { color: 0xff0000 } );
+    else if (mesh.name.includes('Pad'))
+        mesh.material = new THREE.MeshToonMaterial( { color: 'red' } );
     else
         mesh.material = new THREE.MeshPhongMaterial({ color: 0x777777, shininess: 0 })
 }

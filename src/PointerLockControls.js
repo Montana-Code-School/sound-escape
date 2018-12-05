@@ -4,6 +4,7 @@
  */
 
 import * as THREE from 'three'
+import whichPad from './Utilities/PadFuncs'
 const Util = require('./Utilities/Funcs')
 
 const PointerLockControls = function ( camera, cannonBody, domElement ) {
@@ -33,7 +34,6 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
     this.cannonBody = cannonBody
     this.mouse = new THREE.Vector2()
     this.intersects = []
-    this.isMotionSick = false
 
     this.cannonBody.addEventListener("collide",function(e){
         // contact.bi and contact.bj are the colliding bodies, and contact.ni is the collision normal.
@@ -124,6 +124,9 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
 
     this.onClick = ( event ) => {
     game.controls.intersects.forEach((intersect) => {
+        if (intersect.object.name.includes('Pad')){
+            whichPad(intersect.object)
+        }
         if (intersect.object.name.includes('button') && !game.doorOneIsOpen) {
             let B = new Audio('https://s3-us-west-2.amazonaws.com/sound-escape/sounds/electric_door_opening_2.mp3')
             B.volume = 0.5
@@ -174,9 +177,9 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
         }
         }
         if (intersect.object.children !== undefined && intersect.object.children.length !== 0) {
-        if (intersect.object.children[0].buffer.duration === 212.6033560090703) {
-            game.winner[0].style.display = 'block'
-        }
+            if (intersect.object.children[0].buffer.duration === 212.6033560090703) {
+                game.winner[0].style.display = 'block'
+            }
         }
     })
 
