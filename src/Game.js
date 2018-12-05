@@ -73,7 +73,7 @@ export default class Game{
       // scene setting
       this.scene = new THREE.Scene();
       this.scene.background = new THREE.Color(0x282828);
-      this.scene.fog = new THREE.FogExp2(0x282828, 0)
+      this.scene.fog = new THREE.FogExp2(0x282828, 0.05)
       this.clock = new THREE.Clock();
 
       // camera and controls

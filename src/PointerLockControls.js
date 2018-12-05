@@ -188,6 +188,7 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
                 setTimeout(() => B.play(), 1000)
                 Util.doorOpen('door1Model', -18)
                 // initialize tree music for next puzzle
+
                 setTimeout(() => {
                   Util.rickRoll('https://s3-us-west-2.amazonaws.com/sound-escape/music/rick-astley-never-gonna-give-you-up-hq.mp3', 'rick')
                   Util.rickRoll('https://s3-us-west-2.amazonaws.com/sound-escape/music/Toto+-+Africa+(Video).mp3', 'toto')
@@ -199,6 +200,7 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
                 }, 2000)
 
                 // outdoors sounds for next puzzle
+
                 let ambience = new THREE.Audio( game.listener )
                 game.audioLoader.load('https://s3-us-west-2.amazonaws.com/sound-escape/sounds/night-ambience1.mp3', function( buffer ) {
                   ambience.setLoop( true )

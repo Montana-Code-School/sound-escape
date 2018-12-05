@@ -3,7 +3,7 @@ const Reflector = require('three-reflector')(THREE)
 
 const globals = {
     isCube: true,
-    isFoggy: false,
+    isFoggy: true,
     isToon: false,
     hasShape: false,
     pad0on: false
