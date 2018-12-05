@@ -45,7 +45,7 @@ export default class Game{
       this.camBody = new CANNON.Body({mass: 7, material: physicsMaterial})
       this.camBody.addShape(this.sphere);
       this.camBody.linearDamping = 0.99;
-      this.camBody.angularDamping = 0.09;
+      this.camBody.angularDamping = 0.99;
       this.camBody.position.set(0,5,20)
       this.world.add(this.camBody);
 
