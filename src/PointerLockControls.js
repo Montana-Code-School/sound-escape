@@ -38,6 +38,7 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
     // tree flags
     this.motionSicknessMode = false
     this.colorChangeMode = false
+    this.wireFrame = false
 
     this.cannonBody.addEventListener("collide",function(e){
         // contact.bi and contact.bj are the colliding bodies, and contact.ni is the collision normal.
@@ -127,6 +128,8 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
     };
 
     this.onClick = ( event ) => {
+      console.log(game.object.children[200])
+
     game.controls.intersects.forEach((intersect) => {
       if (intersect.object.name === "box") {
 
@@ -215,7 +218,27 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
         if (intersect.object.tagName === 'toto') {
           this.colorChangeMode = !this.colorChangeMode
         }
+        if (intersect.object.tagName === 'entertainer') {
+          this.wireFrame = !this.wireFrame
+          if (this.wireFrame) {
+            game.object.children.forEach((child) => {
+              child.material.wireframe = true
+            })
+          }
+
         }
+        if (intersect.object.tagName = 'britney') {
+          game.object.children.forEach((child) => {
+            let x, y, z
+            if (child.name.includes('trunk') || child.name.includes('crown')) {
+              x = (Math.floor(Math.random() * game.object.children.length) + -400) / 2
+              y = Math.floor(Math.random() * 4)
+              z = (Math.floor(Math.random() * game.object.children.length) + -400) / 2
+              child.position.copy(new THREE.Vector3(x, y, z))
+            }
+          })
+        }
+      }
     })
 
     }

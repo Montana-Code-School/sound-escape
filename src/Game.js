@@ -95,7 +95,9 @@ export default class Game{
       this.scene.add(this.controls.getObject())
 
       // tone.js oscillator
-      this.oscillator = new TONE.Oscillator({type: 'sine', volume: -15}).toMaster()
+      this.phaser = new TONE.Phaser()
+      this.oscillator = new TONE.OmniOscillator({type: 'fatsine', volume: -15}).toMaster()
+      this.oscillator.connect(this.phaser)
       this.oscillator.start()
       this.analyser = new TONE.Waveform(256)
       this.oscillator.connect(this.analyser)
@@ -109,8 +111,9 @@ export default class Game{
       this.scene.add( this.hemiLight );
 
       // Three Box Mesh
+      this.clue = new THREE.TextureLoader().load( "./notes/wave.png" )
       this.boxGeometry = new THREE.BoxGeometry(3,3,3)
-      this.material = new THREE.MeshPhongMaterial( { color: 0xff0000 } )
+      this.material = new THREE.MeshBasicMaterial( { map: this.clue } )
       this.boxMesh = new THREE.Mesh(this.boxGeometry, this.material)
       this.boxMesh.castShadow = true
       this.boxMesh.name = 'box'

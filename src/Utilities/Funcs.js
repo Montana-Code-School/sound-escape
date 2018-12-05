@@ -53,9 +53,9 @@ export function rickRoll(songURL, tag) {
 
 export function color(mesh) {
     if (mesh.name.includes('crown') || mesh.name.includes('buttonModel') || mesh.name.includes('Text'))
-        mesh.material = new THREE.MeshPhongMaterial( { color: 0xff0000 } );
+        mesh.material = new THREE.MeshPhongMaterial( { color: 0xff0000} );
     else
-        mesh.material = new THREE.MeshPhongMaterial({ color: 0x777777, shininess: 0 })
+        mesh.material = new THREE.MeshPhongMaterial({ color: 0x777777, shininess: 0})
 }
 
 export function doorOpen(doorName, whichDoor) {
