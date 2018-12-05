@@ -4,6 +4,7 @@
  */
 
 import * as THREE from 'three'
+import whichPad from './Utilities/PadFuncs'
 const Util = require('./Utilities/Funcs')
 import SceneUtils from './Utilities/SceneUtils'
 
@@ -136,6 +137,9 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
 
     this.onClick = ( event ) => {
       game.controls.intersects.forEach((intersect) => {
+        if (intersect.object.name.includes('Pad')){
+          whichPad(intersect.object)
+        }
         // picks up or drops oscillator box
         if (intersect.object.name === "box") {
             game.boxMesh.isPickedUp = !game.boxMesh.isPickedUp
@@ -312,7 +316,6 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
 
         this.ray.setFromCamera(this.mouse, camera)
 
-        //!!!!!!!!!!!------enable motion sickness mode-------!!!!!!!!!
         if (this.motionSicknessMode) {
           this.yawObject.quaternion.copy(this.cannonBody.quaternion)
         }

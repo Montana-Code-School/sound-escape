@@ -1,3 +1,5 @@
+import whichPad from './PadFuncs'
+
 export function createColliders(){
     const scaleAdjust = 2;
     const divisor = 2 / scaleAdjust;
@@ -16,7 +18,6 @@ export function createColliders(){
           child.note = 'https://s3-us-west-2.amazonaws.com/sound-escape/sounds/Room+One+notes/' + child.name.charAt(0) + '.mp3'
           if (child.name.includes('shia')) {
             child.note = 'https://s3-us-west-2.amazonaws.com/sound-escape/sounds/shia.wav'
-            console.log(child)
           }
         }
         body.position.copy(child.position);
@@ -59,8 +60,10 @@ export function rickRoll(songURL, tag) {
   }
 
 export function color(mesh) {
-    if (mesh.name.includes('crown') || mesh.name.includes('buttonModel') || mesh.name.includes('Text'))
-        mesh.material = new THREE.MeshPhongMaterial( { color: 0xff0000} );
+    if (mesh.name.includes('crown') || mesh.name.includes('buttonModel') || mesh.name.includes('Text') || mesh.name.includes('PadCase'))
+        mesh.material = new THREE.MeshPhongMaterial( { color: 0xff0000 } );
+    else if (mesh.name.includes('Pad'))
+        mesh.material = new THREE.MeshToonMaterial( { color: 'red' } );
     else
         mesh.material = new THREE.MeshPhongMaterial({ color: 0x777777, shininess: 0})
 }

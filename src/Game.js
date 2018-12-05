@@ -36,8 +36,9 @@ export default class Game{
       this.cube = new CANNON.Body({mass:.3, material: this.testMaterial})
       this.cube.angularDamping = 0.01
       this.cube.linearDamping = 0.01
-      this.cube.position.set(-6, 3, -6)
+      this.cube.position.set(5, 3, 10)
       this.cube.addShape(this.boxx)
+      this.cube.name = "cubeBody"
       this.world.add(this.cube)
 
       // Cannon Cam Sphere
@@ -76,7 +77,7 @@ export default class Game{
       // scene setting
       this.scene = new THREE.Scene();
       this.scene.background = new THREE.Color(0x282828);
-      this.scene.fog = new THREE.FogExp2(0x282828, 0.042)
+      this.scene.fog = new THREE.FogExp2(0x282828, 0)
       this.clock = new THREE.Clock();
 
       // camera and controls
@@ -133,6 +134,7 @@ export default class Game{
       this.geometry = new THREE.PlaneGeometry( 10000, 10000, 50, 50 );
       this.geometry.applyMatrix( new THREE.Matrix4().makeRotationX( - Math.PI / 2 ) );
       this.floor = new THREE.Mesh( this.geometry, this.groundMaterial );
+      this.floor.name = "floor"
       this.floor.receiveShadow = true;
       this.floor.castShadow = true
       this.scene.add( this.floor );
@@ -174,6 +176,7 @@ export default class Game{
     assLoad() {
       const loader = new FBXLoader()
       loader.load( 'https://s3-us-west-2.amazonaws.com/sound-escape/imgs/station.fbx', function ( object ){
+        object.name = 'fbxFile'
         object.traverse( function( children ) {
           Util.color(children)
           if(children.isMesh) {
@@ -194,6 +197,14 @@ export default class Game{
       const game = this
       // !!!!!---Enable CANNON Debug Renderer---!!!!!
       // game.cannonDebugRenderer.update();
+      
+      // rotation for torusknot
+      this.scene.traverse( function ( object ) {
+        if ( object.name === 'TorusKnot' ) {
+          object.rotation.x += 0.02;
+          object.rotation.y += 0.02;
+        }
+      } );
 
       // changes tree color based on whether or not player presses 'toto' tree
       if (game.controls.colorChangeMode) {
@@ -205,7 +216,6 @@ export default class Game{
           }
         })
       }
-
       requestAnimationFrame( function(){
         // update oscillator frequency based on cube position
         let intersection, player
