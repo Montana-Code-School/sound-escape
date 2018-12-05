@@ -2,6 +2,7 @@ import PointerLockControls from './PointerLockControls';
 import CannonDebugRenderer from './CannonDebugRenderer';
 const Util = require('./Utilities/Funcs');
 const TWEEN = require('@tweenjs/tween.js');
+import * as TONE from 'tone'
 
 FBXLoader = require('three-fbx-loader');
 
@@ -27,6 +28,7 @@ export default class Game{
                                                               });
       this.world.addContactMaterial(physicsContactMaterial);
       this.world.gravity.set(0, -75, 0);
+      console.log(this.world.gravity)
       this.world.broadphase = new CANNON.NaiveBroadphase();
       this.testMaterial = new CANNON.Material()
 
@@ -54,6 +56,7 @@ export default class Game{
       this.groundBody.quaternion.setFromAxisAngle( new CANNON.Vec3(1,0,0), -Math.PI/2);
       this.groundBody.addShape(this.groundShape);
       this.groundBody.position.set(0, 0, 0)
+      this.groundBody.name = 'ground'
       this.world.add(this.groundBody);
     }
 
@@ -64,6 +67,10 @@ export default class Game{
       this.face = document.getElementsByClassName('face fadeIn')
       this.astley = document.getElementsByClassName('astley fadeIn')
       this.winner = document.getElementsByClassName('winner animateWin')
+      this.waveform = document.getElementById('waveform')
+      this.context = this.waveform.getContext('2d')
+
+
       this.scene = new THREE.Scene();
       this.audioLoader = new THREE.AudioLoader()
       this.doorOneIsOpen = false
@@ -87,16 +94,25 @@ export default class Game{
       this.camera.add( this.listener)
       this.scene.add(this.controls.getObject())
 
+      // tone.js oscillator
+      this.oscillator = new TONE.Oscillator({type: 'sine', volume: -15}).toMaster()
+      console.log(this.oscillator)
+      this.oscillator.start()
+      this.analyser = new TONE.Waveform(256)
+      this.oscillator.connect(this.analyser)
+
+
       // Hemi Light
       this.hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.5 );
       this.hemiLight.color.setHSL( 0.6, 1, 0.6 );
       this.hemiLight.groundColor.setHSL( 0.095, 1, 0.75 );
       this.hemiLight.position.set( 100, 500, 100 );
       this.scene.add( this.hemiLight );
-  
+
       // Three Box Mesh
       this.boxGeometry = new THREE.BoxGeometry(3,3,3)
-      this.boxMesh = new THREE.Mesh(this.boxGeometry, new THREE.MeshPhongMaterial( { color: 0xff0000 } ))
+      this.material = new THREE.MeshPhongMaterial( { color: 0xff0000 } )
+      this.boxMesh = new THREE.Mesh(this.boxGeometry, this.material)
       this.boxMesh.castShadow = true
       this.scene.add(this.boxMesh)
 
@@ -115,8 +131,30 @@ export default class Game{
       this.renderer.shadowMap.enabled = true
       this.renderer.shadowMap.type = THREE.PCFSoftShadowMap
       this.renderer.shadowMap.size = (2048, 2048)
-      
+
       document.body.appendChild( this.renderer.domElement );
+
+      // waveform visualizer loop
+
+      this.drawLoop = () => {
+				let canvasWidth = game.context.canvas.width;
+				let canvasHeight = game.context.canvas.height;
+				requestAnimationFrame(this.drawLoop);
+				game.context.clearRect(0, 0, canvasWidth, canvasHeight);
+				let values = game.analyser.getValue();
+				game.context.beginPath();
+				game.context.lineJoin = "round";
+				game.context.lineWidth = 5;
+				game.context.strokeStyle = "red";
+				game.context.moveTo(0, (values[0] + 1) / 2 * canvasHeight );
+				for (var i = 1; i < values.length; i++){
+					let val = (values[i] + 1) / 2;
+					let x = canvasWidth * (i / (values.length - 1));
+					let y = (val + .1) * canvasHeight;
+					game.context.lineTo(x, y);
+				}
+				game.context.stroke();
+			}
 
       // !!!!!---Enable CANNON Debug Renderer---!!!!!
       // this.cannonDebugRenderer = new THREE.CannonDebugRenderer( this.scene, this.world );
@@ -132,27 +170,42 @@ export default class Game{
             children.castShadow = true
           } else if(children.isPointLight) {
             children.castShadow = true
-          } 
+          }
         })
 
       game.scene.add( object )
       game.object = object
+      console.log(game.object)
       Util.createColliders()
       })
     }
 
     animate(){
+      const game = this
       // !!!!!---Enable CANNON Debug Renderer---!!!!!
       // game.cannonDebugRenderer.update();
-      const game = this
+
       TWEEN.update()
+
       game.controls.update(game.clock.getDelta())
       game.renderer.render( game.scene, game.camera );
+      game.oscillator.frequency.value = Math.abs(game.cube.position.x * 30 + 440)
+      if (game.controls.colorChangeMode) {
+        game.object.children.forEach((child) => {
+          if (child.name.includes('crown')) {
+            child.material.color.g = game.camBody.position.x / 6
+            child.material.color.r = game.camBody.position.y / 6
+            child.material.color.b = game.camBody.position.z / 6
+          }
+        })
+      }
+
       requestAnimationFrame( function(){
         game.boxMesh.position.copy(game.cube.position)
         game.boxMesh.quaternion.copy(game.cube.quaternion)
         game.world.step(game.world.fixedTimeStep)
         game.animate();
+        game.drawLoop()
       } );
     }
   }

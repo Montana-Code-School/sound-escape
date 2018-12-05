@@ -9,6 +9,7 @@ export function createColliders(){
         const body = new CANNON.Body({mass:0});
         body.addShape(box);
         body.name = child.name
+        body.mesh = child
         if (child.name.includes('NoteBlock')) {
           child.note = 'https://s3-us-west-2.amazonaws.com/sound-escape/sounds/Room+One+notes/' + child.name.charAt(0) + '.mp3'
           if (child.name.includes('shia')) {
@@ -27,7 +28,7 @@ export function createColliders(){
     })
   }
 
-export function rickRoll(songURL) {
+export function rickRoll(songURL, tag) {
     let rick, rolling, potentialRollers = []
     game.object.children.forEach((child) => {
       if (child.name.includes('trunk') && !child.hasSong) {
@@ -47,6 +48,7 @@ export function rickRoll(songURL) {
       rolling.play()
       rick.add(rolling)
     })
+    rick.tagName = tag
   }
 
 export function color(mesh) {

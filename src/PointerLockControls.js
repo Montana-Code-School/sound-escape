@@ -34,6 +34,10 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
     this.mouse = new THREE.Vector2()
     this.intersects = []
 
+    // tree flags
+    this.motionSicknessMode = false
+    this.colorChangeMode = false
+
     this.cannonBody.addEventListener("collide",function(e){
         // contact.bi and contact.bj are the colliding bodies, and contact.ni is the collision normal.
         // We do not yet know which one is which! Let's check.
@@ -150,13 +154,13 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
             setTimeout(() => fmaj7.play(), 700)
             setTimeout(() => B.play(), 1000)
 
-            Util.rickRoll('https://s3-us-west-2.amazonaws.com/sound-escape/music/rick-astley-never-gonna-give-you-up-hq.mp3')
-            Util.rickRoll('https://s3-us-west-2.amazonaws.com/sound-escape/music/Toto+-+Africa+(Video).mp3')
-            Util.rickRoll('https://s3-us-west-2.amazonaws.com/sound-escape/music/F+it+up+-+Louis+Cole+(Live+Sesh).mp3')
-            Util.rickRoll('https://s3-us-west-2.amazonaws.com/sound-escape/music/Peaches+-+The+Presidents+of+the+United+States+of+America.mp3')
-            Util.rickRoll('https://s3-us-west-2.amazonaws.com/sound-escape/music/MESHUGGAH+-+Bleed+(OFFICIAL+MUSIC+VIDEO).mp3')
-            Util.rickRoll('https://s3-us-west-2.amazonaws.com/sound-escape/music/Ragtime+Piano+SCOTT+JOPLIN+.+The+Entertainer+(1902).mp3')
-            Util.rickRoll('https://s3-us-west-2.amazonaws.com/sound-escape/music/Britney+Spears+-+...Baby+One+More+Time.mp3')
+            Util.rickRoll('https://s3-us-west-2.amazonaws.com/sound-escape/music/rick-astley-never-gonna-give-you-up-hq.mp3', 'rick')
+            Util.rickRoll('https://s3-us-west-2.amazonaws.com/sound-escape/music/Toto+-+Africa+(Video).mp3', 'toto')
+            Util.rickRoll('https://s3-us-west-2.amazonaws.com/sound-escape/music/F+it+up+-+Louis+Cole+(Live+Sesh).mp3', 'louis')
+            Util.rickRoll('https://s3-us-west-2.amazonaws.com/sound-escape/music/Peaches+-+The+Presidents+of+the+United+States+of+America.mp3', 'peaches')
+            Util.rickRoll('https://s3-us-west-2.amazonaws.com/sound-escape/music/MESHUGGAH+-+Bleed+(OFFICIAL+MUSIC+VIDEO).mp3', 'bleed')
+            Util.rickRoll('https://s3-us-west-2.amazonaws.com/sound-escape/music/Ragtime+Piano+SCOTT+JOPLIN+.+The+Entertainer+(1902).mp3', 'entertainer')
+            Util.rickRoll('https://s3-us-west-2.amazonaws.com/sound-escape/music/Britney+Spears+-+...Baby+One+More+Time.mp3', 'britney')
 
 
             let ambience = new THREE.Audio( game.listener )
@@ -178,8 +182,18 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
         }
         }
         if (intersect.object.children !== undefined && intersect.object.children.length !== 0) {
-        if (intersect.object.children[0].buffer.duration === 212.6033560090703) {
+        if (intersect.object.tagName === 'rick') {
             game.winner[0].style.display = 'block'
+        }
+        if(intersect.object.tagName === 'bleed') {
+          console.log(this.yawObject.quaternion)
+          this.motionSicknessMode = !this.motionSicknessMode
+          if (!this.motionSicknessMode) {
+            this.yawObject.quaternion.copy(new THREE.Quaternion(0, 0, 0, 0))
+          }
+        }
+        if (intersect.object.tagName === 'toto') {
+          this.colorChangeMode = !this.colorChangeMode
         }
         }
     })
@@ -239,7 +253,9 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
         this.ray.setFromCamera(this.mouse, camera)
 
         //!!!!!!!!!!!------enable motion sickness mode-------!!!!!!!!!
-        // this.yawObject.quaternion.copy(this.cannonBody.quaternion)
+        if (this.motionSicknessMode) {
+          this.yawObject.quaternion.copy(this.cannonBody.quaternion)
+        }
     };
 
 	function onPointerlockChange() {
