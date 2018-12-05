@@ -28,7 +28,6 @@ export default class Game{
                                                               });
       this.world.addContactMaterial(physicsContactMaterial);
       this.world.gravity.set(0, -75, 0);
-      console.log(this.world.gravity)
       this.world.broadphase = new CANNON.NaiveBroadphase();
       this.testMaterial = new CANNON.Material()
 
@@ -68,6 +67,7 @@ export default class Game{
       this.astley = document.getElementsByClassName('astley fadeIn')
       this.winner = document.getElementsByClassName('winner animateWin')
       this.waveform = document.getElementById('waveform')
+      this.main = document.getElementById('main')
       this.context = this.waveform.getContext('2d')
 
 
@@ -96,7 +96,6 @@ export default class Game{
 
       // tone.js oscillator
       this.oscillator = new TONE.Oscillator({type: 'sine', volume: -15}).toMaster()
-      console.log(this.oscillator)
       this.oscillator.start()
       this.analyser = new TONE.Waveform(256)
       this.oscillator.connect(this.analyser)
@@ -114,6 +113,8 @@ export default class Game{
       this.material = new THREE.MeshPhongMaterial( { color: 0xff0000 } )
       this.boxMesh = new THREE.Mesh(this.boxGeometry, this.material)
       this.boxMesh.castShadow = true
+      this.boxMesh.name = 'box'
+      this.boxMesh.isPickedUp = false
       this.scene.add(this.boxMesh)
 
       // Three Plane Mesh
@@ -175,8 +176,8 @@ export default class Game{
 
       game.scene.add( object )
       game.object = object
-      console.log(game.object)
       Util.createColliders()
+      game.object.children.push(game.boxMesh)
       })
     }
 
@@ -189,7 +190,6 @@ export default class Game{
 
       game.controls.update(game.clock.getDelta())
       game.renderer.render( game.scene, game.camera );
-      game.oscillator.frequency.value = Math.abs(game.cube.position.x * 30 + 440)
       if (game.controls.colorChangeMode) {
         game.object.children.forEach((child) => {
           if (child.name.includes('crown')) {
@@ -200,9 +200,27 @@ export default class Game{
         })
       }
 
+
       requestAnimationFrame( function(){
-        game.boxMesh.position.copy(game.cube.position)
-        game.boxMesh.quaternion.copy(game.cube.quaternion)
+        let intersection, player
+        if (game.boxMesh.isPickedUp && game.controls.intersects) {
+          game.cube.position.copy(game.boxMesh.position)
+          game.cube.quaternion.copy(game.boxMesh.quaternion)
+            intersection = game.controls.intersects[0]
+            player = game.controls.yawObject.position.x
+            if (intersection.point.x > player + 1) {
+              game.oscillator.frequency.value = Math.abs((intersection.point.x + intersection.distance / 2) * 60 + 440)
+            } else if (intersection.point.x < player - 1) {
+              game.oscillator.frequency.value = Math.abs((intersection.point.x - intersection.distance / 2) * 60 + 440)
+            } else {
+              game.oscillator.frequency.value = Math.abs((intersection.point.x) * 60 + 440)
+            }
+          } else {
+            game.oscillator.frequency.value = Math.abs(game.boxMesh.position.x * 60 + 440)
+            game.boxMesh.position.copy(game.cube.position)
+            game.boxMesh.quaternion.copy(game.cube.quaternion)
+          }
+          // console.log(game.oscillator.frequency.value)
         game.world.step(game.world.fixedTimeStep)
         game.animate();
         game.drawLoop()

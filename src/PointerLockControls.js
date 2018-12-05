@@ -5,6 +5,7 @@
 
 import * as THREE from 'three'
 const Util = require('./Utilities/Funcs')
+import SceneUtils from './Utilities/SceneUtils'
 
 const PointerLockControls = function ( camera, cannonBody, domElement ) {
 
@@ -127,14 +128,34 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
 
     this.onClick = ( event ) => {
     game.controls.intersects.forEach((intersect) => {
-        if (intersect.object.name.includes('button') && !game.doorOneIsOpen) {
-            let B = new Audio('https://s3-us-west-2.amazonaws.com/sound-escape/sounds/electric_door_opening_2.mp3')
-            B.volume = 0.5
-            Util.doorOpen('door0Model', 0)
-            game.doorOneIsOpen = true
-            setTimeout(() => B.play(), 1000)
-            game.face[0].style.display = 'block'
-        }
+      if (intersect.object.name === "box") {
+
+          game.boxMesh.isPickedUp = !game.boxMesh.isPickedUp
+          if (game.boxMesh.isPickedUp === false) {
+            game.waveform.style.display = 'none'
+            SceneUtils.detach(game.boxMesh, game.camera, game.scene)
+
+            if (game.oscillator.frequency.value < 2800 && game.oscillator.frequency.value > 2700) {
+              game.oscillator.stop()
+              let B = new Audio('https://s3-us-west-2.amazonaws.com/sound-escape/sounds/electric_door_opening_2.mp3')
+              B.volume = 0.5
+              Util.doorOpen('door0Model', 0)
+              game.doorOneIsOpen = true
+              setTimeout(() => B.play(), 1000)
+              game.face[0].style.display = 'block'
+            }
+          } else if (game.boxMesh.isPickedUp === true)
+            SceneUtils.attach(game.boxMesh, game.scene, game.camera)
+            game.waveform.style.display = 'block'
+          }
+        // if (intersect.object.name.includes('button') && !game.doorOneIsOpen) {
+        //     let B = new Audio('https://s3-us-west-2.amazonaws.com/sound-escape/sounds/electric_door_opening_2.mp3')
+        //     B.volume = 0.5
+        //     Util.doorOpen('door0Model', 0)
+        //     game.doorOneIsOpen = true
+        //     setTimeout(() => B.play(), 1000)
+        //     game.face[0].style.display = 'block'
+        // }
         if (intersect.object.note) {
         let audio = new Audio(intersect.object.note);
         audio.volume = 0.5
@@ -186,7 +207,6 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
             game.winner[0].style.display = 'block'
         }
         if(intersect.object.tagName === 'bleed') {
-          console.log(this.yawObject.quaternion)
           this.motionSicknessMode = !this.motionSicknessMode
           if (!this.motionSicknessMode) {
             this.yawObject.quaternion.copy(new THREE.Quaternion(0, 0, 0, 0))
@@ -251,7 +271,6 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
         this.velocity.z += this.inputVelocity.z;
 
         this.ray.setFromCamera(this.mouse, camera)
-
         //!!!!!!!!!!!------enable motion sickness mode-------!!!!!!!!!
         if (this.motionSicknessMode) {
           this.yawObject.quaternion.copy(this.cannonBody.quaternion)
