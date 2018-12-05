@@ -144,21 +144,11 @@ const PointerLockControls = function ( camera, cannonBody, domElement ) {
         if (intersect.object.name === "box") {
             game.boxMesh.isPickedUp = !game.boxMesh.isPickedUp
             if (game.boxMesh.isPickedUp === false) {
-              game.waveform.style.display = 'none'
               SceneUtils.detach(game.boxMesh, game.camera, game.scene)
               // checks if oscillator frequency is in range to open door
-              if (game.oscillator.frequency.value < 2800 && game.oscillator.frequency.value > 2700) {
-                game.oscillator.stop()
-                let B = new Audio('https://s3-us-west-2.amazonaws.com/sound-escape/sounds/electric_door_opening_2.mp3')
-                B.volume = 0.5
-                Util.doorOpen('door0Model', 0)
-                game.doorOneIsOpen = true
-                setTimeout(() => B.play(), 1000)
-                game.face[0].style.display = 'block'
-              }
+              
             } else if (game.boxMesh.isPickedUp === true)
               SceneUtils.attach(game.boxMesh, game.scene, game.camera)
-              game.waveform.style.display = 'block'
             }
           // opens door one when button is pressed
           if (intersect.object.name.includes('button') && !game.doorOneIsOpen) {

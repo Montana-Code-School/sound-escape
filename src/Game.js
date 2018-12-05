@@ -2,7 +2,6 @@ import PointerLockControls from './PointerLockControls';
 import CannonDebugRenderer from './CannonDebugRenderer';
 const Util = require('./Utilities/Funcs');
 const TWEEN = require('@tweenjs/tween.js');
-import * as TONE from 'tone'
 
 FBXLoader = require('three-fbx-loader');
 
@@ -36,7 +35,7 @@ export default class Game{
       this.cube = new CANNON.Body({mass:.3, material: this.testMaterial})
       this.cube.angularDamping = 0.01
       this.cube.linearDamping = 0.01
-      this.cube.position.set(5, 3, 10)
+      this.cube.position.set(-5, 3, 10)
       this.cube.addShape(this.boxx)
       this.cube.name = "cubeBody"
       this.world.add(this.cube)
@@ -69,10 +68,6 @@ export default class Game{
       this.face = document.getElementsByClassName('face fadeIn')
       this.astley = document.getElementsByClassName('astley fadeIn')
       this.winner = document.getElementsByClassName('winner animateWin')
-      this.waveform = document.getElementById('waveform')
-      this.main = document.getElementById('main')
-      this.context = this.waveform.getContext('2d')
-
 
       // scene setting
       this.scene = new THREE.Scene();
@@ -104,14 +99,6 @@ export default class Game{
       this.listener = new THREE.AudioListener()
       this.camera.add( this.listener)
 
-      // tone.js oscillator
-      this.phaser = new TONE.Phaser()
-      this.oscillator = new TONE.OmniOscillator({type: 'fatsine', volume: -15}).toMaster()
-      this.oscillator.connect(this.phaser)
-      this.oscillator.start()
-      this.analyser = new TONE.Waveform(256)
-      this.oscillator.connect(this.analyser)
-
       // Hemi Light
       this.hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.5 );
       this.hemiLight.color.setHSL( 0.6, 1, 0.6 );
@@ -120,9 +107,8 @@ export default class Game{
       this.scene.add( this.hemiLight );
 
       // Three Box Mesh
-      this.clue = new THREE.TextureLoader().load( "./notes/wave.png" )
       this.boxGeometry = new THREE.BoxGeometry(3,3,3)
-      this.material = new THREE.MeshBasicMaterial( { map: this.clue } )
+      this.material = new THREE.MeshPhongMaterial({color:0xff0000}  )
       this.boxMesh = new THREE.Mesh(this.boxGeometry, this.material)
       this.boxMesh.castShadow = true
       this.boxMesh.name = 'box'
@@ -147,27 +133,6 @@ export default class Game{
       this.renderer.shadowMap.size = (2048, 2048)
 
       document.body.appendChild( this.renderer.domElement );
-
-      // waveform visualizer loop
-      this.drawLoop = () => {
-				let canvasWidth = game.context.canvas.width;
-				let canvasHeight = game.context.canvas.height;
-				requestAnimationFrame(this.drawLoop);
-				game.context.clearRect(0, 0, canvasWidth, canvasHeight);
-				let values = game.analyser.getValue();
-				game.context.beginPath();
-				game.context.lineJoin = "round";
-				game.context.lineWidth = 5;
-				game.context.strokeStyle = "red";
-				game.context.moveTo(0, (values[0] + 1) / 2 * canvasHeight );
-				for (var i = 1; i < values.length; i++){
-					let val = (values[i] + 1) / 2;
-					let x = canvasWidth * (i / (values.length - 1));
-					let y = (val + .1) * canvasHeight;
-					game.context.lineTo(x, y);
-				}
-				game.context.stroke();
-			}
 
       // !!!!!---Enable CANNON Debug Renderer---!!!!!
       // this.cannonDebugRenderer = new THREE.CannonDebugRenderer( this.scene, this.world );
@@ -217,27 +182,14 @@ export default class Game{
         })
       }
       requestAnimationFrame( function(){
-        // update oscillator frequency based on cube position
-        let intersection, player
+        // main updates: controls, renderer, physics, door animations, oscillator waveform
         if (game.boxMesh.isPickedUp && game.controls.intersects[0]) {
           game.cube.position.copy(game.boxMesh.position)
           game.cube.quaternion.copy(game.boxMesh.quaternion)
-            intersection = game.controls.intersects[0]
-            player = game.controls.yawObject.position.x
-            if (intersection.point.x > player + 1) {
-              game.oscillator.frequency.value = Math.abs((intersection.point.x + intersection.distance / 2) * 60 + 440)
-            } else if (intersection.point.x < player - 1) {
-              game.oscillator.frequency.value = Math.abs((intersection.point.x - intersection.distance / 2) * 60 + 440)
-            } else {
-              game.oscillator.frequency.value = Math.abs((intersection.point.x) * 60 + 440)
-            }
-          } else {
-            game.oscillator.frequency.value = Math.abs(game.boxMesh.position.x * 60 + 440)
-            game.boxMesh.position.copy(game.cube.position)
-            game.boxMesh.quaternion.copy(game.cube.quaternion)
-          }
-
-        // main updates: controls, renderer, physics, door animations, oscillator waveform
+        } else {
+          game.boxMesh.position.copy(game.cube.position)
+          game.boxMesh.quaternion.copy(game.cube.quaternion)
+        }
         game.controls.update(game.clock.getDelta())
         game.renderer.render( game.scene, game.camera );
         game.world.step(game.world.fixedTimeStep)
